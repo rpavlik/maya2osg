@@ -1,0 +1,9 @@
+0.2.0	2010/08/03	Javier Taibo <javier.taibo@gmail.com>
+	Source code and comments translation to English
+	Minor bug fixes
+	Bug fix: Export of selected objects
+	Included Maya configuration files (Maya 2010)
+	Bug fixes in Visual Studio 2008 project
+
+0.1.0	2010/08/01	Javier Taibo <javier.taibo@gmail.com>
+	Initial release

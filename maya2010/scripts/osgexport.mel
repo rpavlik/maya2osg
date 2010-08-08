@@ -1,0 +1,95 @@
+//
+//     Maya2OSG - A toolkit for exporting Maya scenes to OpenSceneGraph
+//     Copyright (C) 2010 Javier Taibo <javier.taibo@gmail.com>
+//     http://sourceforge.net/projects/maya2osg/
+//
+//     This file is part of Maya2OSG.
+//
+//     Maya2OSG is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//
+//     Maya2OSG is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//
+//     You should have received a copy of the GNU General Public License
+//     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
+//
+
+
+proc prepare()
+{
+	// Step 1. Retessellate and/or eliminate bad geometry
+//	polyCleanupArgList 3 { "1","1","0","0","0","1","1","1","1","1e-005","1","1e-005","0","1e-005","0","-1","1" };
+	polyCleanupArgList 3 { "1","1","0","1","1","1","1","1","0","1e-005","0","1e-005","0","1e-005","0","-1","0" };
+
+	// Step 2. Delete history
+	delete -all -constructionHistory;
+
+	// Step 3. Optimize the scene deleting unnecesary elements
+	cleanUpScene 1;
+
+	// Step 4. Delete uselessly keyframed channels
+	delete -all -staticChannels;
+
+}
+
+global proc exportToOpenSceneGraph(string $file, string $format)
+{
+		loadPlugin "maya2osg";
+		maya2osg $file;
+		unloadPlugin "maya2osg";
+}
+
+
+global proc string options(){
+
+	// Open a dialog for the selection of export options
+	string $win = `window -title "maya2osg - Export options"`;
+	string $layout1 = `columnLayout -adjustableColumn true`;
+
+		frameLayout -label "Textures" -collapsable true;
+
+		columnLayout;
+			rowLayout -nc 2;
+			text -label "Image path";
+			textField -editable true;
+			setParent ..;
+
+		text -label "Texture mode:";
+		string $texenv = `textScrollList -numberOfRows 1
+			-allowMultiSelection false
+			-append "DECAL"
+			-append "MODULATE"
+			-append "BLEND"
+			-append "REPLACE"
+			-append "ADD"
+			-selectItem "MODULATE"`;
+		setParent ..;
+
+	setParent ..;
+
+	button -label "Export";
+
+	showWindow;
+
+	string $texmode = `textScrollList -q -selectItem $texenv`;
+
+	return $texmode;
+}
+
+
+global proc osgexport() {
+
+	string $command = "exportToOpenSceneGraph";
+
+//	string $opcs = options();
+
+//	prepare();
+
+	fileBrowserDialog -an "Export as..." -fc $command -ft "osg"
+		-in "OSG" -m 1 -om "ExportAll";
+}

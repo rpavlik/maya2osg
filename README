@@ -1,0 +1,72 @@
+Maya2OSG - A toolkit for exporting Maya scenes to OpenSceneGraph
+
+Copyright (C) 2010 Javier Taibo <javier.taibo@gmail.com>
+
+This first release is composed of a Maya plug-in (maya2osg.mll)
+that provides a mel command to export Maya scenes to any
+OpenSceneGraph supported file format.
+
+Website: http://maya2osg.sourceforge.net/
+Wiki: https://sourceforge.net/apps/mediawiki/maya2osg/
+
+Prerequisites: 
+Maya SDK
+OpenSceneGraph
+
+This software has been tested on the following environments:
+
+Maya 6.0
+Maya 7.0
+Maya 2008
+Maya 2009
+Maya 2010
+
+Windows XP
+Windows Vista
+Windows 7
+Linux
+
+Microsoft Visual Studio 2005
+Microsoft Visual Studio 2008
+Microsoft Visual Studio 2008 Express Edition
+
+OpenSceneGraph 2.6.x
+OpenSceneGraph 2.8.x
+OpenSceneGraph 2.9.x
+
+
+Compilation instructions
+========================
+
+Linux
+-----
+
+TO-DO
+
+Windows (Microsoft Visual Studio)
+---------------------------------
+
+Use the solution in folder "Visual Studio *"
+Add to "Tools > Options > Projects and Solutions > VC++ Directories" the 
+bin, include and lib directories of the installed Maya SDK and OSG libraries.
+
+
+Installation
+============
+
+TO-DO
+
+Current Visual Studio project try to install the plug-in (maya2osg.mll)
+in the plug-ins directory of Maya 2010 in its default location. However, it
+can fail because of file permissions, so check it.
+This issue will be fixed in the future.
+
+
+Contents
+========
+
+README					This File
+COPYING					GNU GPL v3 License
+src						Source code
+doc						Documentation
+Visual Studio 2008		Solution and projects for Windows
