@@ -1,10 +1,11 @@
 Maya2OSG - A toolkit for exporting Maya scenes to OpenSceneGraph
+Version 0.2.1
 
 Copyright (C) 2010 Javier Taibo <javier.taibo@gmail.com>
 
-This first release is composed of a Maya plug-in (maya2osg.mll)
-that provides a mel command to export Maya scenes to any
-OpenSceneGraph supported file format.
+This release is composed of a Maya plug-in (maya2osg.mll or maya2osg.so) that 
+provides a mel command to export Maya scenes to any OpenSceneGraph supported 
+file format.
 
 Website: http://maya2osg.sourceforge.net/
 Wiki: https://sourceforge.net/apps/mediawiki/maya2osg/
@@ -13,10 +14,12 @@ Prerequisites:
 Maya SDK
 OpenSceneGraph
 
-This software has been tested on the following environments:
+This software has been tested on the following versions, although not all of 
+these project files are currently included or maintained:
 
 Maya 6.0
 Maya 7.0
+Maya 8.5
 Maya 2008
 Maya 2009
 Maya 2010
@@ -41,12 +44,20 @@ Compilation instructions
 Linux
 -----
 
-TO-DO
+Select the Maya version you intend to compile the plug-in for and change to
+this directory. Change to Linux directory and execute the GNU Makefile. The
+maya2osg.so file will be created in the bin directory inside the maya version
+directory. If you want to install the plug-in in default directory, execute
+"make install" with the adequate permissions (executing it as root will do).
 
 Windows (Microsoft Visual Studio)
 ---------------------------------
 
-Use the solution in folder "Visual Studio *"
+Select the Maya version you intend to compile the plug-in for and change to 
+this directory. Use the solution in the Visual Studio folder for your version.
+If the exact version is not available, you can convert a previous one (it 
+should be fairly easy). If you have created and tested a new version 
+and want to contribute them to the project, it will be welcome.
 Add to "Tools > Options > Projects and Solutions > VC++ Directories" the 
 bin, include and lib directories of the installed Maya SDK and OSG libraries.
 
@@ -54,19 +65,28 @@ bin, include and lib directories of the installed Maya SDK and OSG libraries.
 Installation
 ============
 
-TO-DO
+Under Linux, just do a "make install" as root (or the adequate user to write
+under MAYA_DIR/bin/plug-ins).
 
 Current Visual Studio project try to install the plug-in (maya2osg.mll)
 in the plug-ins directory of Maya 2010 in its default location. However, it
 can fail because of file permissions, so check it.
 This issue will be fixed in the future.
 
+For more detailed information on the installation of the plug-in in Maya, 
+check the documentation in the wiki: 
+
+https://sourceforge.net/apps/mediawiki/maya2osg/
 
 Contents
 ========
 
 README					This File
 COPYING					GNU GPL v3 License
+AUTHORS					Authors and contributors of the project
+HISTORY					Changelog of the project up to this release
+VERSION					Current release version number
 src						Source code
 doc						Documentation
-Visual Studio 2008		Solution and projects for Windows
+maya2010				Stuff needed for compiling and installing in Maya 2010
+maya2011				Stuff needed for compiling and installing in Maya 2011
