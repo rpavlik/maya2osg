@@ -18,7 +18,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\bin"
+			OutputDirectory="..\bin"
 			IntermediateDirectory="Debug"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -28,9 +28,9 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				Description="Installing Plug-In for Maya 2010"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;C:\Program Files\Autodesk\Maya2010\bin\plug-ins\&quot;&#x0D;&#x0A;"
-				Outputs="C:\Program Files\Autodesk\Maya2010\bin\plug-ins\maya2osg.mll"
+				Description="Installing Plug-In for Maya 2011"
+				CommandLine="copy &quot;$(TargetPath)&quot; &quot;C:\Program Files\Autodesk\Maya2011\bin\plug-ins\&quot;&#x0D;&#x0A;"
+				Outputs="C:\Program Files\Autodesk\Maya2011\bin\plug-ins\maya2osg.mll"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -90,7 +90,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\bin"
+			OutputDirectory="..\bin"
 			IntermediateDirectory="Release"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -101,9 +101,9 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				Description="Installing Plug-In for Maya 2010"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;C:\Program Files\Autodesk\Maya2010\bin\plug-ins\&quot;&#x0D;&#x0A;"
-				Outputs="C:\Program Files\Autodesk\Maya2010\bin\plug-ins\maya2osg.mll"
+				Description="Installing Plug-In for Maya 2011"
+				CommandLine="copy &quot;$(TargetPath)&quot; &quot;C:\Program Files\Autodesk\Maya2011\bin\plug-ins\&quot;&#x0D;&#x0A;"
+				Outputs="C:\Program Files\Autodesk\Maya2011\bin\plug-ins\maya2osg.mll"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
