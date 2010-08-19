@@ -34,10 +34,9 @@ proc prepare()
 
 	// Step 4. Delete uselessly keyframed channels
 	delete -all -staticChannels;
-
 }
 
-global proc exportToOpenSceneGraph(string $file, string $format)
+proc exportToOpenSceneGraph(string $file, string $format)
 {
 		loadPlugin "maya2osg";
 		maya2osg $file;
@@ -45,7 +44,7 @@ global proc exportToOpenSceneGraph(string $file, string $format)
 }
 
 
-global proc string options(){
+proc string maya2osg_options(){
 
 	// Open a dialog for the selection of export options
 	string $win = `window -title "maya2osg - Export options"`;
@@ -82,11 +81,11 @@ global proc string options(){
 }
 
 
-global proc osgexport() {
+global proc maya2osg_export() {
 
 	string $command = "exportToOpenSceneGraph";
 
-//	string $opcs = options();
+//	string $opcs = maya2osg_options();
 
 //	prepare();
 
