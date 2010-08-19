@@ -8,7 +8,7 @@ provides a mel command to export Maya scenes to any OpenSceneGraph supported
 file format.
 
 Website: http://maya2osg.sourceforge.net/
-Wiki: https://sourceforge.net/apps/mediawiki/maya2osg/
+Wiki: http://sourceforge.net/apps/mediawiki/maya2osg/
 
 Prerequisites: 
 Maya SDK
@@ -76,7 +76,7 @@ This issue will be fixed in the future.
 For more detailed information on the installation of the plug-in in Maya, 
 check the documentation in the wiki: 
 
-https://sourceforge.net/apps/mediawiki/maya2osg/
+http://sourceforge.net/apps/mediawiki/maya2osg/index.php?title=Installation_instructions
 
 Contents
 ========
