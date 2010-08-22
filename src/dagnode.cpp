@@ -24,6 +24,7 @@
 #include "directionallight.h"
 #include "spotlight.h"
 #include "lights.h"
+#include "camera.h"
 
 #include <maya/MString.h>
 #include <maya/MFnDependencyNode.h>
@@ -71,10 +72,10 @@ osg::ref_ptr<osg::Node> DAGNode::exporta(MDagPath &dp)
         return NULL;
 	}
 
-	// CAMERAS (TO-DO)
-//	else if( node.hasFn( MFn::kCamera ) ){
-//		return Camera::exporta(nodo);
-//	}
+	// CAMERAS
+	else if( node.hasFn( MFn::kCamera ) ){
+		return Camera::exporta(node);
+	}
 
 	// LIGTHS
 	else if( node.hasFn( MFn::kAmbientLight ) ||

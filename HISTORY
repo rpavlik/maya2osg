@@ -1,3 +1,7 @@
+NEXT	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+	Added new tools/icons to the shelf: clean scene ...
+	Added preliminary support for Maya cameras
+
 0.2.2	2010/08/19	Javier Taibo <javier.taibo@gmail.com>
 	Changed directory structure
 	Bug fixes

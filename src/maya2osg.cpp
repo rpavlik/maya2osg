@@ -27,14 +27,15 @@
 
 #include <osg/Node>
 #include <osg/Group>
-#include <osgDB/WriteFile>
 #include <osg/StateSet>
 #include <osg/StateAttribute>
+#include <osgDB/WriteFile>
 
 #include "config.h"
 #include "dagnode.h"
 #include "texture.h"
 #include "lights.h"
+#include "camera.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -114,7 +115,12 @@ MStatus maya2osg::doIt( const MArgList & args )
 	if(strrchr(filebasename, '.')!=NULL)
 		*(strrchr(filebasename, '.'))=0;
 #endif
+	// This operation could have been done with any of the
+	// osgDB functions, such as osgDB::getSimpleFileName
+
 	root->setName(filebasename);
+	// Set the base name to the Camera exporter
+	Camera::setSceneFileBaseName( filebasename );
 
 	if ( sel.length() > 0 ) {
 		// If there is a selection, export only the selected elements
