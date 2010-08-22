@@ -31,4 +31,6 @@ Config::Config()
 	_mode = osg::TexEnv::MODULATE; 
 	_blendFuncSrc = osg::BlendFunc::SRC_ALPHA;
 	_blendFuncDst = osg::BlendFunc::ONE_MINUS_SRC_ALPHA;
+	_exportDefaultCameras = true;
+	_exportOrthographicCameras = true;
 }

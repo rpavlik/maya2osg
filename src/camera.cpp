@@ -2,6 +2,7 @@
 #include <maya/MColor.h>
 #include <maya/MPlug.h>
 #include "camera.h"
+#include "config.h"
 #include <fstream>
 #include <osgViewer/Viewer>
 #include <osgDB/WriteFile>
@@ -17,7 +18,19 @@ osg::ref_ptr<osg::Node> Camera::exporta(MObject &obj)
 	MFnCamera cam(obj);
 	MFnDagNode dn(obj);
 
-	std::string camera_filename = _sceneFileBaseName + "_" + std::string(dn.name().asChar()) + ".osg";
+	std::string node_name = dn.name().asChar();
+	if ( !Config::instance()->getExportDefaultCameras() && (
+		node_name == "topShape" ||
+		node_name == "frontShape" ||
+		node_name == "sideShape" ||
+		node_name == "perspShape"
+		)) 
+	{
+		return NULL;
+	}
+
+	if ( ! Config::instance()->getExportOrthographicCameras() && cam.isOrtho() )
+		return NULL;
 
 	osgViewer::Viewer viewer;
 
@@ -67,6 +80,7 @@ osg::ref_ptr<osg::Node> Camera::exporta(MObject &obj)
 	}
 
 	// Write camera/viewer config file
+	std::string camera_filename = _sceneFileBaseName + "_" + std::string(dn.name().asChar()) + ".osg";
 	osgDB::writeObjectFile( viewer, camera_filename );
 
 	// We do not include the camera in the scene graph, so return NULL

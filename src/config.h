@@ -45,6 +45,12 @@ private:
 	/// Blend Function (destination)
 	osg::BlendFunc::BlendFuncMode _blendFuncDst;
 
+	/// Export default cameras
+	bool _exportDefaultCameras;
+
+	/// Export orthograhpic cameras
+	bool _exportOrthographicCameras;
+
 	/// Constructor
 	Config();
 
@@ -66,6 +72,18 @@ public:
 
 	inline osg::BlendFunc::BlendFuncMode getBlendFuncDst() const
 	{ return _blendFuncDst; }
+
+	inline void setExportDefaultCameras( bool v )
+	{ _exportDefaultCameras = v; }
+
+	inline bool getExportDefaultCameras() const
+	{ return _exportDefaultCameras; }
+
+	inline void setExportOrthographicCameras( bool v )
+	{ _exportOrthographicCameras = v; }
+
+	inline bool getExportOrthographicCameras() const
+	{ return _exportOrthographicCameras; }
 
 };
 
