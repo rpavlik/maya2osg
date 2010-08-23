@@ -86,7 +86,8 @@ MStatus maya2osg::doIt( const MArgList & args )
 				Config::instance()->setMode(osg::TexEnv::REPLACE);
 			}
 		}
-		else {
+		else if ( args.asString(i).length() > 0 ) {
+			// We need to discard the last empty argument passed on second and subsequent calls to the command :-?
 			filename = args.asString(i);			
 		}
 	}

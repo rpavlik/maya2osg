@@ -38,9 +38,8 @@ proc prepare()
 
 global proc exportToOpenSceneGraph(string $file, string $format)
 {
-		loadPlugin "maya2osg";
-		maya2osg $file;
-		unloadPlugin "maya2osg";
+	loadPlugin -quiet "maya2osg";
+	maya2osg $file;
 }
 
 

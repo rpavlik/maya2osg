@@ -60,7 +60,7 @@ void Lights::configureStateSet(osg::ref_ptr<osg::StateSet> ss)
 	if( _lights.size() > 0 )
 	{
 		// Light model
-		osg::LightModel *lm = new osg::LightModel();
+		osg::ref_ptr<osg::LightModel> lm = new osg::LightModel();
 		lm->setAmbientIntensity(osg::Vec4(0,0,0,1));
 		lm->setLocalViewer(false);
 		lm->setColorControl(osg::LightModel::SINGLE_COLOR);
