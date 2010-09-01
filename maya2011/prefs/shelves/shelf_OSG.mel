@@ -36,6 +36,29 @@ global proc shelf_OSG () {
         -visible 1
         -preventOverride 0
         -align "center" 
+        -label "Import scene from OSG" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -image "maya2osg_import.bmp" 
+        -image1 "maya2osg_import.bmp" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "maya2osg_import;" 
+        -sourceType "mel" 
+        -actionIsSubstitute 0
+        -commandRepeatable 1
+    ;
+
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -align "center" 
         -label "Cleanup scene before export" 
         -labelOffset 0
         -font "tinyBoldLabelFont" 

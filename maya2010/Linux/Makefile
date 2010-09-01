@@ -8,7 +8,7 @@ LDLIBS=-lOpenMaya -losg -losgDB -losgViewer
 vpath %.h ../../src
 vpath %.cpp ../../src
 
-OBJS=maya2osg.o dagnode.o group.o transform.o mesh.o shader.o texture.o config.o lights.o directionallight.o pointlight.o spotlight.o cameraanimation.o camera.o
+OBJS=maya2osg.o dagnode.o group.o transform.o mesh.o shader.o texture.o config.o lights.o directionallight.o pointlight.o spotlight.o cameraanimation.o camera.o common.o osg2maya.o proxymaterials.o importervisitor.o
 TARGET=../bin/maya2osg.so
 INSTDIR=$(MAYA_BASE)/bin/plug-ins
 

@@ -28,7 +28,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				Description="Installing Plug-In for Maya 2011"
+				Description="Installing Maya2OSG Plug-In for Maya 2011"
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;C:\Program Files\Autodesk\Maya2011\bin\plug-ins\&quot;&#x0D;&#x0A;"
 				Outputs="C:\Program Files\Autodesk\Maya2011\bin\plug-ins\maya2osg.mll"
 			/>
@@ -63,6 +63,7 @@
 				AdditionalDependencies="Foundation.lib OpenMaya.lib osgd.lib osgDBd.lib osgViewerd.lib opengl32.lib OpenMayaAnim.lib pthreadVC2.lib"
 				OutputFile="$(OutDir)/$(ProjectName).mll"
 				AdditionalLibraryDirectories=""
+				GenerateDebugInformation="true"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 			/>
@@ -101,7 +102,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				Description="Installing Plug-In for Maya 2011"
+				Description="Installing Maya2OSG Plug-In for Maya 2011"
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;C:\Program Files\Autodesk\Maya2011\bin\plug-ins\&quot;&#x0D;&#x0A;"
 				Outputs="C:\Program Files\Autodesk\Maya2011\bin\plug-ins\maya2osg.mll"
 			/>
@@ -181,6 +182,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\config.cpp"
 				>
 			</File>
@@ -197,6 +202,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\importervisitor.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\lights.cpp"
 				>
 			</File>
@@ -209,7 +218,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\osg2maya.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\pointlight.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\proxymaterials.cpp"
 				>
 			</File>
 			<File
@@ -242,6 +259,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\config.h"
 				>
 			</File>
@@ -258,7 +279,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\importervisitor.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\lights.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\maya2osg.h"
 				>
 			</File>
 			<File
@@ -266,7 +295,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\osg2maya.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\pointlight.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\proxymaterials.h"
 				>
 			</File>
 			<File

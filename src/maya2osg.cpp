@@ -17,9 +17,8 @@
     You should have received a copy of the GNU General Public License
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <maya/MArrayDataBuilder.h>
-#include <maya/MSimple.h>
 #include <maya/MGlobal.h>
+#include <maya/MArgList.h>
 #include <maya/MSelectionList.h>
 #include <maya/MDagPath.h>
 #include <maya/MItDag.h>
@@ -31,6 +30,8 @@
 #include <osg/StateAttribute>
 #include <osgDB/WriteFile>
 
+#include "common.h"
+#include "maya2osg.h"
 #include "config.h"
 #include "dagnode.h"
 #include "texture.h"
@@ -42,17 +43,10 @@
 
 #include <iostream>
 
-#define VERSION "0.2.2"
-
-#define MCheckStatus(st, msg) \
-	if( (st).statusCode() != MS::kSuccess )\
-	{\
-	std::cout << msg << std::endl;\
-	return MS::kFailure;\
-	}
-
-DeclareSimpleCommand( maya2osg, "Maya2OSG", VERSION );
-
+void* maya2osg::creator()
+{
+	return new maya2osg;
+}
 
 MStatus maya2osg::doIt( const MArgList & args )
 {
