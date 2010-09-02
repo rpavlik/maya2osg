@@ -185,7 +185,7 @@ void ImporterVisitor::importGeometry(osg::Geometry *geometry, MObject &shading_e
 	MStatus err;	// Error code
 #define ERROR_CHECK(msg) if ( err != MS::kSuccess ) std::cerr << "ERROR: " << msg << std::endl;
 
-	// Vértices
+	// Vertices
 	osg::Vec3Array *osg_varray = dynamic_cast<osg::Vec3Array *>(geometry->getVertexArray());
 	CHECK_POINTER(osg_varray);
 	int num_vertices = osg_varray->getNumElements();
