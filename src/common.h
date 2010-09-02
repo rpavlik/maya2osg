@@ -21,7 +21,7 @@
 #define _COMMON_H_
 
 #define VENDOR "Maya2OSG"
-#define VERSION "0.2.2"
+#define VERSION "0.3.0"
 
 #define MCheckStatus(st, msg) \
 	if( (st).statusCode() != MS::kSuccess )\

@@ -1,4 +1,4 @@
-NEXT	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+0.3.0	2010/09/02	Javier Taibo <javier.taibo@gmail.com>
 	Added preliminary support for Maya cameras
 	Added importer (command osg2maya)
 	Added new tools/icons to the shelf: Clean scene, Import from OSG

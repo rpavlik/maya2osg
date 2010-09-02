@@ -1,11 +1,13 @@
 Maya2OSG - A toolkit for exporting Maya scenes to OpenSceneGraph
-Version 0.2.2
+Version 0.3.0
 
 Copyright (C) 2010 Javier Taibo <javier.taibo@gmail.com>
 
 This release is composed of a Maya plug-in (maya2osg.mll or maya2osg.so) that 
-provides a mel command to export Maya scenes to any OpenSceneGraph supported 
-file format.
+provides two commands:
+
+	maya2osg - to export Maya scenes to any OpenSceneGraph supported file format.
+	osg2maya - to import OpenSceneGraph files into Maya
 
 Website: http://maya2osg.sourceforge.net/
 Wiki: http://sourceforge.net/apps/mediawiki/maya2osg/
