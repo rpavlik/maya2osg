@@ -29,8 +29,8 @@
 			<Tool
 				Name="VCCustomBuildTool"
 				Description="Installing Maya2OSG Plug-In for Maya 2010"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;C:\Program Files\Autodesk\Maya2010\bin\plug-ins\&quot;&#x0D;&#x0A;"
-				Outputs="C:\Program Files\Autodesk\Maya2010\bin\plug-ins\maya2osg.mll"
+				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(ProgramFiles)\Autodesk\Maya2010\bin\plug-ins\&quot;&#x0D;&#x0A;"
+				Outputs="$(ProgramFiles)\Autodesk\Maya2010\bin\plug-ins\maya2osg.mll"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -103,8 +103,8 @@
 			<Tool
 				Name="VCCustomBuildTool"
 				Description="Installing Maya2OSG Plug-In for Maya 2010"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;C:\Program Files\Autodesk\Maya2010\bin\plug-ins\&quot;&#x0D;&#x0A;"
-				Outputs="C:\Program Files\Autodesk\Maya2010\bin\plug-ins\maya2osg.mll"
+				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(ProgramFiles)\Autodesk\Maya2010\bin\plug-ins\&quot;&#x0D;&#x0A;"
+				Outputs="$(ProgramFiles)\Autodesk\Maya2010\bin\plug-ins\maya2osg.mll"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
