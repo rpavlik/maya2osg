@@ -73,4 +73,27 @@ global proc shelf_OSG () {
         -commandRepeatable 1
     ;
 
+	shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -align "center" 
+        -label "Preview" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -image "maya2osg_preview.bmp" 
+        -image1 "maya2osg_preview.bmp" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "maya2osg_preview;" 
+        -sourceType "mel" 
+        -actionIsSubstitute 0
+        -commandRepeatable 1
+    ;
+
 } 
