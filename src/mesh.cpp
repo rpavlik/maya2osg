@@ -84,10 +84,12 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	geometry->setVertexArray(vertex_array.get());
 
     // -- NORMAL ARRAY
+	// TO-DO: Check if normals are per-face-vertex, per-vertex or per-polygon
+	//	by now, we use per-face-vertex normals always
 	osg::ref_ptr<osg::Vec3Array> normal_array = new osg::Vec3Array();
-	MFloatVectorArray normals;
+	MFloatVectorArray normals;	// Per face-vertex normal list
     meshfn.getNormals(normals);
-	for(int i=0; i< meshfn.numNormals(); i++){
+	for(int i=0; i< normals.length(); i++){
 		normal_array->push_back( osg::Vec3(normals[i].x,
 										   normals[i].y,
 										   normals[i].z) );
@@ -224,7 +226,9 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 		geometry->addPrimitiveSet( new osg::DrawArrays(osg::PrimitiveSet::QUADS, index_begin_primitive, nquads*4) );
 
     geometry->setVertexIndices( vertexidx.get() );
+//	std::cout << vertexidx->size() << " vertex indices" << std::endl;
 	geometry->setNormalIndices( normalidx.get() );
+//	std::cout << normalidx->size() << " normal indices" << std::endl;
 	// Indices of texture coordinates are set when exporting shaders,
 	// because UV sets can be reused for different textures (there is no one-to-one binding)
 
@@ -244,7 +248,7 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 			std::cout << "Shader " << i << " : " << dn.name().asChar() << std::endl;
 		}
 #endif
-		std::cerr << "WARNING!!! This kMesh has more than one shader applied. OpenGL wont like this at all..." << std::endl;
+		std::cerr << "WARNING!!! This kMesh has more than one shader applied. OpenGL won't like this at all..." << std::endl;
 		std::cerr << "Splitting a kMesh with different shaders applied to different faces is not currently supported" << std::endl;
 		// ***** TO-DO : SPLITTING KMESHES
 	}
