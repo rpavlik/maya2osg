@@ -29,7 +29,7 @@
 			<Tool
 				Name="VCCustomBuildTool"
 				Description="Installing Maya2OSG Plug-In for Maya 2009"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(ProgramFiles)\Autodesk\Maya2009\bin\plug-ins\&quot;&#x0D;&#x0A;"
+				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(ProgramFiles)\Autodesk\Maya2009\bin\plug-ins\&quot;&#x0D;&#x0A;copy ..\scripts\*.mel &quot;$(USERPROFILE)\Documents\maya\2009\scripts&quot;&#x0D;&#x0A;copy ..\prefs\icons\*.bmp &quot;$(USERPROFILE)\Documents\maya\2009\prefs\icons&quot;&#x0D;&#x0A;copy ..\prefs\shelves\*.mel &quot;$(USERPROFILE)\Documents\maya\2009\prefs\shelves&quot;&#x0D;&#x0A;"
 				Outputs="$(ProgramFiles)\Autodesk\Maya2009\bin\plug-ins\maya2osg.mll"
 			/>
 			<Tool
@@ -103,7 +103,7 @@
 			<Tool
 				Name="VCCustomBuildTool"
 				Description="Installing Maya2OSG Plug-In for Maya 2009"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(ProgramFiles)\Autodesk\Maya2009\bin\plug-ins\&quot;&#x0D;&#x0A;"
+				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(ProgramFiles)\Autodesk\Maya2009\bin\plug-ins\&quot;&#x0D;&#x0A;copy ..\scripts\*.mel &quot;$(USERPROFILE)\Documents\maya\2009\scripts&quot;&#x0D;&#x0A;copy ..\prefs\icons\*.bmp &quot;$(USERPROFILE)\Documents\maya\2009\prefs\icons&quot;&#x0D;&#x0A;copy ..\prefs\shelves\*.mel &quot;$(USERPROFILE)\Documents\maya\2009\prefs\shelves&quot;&#x0D;&#x0A;"
 				Outputs="$(ProgramFiles)\Autodesk\Maya2009\bin\plug-ins\maya2osg.mll"
 			/>
 			<Tool
