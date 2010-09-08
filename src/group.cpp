@@ -21,6 +21,7 @@
 #include "transform.h"
 #include "cameraanimation.h"
 #include "dagnode.h"
+#include "emitter.h"
 
 #include <maya/MFnDependencyNode.h>
 #include <osg/Group>
@@ -36,7 +37,13 @@ osg::ref_ptr<osg::Node> Group::exporta(MDagPath &dp)
 	MObject node = dp.node();
 
 	// 1. Create the adequate type of node
-	if( node.hasFn(MFn::kTransform) ){
+	if( node.hasFn(MFn::kEmitter) ) {
+		// Emitters are subclasses of Transform
+		// We build the transform and then add the emitter as a child
+		osggroup = Transform::exporta(node);
+		osggroup->addChild( Emitter::exporta(node) );
+	}
+	else if( node.hasFn(MFn::kTransform) ){
 		osggroup = Transform::exporta(node);
 	}
 	else {
@@ -52,8 +59,8 @@ osg::ref_ptr<osg::Node> Group::exporta(MDagPath &dp)
 		osg::ref_ptr<osg::Node> child = DAGNode::exporta(dpc);
 		if(child.valid()){
 			// ** Check ** If any children is a LightSource, deactivate culling 
-			// for this group in order to apply the light
-			// I don't really know why I did this here :-?
+			// for this group in order to apply the light even though it is not
+			// directly visible
 			if( dynamic_cast<osg::LightSource *>(child.get()) != NULL )
 				osggroup->setCullingActive(false);
 			osggroup->addChild(child.get());

@@ -198,6 +198,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\emitter.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\group.cpp"
 				>
 			</File>
@@ -218,7 +222,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\nparticle.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\osg2maya.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\particle.cpp"
 				>
 			</File>
 			<File
@@ -275,6 +287,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\emitter.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\group.h"
 				>
 			</File>
@@ -295,7 +311,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\nparticle.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\osg2maya.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\particle.h"
 				>
 			</File>
 			<File

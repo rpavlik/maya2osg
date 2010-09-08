@@ -25,6 +25,8 @@
 #include "spotlight.h"
 #include "lights.h"
 #include "camera.h"
+#include "particle.h"
+#include "nparticle.h"
 
 #include <maya/MString.h>
 #include <maya/MFnDependencyNode.h>
@@ -93,6 +95,14 @@ osg::ref_ptr<osg::Node> DAGNode::exporta(MDagPath &dp)
 	}
 	else if( node.hasFn( MFn::kSpotLight ) ) {
 		return SpotLight::exporta(node);
+	}
+
+	// PARTICLES
+	else if( node.hasFn( MFn::kParticle ) ) {
+		return Particle::exporta(node);
+	}
+	else if( node.hasFn( MFn::kNParticle ) ) {
+		return NParticle::exporta(node);
 	}
 
 	// IGNORED TYPES OF NODE (groundplane, etc ...)
