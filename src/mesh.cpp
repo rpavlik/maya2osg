@@ -22,11 +22,13 @@
 
 #include <osg/Geometry>
 #include <osg/Geode>
+#include <osg/CullFace>
 
 #include <maya/MGlobal.h>
 #include <maya/MFnMesh.h>
 #include <maya/MItMeshVertex.h>
 #include <maya/MItMeshPolygon.h>
+#include <maya/MPlug.h>
 
 #include <iostream>
 
@@ -84,8 +86,10 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	geometry->setVertexArray(vertex_array.get());
 
     // -- NORMAL ARRAY
-	// TO-DO: Check if normals are per-face-vertex, per-vertex or per-polygon
-	//	by now, we use per-face-vertex normals always
+	// NOTE: Is there any way in Maya to know if normals are assigned per-vertex 
+	// or per-face? If there is, we could use other binding modes to reduce
+	// scene size and improve rendering performance.
+	// Meanwhile, we bind normals per vertex to cover every case.
 	osg::ref_ptr<osg::Vec3Array> normal_array = new osg::Vec3Array();
 	MFloatVectorArray normals;	// Per face-vertex normal list
     meshfn.getNormals(normals);
@@ -114,7 +118,7 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	}
 
 	// -- TEXTURE COORDINATES (if present)
-	
+
 	int numUVSets = meshfn.numUVSets();
 	MStringArray namesUVSets;
 	std::vector<osg::ref_ptr<osg::Vec2Array> > uv_sets;
@@ -280,6 +284,30 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 		osg::ref_ptr<osg::StateSet> st = Shader::exporta(shaders[0],textures);
 		if(st.valid())
 			geode->setStateSet(st.get());
+	}
+
+	// Check whether mesh is single or double sided
+	// (attributes doubleSided and opposite in surfaceShape node)
+	MStatus status;
+	MPlug plug = dnodefn.findPlug("doubleSided", &status);
+	bool double_sided;
+	bool opposite;
+	plug.getValue(double_sided);
+	plug = dnodefn.findPlug("opposite");
+	plug.getValue(opposite);
+
+	if ( double_sided ) {
+		geode->getOrCreateStateSet()->setMode( osg::StateAttribute::CULLFACE, osg::StateAttribute::OFF );
+	}
+	else {
+		osg::CullFace *cull = new osg::CullFace();
+		if ( opposite ) {
+			cull->setMode(osg::CullFace::FRONT);
+		}
+		else {
+			cull->setMode(osg::CullFace::BACK);
+		}
+		geode->getOrCreateStateSet()->setAttributeAndModes( cull, osg::StateAttribute::ON );
 	}
 
     // Name the node (mesh)

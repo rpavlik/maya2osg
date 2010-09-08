@@ -1,4 +1,7 @@
 WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+	Test models/scenes
+	Single/double sided surfaces (backface culling)
+	Import geometry normals
 	Automated installation for current user after compilation in Visual Studio
 	Installation batch file for Windows (INSTALL.bat)
 	Added new tool/icon to the shelf: Preview

@@ -164,7 +164,7 @@ void ImporterVisitor::importDrawable(osg::Drawable *drawable)
 		importGeometry(drawable->asGeometry(), shading_engine);
 	}
 	else {
-/*		osg::ShapeDrawable *shape_drawable = dynamic_cast<osg::ShapeDrawable *>(dibujable);
+/*		osg::ShapeDrawable *shape_drawable = dynamic_cast<osg::ShapeDrawable *>(drawable);
 		if ( shape_drawable != NULL){
 			importShapeDrawable(shape_drawable, shading_engine);
 		}
@@ -183,7 +183,7 @@ void ImporterVisitor::importGeometry(osg::Geometry *geometry, MObject &shading_e
 //	std::cout << "Importing osg::Geometry" << std::endl;
 
 	MStatus err;	// Error code
-#define ERROR_CHECK(msg) if ( err != MS::kSuccess ) std::cerr << "ERROR: " << msg << std::endl;
+#define ERROR_CHECK(msg) if ( err != MS::kSuccess ) std::cerr << "ERROR: " << msg << " : " << err.errorString().asChar() << std::endl;
 
 	// Vertices
 	osg::Vec3Array *osg_varray = dynamic_cast<osg::Vec3Array *>(geometry->getVertexArray());
@@ -203,98 +203,6 @@ void ImporterVisitor::importGeometry(osg::Geometry *geometry, MObject &shading_e
 	if(osg_iarray!=NULL)
 		num_indices = osg_iarray->getNumElements();
 //	std::cout << "Geometry with " << num_indices << " indices" << std::endl;
-
-	// Normals
-/*	osg::Vec3Array *osg_narray = dynamic_cast<osg::Vec3Array *>(geometry->getNormalArray());
-	int num_normals = osg_narray->getNumElements();
-	std::cout << "Geometry with " << num_normals << " normals" << std::endl;
-	MVectorArray normal_array;
-	MIntArray normal_indices;
-	for(int i=0; i<num_normals; i++){
-//		std::cout << "Converting OSG normal " << i << " : " << (*osg_narray)[i] << std::endl;
-		MVector vector((*osg_narray)[i].x(),
-						(*osg_narray)[i].y(),
-						(*osg_narray)[i].z());
-//		std::cout << " to Maya normal " << vector << std::endl;
-		vector.normalize();	// ***** PARANOIA!
-		normal_array.append(vector);
-	}
-/*	int vertex_normal_index = 0;
-	int face_normal_index = 0;
-	MIntArray pervertex_normal_indices;	// Per-vertex normal indices (for setFaceVertexNormals() )
-	MIntArray perface_normal_indices;		// Per-face normal indices (for setFaceVertexNormals() )*/
-//	switch( geometry->getNormalBinding() ){
-/*		case osg::Geometry::BIND_OFF:
-			num_normals = 0;
-			break;
-		case osg::Geometry::BIND_OVERALL:
-			for( int i=0; i<num_vertices; i++){
-				normal_indices.append(0);
-			}
-			break;
-		case osg::Geometry::BIND_PER_PRIMITIVE_SET:
-			std::cout << "### BIND PER PRIMITIVE SET" << std::endl;
-			for(unsigned int i=0; i<geometry->getNumPrimitiveSets(); i++){
-				osg::PrimitiveSet *ps = geometry->getPrimitiveSet(i);
-				switch(ps->getMode()){
-					case osg::PrimitiveSet::TRIANGLES:
-						break;
-					case osg::PrimitiveSet::TRIANGLE_STRIP:
-						break;
-					case osg::PrimitiveSet::TRIANGLE_FAN:
-						break;
-					case osg::PrimitiveSet::QUADS:
-						for(unsigned int j=0; j<ps->getNumIndices(); j++)
-							pervertex_normal_indices.append(vertex_normal_index++);
-						for(unsigned int j=0; j<ps->getNumIndices()/4; j++)
-							perface_normal_indices.append(face_normal_index++);
-						break;
-					case osg::PrimitiveSet::QUAD_STRIP:
-						break;
-					case osg::PrimitiveSet::POLYGON:
-						break;
-					default:
-						std::cerr << "Venga ya, hombre! ... qué coño de normales le vas a poner a una primitiva " << ps->getMode() << std::endl;
-						break;
-				}
-			}
-			break;
-		case osg::Geometry::BIND_PER_PRIMITIVE:
-			std::cout << "### BIND PER PRIMITIVE" << std::endl;
-			for(unsigned int i=0; i<geometry->getNumPrimitiveSets(); i++){
-				osg::PrimitiveSet *ps = geometry->getPrimitiveSet(i);
-				std::cout << ps->getNumIndices() << " índice(s) y " << ps->getNumPrimitives() << " primitiva(s)" << std::endl;
-				switch(ps->getMode()){
-					case osg::PrimitiveSet::TRIANGLES:
-						break;
-					case osg::PrimitiveSet::TRIANGLE_STRIP:
-						break;
-					case osg::PrimitiveSet::TRIANGLE_FAN:
-						break;
-					case osg::PrimitiveSet::QUADS:
-						for(unsigned int j=0; j<ps->getNumIndices(); j++)
-							pervertex_normal_indices.append(vertex_normal_index++);
-						for(unsigned int j=0; j<ps->getNumIndices()/4; j++)
-							perface_normal_indices.append(face_normal_index++);
-						break;
-					case osg::PrimitiveSet::QUAD_STRIP:
-						break;
-					case osg::PrimitiveSet::POLYGON:
-						break;
-					default:
-						std::cerr << "Venga ya, hombre! ... qué coño de normales le vas a poner a una primitiva " << ps->getMode() << std::endl;
-						break;
-				}
-			}
-			break;*/
-/*		case osg::Geometry::BIND_PER_VERTEX:
-			for( int i=0; i<num_vertices; i++){
-				normal_indices.append(i);
-			}
-			break;
-		default:
-			std::cout << "################## NPI ##################" << std::endl;
-	}*/
 
 	// Polygons
 	int num_polygons = 0;
@@ -833,49 +741,63 @@ void ImporterVisitor::importGeometry(osg::Geometry *geometry, MObject &shading_e
 		}
 
 		// Normals
-/*		if ( num_normals > 0 ){
+		osg::Vec3Array *osg_narray = dynamic_cast<osg::Vec3Array *>(geometry->getNormalArray());
+		osg::IndexArray *osg_niarray = geometry->getNormalIndices();
+		if ( osg_narray->getNumElements() > 0 ){
+
 			switch ( geometry->getNormalBinding() ){
 				case osg::Geometry::BIND_OFF:
+					// Nothing to do.
 					break;
 				case osg::Geometry::BIND_OVERALL:
-				case osg::Geometry::BIND_PER_VERTEX:
-					std::cout << "########" << std::endl;
-					std::cout << num_vertices << " vertices " << polygon_counts.length() << " polygons " <<
-						polygon_connects.length() << " connections " << normal_array.length() << " normals " <<
-						normal_indices.length() << " normal indices" << std::endl;
-					std::cout << "########" << std::endl;
-//					err = mfn_mesh.setVertexNormals(normal_array, normal_indices);
-					MIntArray face_list;
-					int ind_face=0;
-					for(unsigned int i=0; i<polygon_counts.length(); i++){
-						for(int k=0; k<polygon_counts[i]; k++)
-                            face_list.append(ind_face);
-						ind_face++;
+					{
+						osg::Vec3 n = (*osg_narray)[0];
+						MVector normal(n.x(), n.y(), n.z());
+						int pc=0;
+						for(unsigned int i=0; i<polygon_counts.length(); i++){
+							for(int k=0; k<polygon_counts[i]; k++) {
+								mfn_mesh.setFaceVertexNormal(normal, i, polygon_connects[pc++]);
+							}
+						}
 					}
-					std::cout << "face_list with " << face_list.length() << " elements" << std::endl;
-					std::cout << "vertex_list with " << polygon_connects.length() << " elements" << std::endl;
-					err = mfn_mesh.setFaceVertexNormals(normal_array, face_list, polygon_connects);
-					ERROR_CHECK("establishing per vertex normals");
-					std::cout << "#### " << mfn_mesh.numNormals() << " normals" << std::endl;
-
-//					for(unsigned int i=0; i<normal_array.length(); i++){
-//						std::cout << "#" << i << "(" << normal_indices[i] << ") = " << normal_array[i] << std::endl;
-//					}
-
 					break;
-/*				case osg::Geometry::BIND_PER_PRIMITIVE:
+				case osg::Geometry::BIND_PER_VERTEX:
+					{
+						// Build the normal array (per face vertices)
+						MVectorArray normal_array;
+						for( int i=0; i < osg_niarray->getNumElements() ; i++ ){
+							osg::Vec3 n = (*osg_narray)[osg_niarray->index(i)];
+							normal_array.append( MVector(n.x(), n.y(), n.z()) );
+						}
+						MIntArray face_list;
+						MIntArray vertex_list;
+						int pc=0;
+						for(unsigned int i=0; i<polygon_counts.length(); i++){
+							for(int k=0; k<polygon_counts[i]; k++) {
+								face_list.append(i);
+								vertex_list.append( polygon_connects[pc++] );
+							}
+						}
+						//std::cout << "normal_array with " << normal_array.length() << " elements" << std::endl;
+						//std::cout << normal_array << std::endl;
+						//std::cout << "face_list with " << face_list.length() << " elements" << std::endl;
+						//std::cout << face_list << std::endl;
+						//std::cout << "vertex_list with " << vertex_list.length() << " elements" << std::endl;
+						//std::cout << vertex_list << std::endl;
+						err = mfn_mesh.setFaceVertexNormals(normal_array, face_list, vertex_list);
+						ERROR_CHECK("establishing per vertex normals");
+					}
+					break;
+				case osg::Geometry::BIND_PER_PRIMITIVE:
+					std::cout << "BIND_PER_PRIMITIVE NOT SUPPORTED YET!" << std::endl;
+					// TO-DO ***
+					break;
 				case osg::Geometry::BIND_PER_PRIMITIVE_SET:
-					std::cout << "########" << std::endl;
-					std::cout << num_vertices << " vertices " << polygon_counts.length() << " polygons " <<
-						polygon_connects.length() << " connections " << perface_normal_indices << " perface_normal_indices " <<
-						pervertex_normal_indices << " pervertex_normal_indices" << std::endl;
-					std::cout << "########" << std::endl;
-					err = mfn_mesh.setFaceVertexNormals(normal_array, perface_normal_indices, pervertex_normal_indices);
-					ERROR_CHECK("establishing per vertex and per face normals");
-					break;*/
-/*			}
-		}*/
-
+					std::cout << "BIND_PER_PRIMITIVE_SET NOT SUPPORTED YET!" << std::endl;
+					// TO-DO ***
+					break;
+			}
+		}
 
 		// Apply a Shading Engine
 		MFnSet shading_group(shading_engine);

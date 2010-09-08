@@ -6,10 +6,9 @@ TEST1. Geometry
 
 Features tested:
 
-# Polygon meshes
-# Per face vertex normals (hard edges and soft edges) -> OpenGL per vertex normals
-# Single and double sided surfaces. Surface orientation -> OpenGL backface culling
+* Polygon meshes
+* Per face vertex normals (hard edges and soft edges) -> OpenGL per vertex normals
+* Single and double sided surfaces. Surface orientation -> OpenGL backface culling
 
 Exporter supports all these features. 
 Importer does not consider backface culling, all the geometry is created with default behaviour (double sided).
-

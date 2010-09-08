@@ -40,7 +40,8 @@
 bool Shader::connectedTexture(MObject &obj, std::string canal)
 {
 	MFnDependencyNode dn(obj);
-	// Maya materials inherit from Lambert node, so if it is not a lambert, we do not consider it a material
+	// Most Maya materials inherit from Lambert node, so if it is not a lambert, 
+	// we do not consider it a material
 	if(obj.hasFn(MFn::kLambert)){
 		MFnLambertShader lambert(obj);
 
