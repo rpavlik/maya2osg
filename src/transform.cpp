@@ -341,9 +341,9 @@ osg::ref_ptr<osg::Group> Transform::exporta(MObject &obj)
 	/// Check if there is any animation connected to this Transform
 	MFn::Type anim_type;
 	if(hasAnimation(obj,anim_type)){
-//#ifdef _DEBUG
+#ifdef _DEBUG
 		std::cout << "Transform " << dn.name().asChar() << " is animated" << std::endl;
-//#endif
+#endif
 
 		// Check the Transform parameters
 		double shear[3];
