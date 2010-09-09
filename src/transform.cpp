@@ -333,45 +333,6 @@ osg::ref_ptr<osg::Group> Transform::exporta(MObject &obj)
 	MFnTransform trfn(obj);
 	MMatrix mat = trfn.transformation().asMatrix();
 
-	// Check the Transform parameters
-	double shear[3];
-	trfn.getShear(shear);
-//	std::cout << "SHEAR: " << shear[0] << " " << shear[1] << " " << shear[2] << std::endl;
-	MPoint sp = trfn.scalePivot(MSpace::kTransform);
-//	std::cout << "SCALE PIVOT: " << sp.x << " " << sp.y << " " << sp.z << " " << sp.w << std::endl;
-	MVector spt = trfn.scalePivotTranslation(MSpace::kTransform);
-//	std::cout << "SCALE PIVOT TRANSLATION: " << spt.x << " " << spt.y << " " << spt.z << std::endl;
-	MPoint rp = trfn.rotatePivot(MSpace::kTransform);
-//	std::cout << "ROTATE PIVOT: " << rp.x << " " << rp.y << " " << rp.z << " " << rp.w << std::endl;
-	MVector rpt = trfn.rotatePivotTranslation(MSpace::kTransform);
-//	std::cout << "ROTATE PIVOT TRANSLATION: " << rpt.x << " " << rpt.y << " " << rpt.z << std::endl;
-
-	if( shear[0]!=0 || shear[1]!=0 || shear[2]!=0 ){
-		std::cerr << "ERROR (" << dn.name().asChar() << ") - shear value not supported in Transform (" << 
-			shear[0] << ", " << shear[1] << ", " << shear[2] << ")" << std::endl;
-//		return NULL;
-	}
-	if( sp.x != 0  || sp.y != 0 || sp.z != 0 || sp.w != 1 ){
-		std::cerr << "ERROR (" << dn.name().asChar() << ") - scale pivot not supported ; SP=(" << 
-			sp.x << ", " << sp.y << ", " << sp.z << ", " << sp.w << ")" << std::endl;
-//		return NULL;
-	}
-	if( spt.x != 0  || spt.y != 0 || spt.z != 0 ){
-		std::cerr << "ERROR (" << dn.name().asChar() << ") - scale pivot translation not supported ; SPT=(" << 
-			spt.x << ", " << spt.y << ", " << spt.z << ")" << std::endl;
-//		return NULL;
-	}
-	if( rp.x != 0  || rp.y != 0 || rp.z != 0 || rp.w != 1 ){
-		std::cerr << "ERROR (" << dn.name().asChar() << ") - rotate pivot not supported ; RP=(" << 
-			rp.x << ", " << rp.y << ", " << rp.z << ", " << rp.w << ")" << std::endl;
-//		return NULL;
-	}
-	if( rpt.x != 0  || rpt.y != 0 || rpt.z != 0 ){
-		std::cerr << "ERROR (" << dn.name().asChar() << ") - rotate pivot translation not supported RPT=(" << 
-			rpt.x << ", " << rpt.y << ", " << rpt.z << ")" << std::endl;
-//		return NULL;
-	}
-
 	osg::ref_ptr<osg::MatrixTransform> trans = new osg::MatrixTransform();
 	osg::Matrix osgmat;
 	mat.get( (double(*)[4]) osgmat.ptr() );
@@ -383,6 +344,41 @@ osg::ref_ptr<osg::Group> Transform::exporta(MObject &obj)
 //#ifdef _DEBUG
 		std::cout << "Transform " << dn.name().asChar() << " is animated" << std::endl;
 //#endif
+
+		// Check the Transform parameters
+		double shear[3];
+		trfn.getShear(shear);
+//		std::cout << "SHEAR: " << shear[0] << " " << shear[1] << " " << shear[2] << std::endl;
+		MPoint sp = trfn.scalePivot(MSpace::kTransform);
+//		std::cout << "SCALE PIVOT: " << sp.x << " " << sp.y << " " << sp.z << " " << sp.w << std::endl;
+		MVector spt = trfn.scalePivotTranslation(MSpace::kTransform);
+//		std::cout << "SCALE PIVOT TRANSLATION: " << spt.x << " " << spt.y << " " << spt.z << std::endl;
+		MPoint rp = trfn.rotatePivot(MSpace::kTransform);
+//		std::cout << "ROTATE PIVOT: " << rp.x << " " << rp.y << " " << rp.z << " " << rp.w << std::endl;
+		MVector rpt = trfn.rotatePivotTranslation(MSpace::kTransform);
+//		std::cout << "ROTATE PIVOT TRANSLATION: " << rpt.x << " " << rpt.y << " " << rpt.z << std::endl;
+
+		if( shear[0]!=0 || shear[1]!=0 || shear[2]!=0 ){
+			std::cerr << "WARNING (" << dn.name().asChar() << ") - shear value not supported in animated Transforms (" << 
+				shear[0] << ", " << shear[1] << ", " << shear[2] << ")" << std::endl;
+		}
+		if( sp.x != 0  || sp.y != 0 || sp.z != 0 || sp.w != 1 ){
+			std::cerr << "WARNING (" << dn.name().asChar() << ") - scale pivot not supported in animated Transforms ; SP=(" << 
+				sp.x << ", " << sp.y << ", " << sp.z << ", " << sp.w << ")" << std::endl;
+		}
+		if( spt.x != 0  || spt.y != 0 || spt.z != 0 ){
+			std::cerr << "WARNING (" << dn.name().asChar() << ") - scale pivot translation not supported in animated Transforms ; SPT=(" << 
+				spt.x << ", " << spt.y << ", " << spt.z << ")" << std::endl;
+		}
+		if( rp.x != 0  || rp.y != 0 || rp.z != 0 || rp.w != 1 ){
+			std::cerr << "WARNING (" << dn.name().asChar() << ") - rotate pivot not supported in animated Transforms ; RP=(" << 
+				rp.x << ", " << rp.y << ", " << rp.z << ", " << rp.w << ")" << std::endl;
+		}
+		if( rpt.x != 0  || rpt.y != 0 || rpt.z != 0 ){
+			std::cerr << "WARNING (" << dn.name().asChar() << ") - rotate pivot translation not supported in animated Transforms ; RPT=(" << 
+				rpt.x << ", " << rpt.y << ", " << rpt.z << ")" << std::endl;
+		}
+
 		// Create a callback to bind the animation to this transform
 		osg::ref_ptr< osg::AnimationPath > ap;
 		switch(anim_type){

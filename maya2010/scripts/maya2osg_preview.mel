@@ -20,9 +20,11 @@
 //
 
 
-global proc maya2osg_preview() {
+global proc maya2osg_preview( string $opts ) {
+	string $options = "";
 	loadPlugin -quiet "maya2osg";
 	$tmp_file = `internalVar -utd` + "preview.osg";
 	maya2osg $tmp_file;
-	exec("osgviewer --window 100 100 640 480 " + $tmp_file);
+	$options += $opts;
+	exec("osgviewer --window 100 100 640 480 " + $options + " " + $tmp_file);
 }

@@ -4,7 +4,7 @@ WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
 	Import geometry normals
 	Automated installation for current user after compilation in Visual Studio
 	Installation batch file for Windows (INSTALL.bat)
-	Added new tool/icon to the shelf: Preview
+	Added new tools/icons to the shelf: Preview, Preview with axes
 	Projects for Maya 2009
 	Minor bug fixes
 
