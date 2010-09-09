@@ -5,7 +5,12 @@ copy bin\maya2osg.mll "%PROGRAMFILES%\Autodesk\Maya%MAYA_VERSION%\bin\plug-ins\"
 
 REM Copy plug-in associated files (MEL scripts, shelf buttons, ...)
 if exist "%USERPROFILE%\Documents" GOTO ELSE
-	set DOCFILES="%USERPROFILE%\My Documents"
+	if exist "%USERPROFILE%\My Documents" GOTO MYDOCS
+		set DOCFILES="%USERPROFILE%\Mis Documentos"
+		goto ENDIF
+:MYDOCS
+		set DOCFILES="%USERPROFILE%\My Documents"
+		goto ENDIF	
 :ELSE
 	set DOCFILES="%USERPROFILE%\Documents"
 :ENDIF
