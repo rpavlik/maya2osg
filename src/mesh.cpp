@@ -19,10 +19,12 @@
 */
 #include "mesh.h"
 #include "shader.h"
+#include "config.h"
 
 #include <osg/Geometry>
 #include <osg/Geode>
 #include <osg/CullFace>
+#include <osg/LightModel>
 
 #include <maya/MGlobal.h>
 #include <maya/MFnMesh.h>
@@ -296,8 +298,14 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	plug = dnodefn.findPlug("opposite");
 	plug.getValue(opposite);
 
-	if ( double_sided ) {
-		geode->getOrCreateStateSet()->setMode( osg::StateAttribute::CULLFACE, osg::StateAttribute::OFF );
+	osg::StateSet *ss = geode->getOrCreateStateSet();
+	if ( ( Config::instance()->getSurfaceMode() == Config::KEEP && double_sided ) 
+		|| Config::instance()->getSurfaceMode() == Config::DOUBLE ) 
+	{
+		ss->setMode( osg::StateAttribute::CULLFACE, osg::StateAttribute::OFF );
+		osg::LightModel *lm = new osg::LightModel();
+		lm->setTwoSided( true );
+		ss->setAttribute( lm );
 	}
 	else {
 		osg::CullFace *cull = new osg::CullFace();
@@ -307,7 +315,7 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 		else {
 			cull->setMode(osg::CullFace::BACK);
 		}
-		geode->getOrCreateStateSet()->setAttributeAndModes( cull, osg::StateAttribute::ON );
+		ss->setAttributeAndModes( cull, osg::StateAttribute::ON );
 	}
 
     // Name the node (mesh)

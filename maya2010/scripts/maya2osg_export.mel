@@ -20,74 +20,166 @@
 //
 
 
-proc prepare()
+global proc maya2osg_doExport(string $file, string $format)
 {
-	// Step 1. Retessellate and/or eliminate bad geometry
-//	polyCleanupArgList 3 { "1","1","0","0","0","1","1","1","1","1e-005","1","1e-005","0","1e-005","0","-1","1" };
-	polyCleanupArgList 3 { "1","1","0","1","1","1","1","1","0","1e-005","0","1e-005","0","1e-005","0","-1","0" };
-
-	// Step 2. Delete history
-	delete -all -constructionHistory;
-
-	// Step 3. Optimize the scene deleting unnecesary elements
-	cleanUpScene 1;
-
-	// Step 4. Delete uselessly keyframed channels
-	delete -all -staticChannels;
-}
-
-global proc exportToOpenSceneGraph(string $file, string $format)
-{
-	loadPlugin -quiet "maya2osg";
 	maya2osg $file;
 }
 
 
-proc string maya2osg_options(){
+global proc maya2osg_doExportGUI(string $file, string $format)
+{
+	global string $maya2osg_export_win;
+	global string $maya2osg_texenv;
+	global string $maya2osg_cbDefaultCameras;
+	global string $maya2osg_cbOrthoCameras;
+	global string $maya2osg_bfcull;
 
-	// Open a dialog for the selection of export options
-	string $win = `window -title "maya2osg - Export options"`;
-	string $layout1 = `columnLayout -adjustableColumn true`;
+	string $command = "maya2osg";
+		
+	string $texenv[];
+	$texenv = `textScrollList -q -selectItem $maya2osg_texenv`;
+	$command += " -texenv " + $texenv[0];
 
-		frameLayout -label "Textures" -collapsable true;
+	$command += " -exportDefaultCameras " + `checkBox -q -value $maya2osg_cbDefaultCameras`;
+	$command += " -exportOrthoCameras " + `checkBox -q -value $maya2osg_cbOrthoCameras`;
 
-		columnLayout;
-			rowLayout -nc 2;
-			text -label "Image path";
-			textField -editable true;
-			setParent ..;
+	int $bfcull_mode = `radioButtonGrp -q -select $maya2osg_bfcull`;
+	switch ( $bfcull_mode ) {
+		case 1: // All single
+		$command += " -surfaceMode SINGLE";
+		break;
+		case 2: // All double
+		$command += " -surfaceMode DOUBLE";
+		break;
+		case 3: // Keep
+		$command += " -surfaceMode KEEP";
+		break;
+	}
 
-		text -label "Texture mode:";
-		string $texenv = `textScrollList -numberOfRows 1
-			-allowMultiSelection false
-			-append "DECAL"
-			-append "MODULATE"
-			-append "BLEND"
-			-append "REPLACE"
-			-append "ADD"
-			-selectItem "MODULATE"`;
-		setParent ..;
+	$command += " \"" + $file + "\";";
+//	print($command + "\n");
+	eval($command);
 
-	setParent ..;
-
-	button -label "Export";
-
-	showWindow;
-
-	string $texmode = `textScrollList -q -selectItem $texenv`;
-
-	return $texmode;
+	deleteUI -window $maya2osg_export_win;
 }
 
 
-global proc maya2osg_export() {
+proc maya2osg_options(){
 
-	string $command = "exportToOpenSceneGraph";
+	global string $maya2osg_export_win;
+	global string $maya2osg_texenv;
+	global string $maya2osg_cbDefaultCameras;
+	global string $maya2osg_cbOrthoCameras;
+	global string $maya2osg_bfcull;
 
-//	string $opcs = maya2osg_options();
+	// Open a dialog for the selection of export options
+	int $marginW = 15;
+	int $marginH = 10;
+	$maya2osg_export_win = `window -title "Maya2OSG - Export options" -widthHeight 320 300 -sizeable true`;
+	$form = `formLayout -numberOfDivisions 100`;
+		$frame_config = `scrollLayout -horizontalScrollBarThickness 0 -verticalScrollBarThickness 0 -childResizable true -minChildWidth 300`;
+			columnLayout -adjustableColumn true;
+				$frame_geometry = `frameLayout -label "Geometry" -collapsable true -marginWidth $marginW -marginHeight $marginH`;
+					columnLayout;
+						text -label "Single/double side surfaces:" -height 30;
+						$maya2osg_bfcull = `radioButtonGrp -numberOfRadioButtons 3 -select 3 -label1 "all single" -label2 "all double" -label3 "keep state"`;
+						setParent ..;
+					setParent ..;
+				$frame_textures = `frameLayout -label "Textures" -collapsable true -marginWidth $marginW -marginHeight $marginH`;
+					columnLayout;
+						rowLayout -nc 2;
+							text -label "Image path" -enable false;
+							textField -editable true -width 300 -enable false;
+							setParent ..;	
+						text -label "Texture default mode:";
+						$maya2osg_texenv = `textScrollList -numberOfRows 3
+							-allowMultiSelection false
+							-append "DECAL"
+							-append "MODULATE"
+							-append "BLEND"
+							-append "REPLACE"
+							-append "ADD"
+							-selectItem "MODULATE"`;
+						setParent ..;
+					setParent ..;
+				$frame_geometry = `frameLayout -label "Materials/shading"  -collapse true -collapsable true -marginWidth $marginW -marginHeight $marginH`;
+					columnLayout;
+						text -label "Coming soon..." -height 30;
+						setParent ..;
+					setParent ..;
+				$frame_geometry = `frameLayout -label "Lighting"  -collapse true -collapsable true -marginWidth $marginW -marginHeight $marginH`;
+					columnLayout;
+						text -label "Coming soon..." -height 30;
+						setParent ..;
+					setParent ..;
+				$frame_geometry = `frameLayout -label "Animation" -collapse true -collapsable true -marginWidth $marginW -marginHeight $marginH`;
+					columnLayout;
+						text -label "Coming soon..." -height 30;
+						setParent ..;
+					setParent ..;
+				$frame_geometry = `frameLayout -label "Particles"  -collapse true -collapsable true -marginWidth $marginW -marginHeight $marginH`;
+					columnLayout;
+						text -label "Coming soon..." -height 30;
+						setParent ..;
+					setParent ..;
+				$frame_cameras = `frameLayout -label "Cameras" -collapsable true -marginWidth $marginW -marginHeight $marginH`;
+					columnLayout;
+						$maya2osg_cbDefaultCameras = `checkBox -label "Export default cameras"`;
+						$maya2osg_cbOrthoCameras = `checkBox -label "Export orthographic cameras"`;
+						setParent ..;
+					setParent ..;
+				setParent ..;
+			setParent ..;
+		$buttons = `formLayout  -numberOfDivisions 100`;
+			$comm_export = "fileBrowserDialog -an \"Export as...\" -fc \"maya2osg_doExportGUI\" -ft \"osg\" -in \"OSG\" -m 1 -om \"ExportAll\";";
+			$b1 = `button -label "Export" -align "center" -command $comm_export`;
+			$b2 = `button -label "Cancel" -align "center" -command "deleteUI -window $maya2osg_export_win"`;
+			formLayout -e
+				-attachForm $b1 "top" 10
+				-attachForm $b1 "left" 10
+				-attachControl $b1 "right" 6 $b2
+				-attachForm $b1 "bottom" 10
+				-attachForm $b1 "top" 10
+				-attachForm $b2 "right" 10
+				-attachPosition $b2 "left" 3 50
+				-attachForm $b2 "bottom" 10
+				$buttons;
+			setParent ..;
+		formLayout -e
+			-attachForm $frame_config "top" 0
+			-attachForm $frame_config "left" 0
+			-attachForm $frame_config "right" 0
+			-attachControl $frame_config "bottom" 0 $buttons
+			-attachNone $buttons "top"
+			-attachForm $buttons "left" 0
+			-attachForm $buttons "right" 0
+			-attachForm $buttons "bottom" 0
+			$form;
+		setParent ..;
 
-//	prepare();
+	showWindow $maya2osg_export_win;
+}
 
-	fileBrowserDialog -an "Export as..." -fc $command -ft "osg"
-		-in "OSG" -m 1 -om "ExportAll";
+
+global proc maya2osg_export( int $option_box ) {
+
+	loadPlugin -quiet "maya2osg";
+	// check if it successfully loaded
+	if ( ! `pluginInfo -q -loaded maya2osg` ) {
+//		error "Maya2OSG plug-in failed to load";
+		return;
+	}
+
+	// Cleanup has been deactivated. It can be explicitly called
+	// by the user from the shelf button "Cleanup scene".
+//	maya2osg_cleanup();
+
+	if ( $option_box ) {
+		// Open the export options dialog
+		maya2osg_options();
+	}
+	else {
+		fileBrowserDialog -an "Export as..." -fc "maya2osg_doExport" -ft "osg"
+			-in "OSG" -m 1 -om "ExportAll";
+	}
 }

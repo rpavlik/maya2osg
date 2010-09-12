@@ -33,12 +33,23 @@
 *	(Singleton design pattern)
 */
 class Config {
-	
+public:
+
+	/// Surface modes
+	typedef enum {
+		SINGLE,	///< Force single sided surfaces
+		DOUBLE,	///< Force double sided surfaces
+		KEEP	///< Each surface as defined in Maya
+	} SurfaceMode;
+
 private:
 	static Config *_instance;
 
 	/// TexEnv
 	osg::TexEnv::Mode _mode;
+
+	/// Surface mode
+	SurfaceMode _surfaceMode;
 
 	/// Blend Function (source)
 	osg::BlendFunc::BlendFuncMode _blendFuncSrc;
@@ -84,6 +95,12 @@ public:
 
 	inline bool getExportOrthographicCameras() const
 	{ return _exportOrthographicCameras; }
+
+	inline void setSurfaceMode( SurfaceMode m )
+	{ _surfaceMode = m; }
+
+	inline SurfaceMode getSurfaceMode() const
+	{ return _surfaceMode; }
 
 };
 

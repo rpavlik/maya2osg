@@ -80,9 +80,45 @@ MStatus maya2osg::doIt( const MArgList & args )
 				Config::instance()->setMode(osg::TexEnv::REPLACE);
 			}
 		}
+		else if ( args.asString(i) == "-exportDefaultCameras" ) {
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "0" ){
+				Config::instance()->setExportDefaultCameras( false );
+			}
+			else {
+				Config::instance()->setExportDefaultCameras( true );
+			}
+		}
+		else if ( args.asString(i) == "-exportOrthoCameras" ) {
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "0" ){
+				Config::instance()->setExportOrthographicCameras( false );
+			}
+			else {
+				Config::instance()->setExportOrthographicCameras( true );
+			}
+		}
+		else if ( args.asString(i) == "-surfaceMode" ) {
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "SINGLE" ){
+				Config::instance()->setSurfaceMode(Config::SINGLE);
+			}
+			else if( args.asString(i) == "DOUBLE" ){
+				Config::instance()->setSurfaceMode(Config::DOUBLE);
+			}
+			else if( args.asString(i) == "KEEP" ){
+				Config::instance()->setSurfaceMode(Config::KEEP);
+			}
+		}
 		else if ( args.asString(i).length() > 0 ) {
-			// We need to discard the last empty argument passed on second and subsequent calls to the command :-?
-			filename = args.asString(i);			
+			// We discard empty arguments
+			filename = args.asString(i);
 		}
 	}
 

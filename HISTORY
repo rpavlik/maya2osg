@@ -1,4 +1,6 @@
 WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+	Maya GUI dialog window for exporter configuration
+	New maya2osg command-line options (-exportDefaultCameras, -exportOrthoCameras, -surfaceMode)
 	Test models/scenes
 	Single/double sided surfaces (backface culling)
 	Import geometry normals
