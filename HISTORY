@@ -2,7 +2,7 @@ WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
 	Maya GUI dialog window for exporter configuration
 	New maya2osg command-line options (-exportDefaultCameras, -exportOrthoCameras, -surfaceMode)
 	Test models/scenes
-	Single/double sided surfaces (backface culling)
+	Single/double sided surfaces (backface culling) and two-side lighting mode
 	Import geometry normals
 	Automated installation for current user after compilation in Visual Studio
 	Installation batch file for Windows (INSTALL.bat)
