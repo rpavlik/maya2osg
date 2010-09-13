@@ -94,6 +94,7 @@ osg::ref_ptr<osg::Texture2D> Texture::exporta(MObject &obj)
 		}
 		else{
 			tex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP);
+			// *** CLAMP COLOR - FIXME!!!
 		}
 	}
 	plug = dn.findPlug("mirrorV");
@@ -109,6 +110,7 @@ osg::ref_ptr<osg::Texture2D> Texture::exporta(MObject &obj)
 		}
 		else{
 			tex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP);
+			// *** CLAMP COLOR - FIXME!!!
 		}
 	}
 
