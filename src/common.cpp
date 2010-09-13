@@ -28,6 +28,7 @@
 
 MStatus initializePlugin( MObject _obj )
 {
+	std::cout << "Loading plug-in Maya2OSG. " << VENDOR << " " << VERSION << std::endl;
 	MFnPlugin	plugin( _obj, VENDOR, VERSION );
 	MStatus		stat;
 	stat = plugin.registerCommand( "maya2osg",
@@ -43,6 +44,7 @@ MStatus initializePlugin( MObject _obj )
 
 MStatus uninitializePlugin( MObject _obj )
 {
+	std::cout << "Unloading plug-in Maya2OSG. " << VENDOR << " " << VERSION << std::endl;
 	MFnPlugin	plugin( _obj );
 	MStatus		stat;
 	stat = plugin.deregisterCommand( "maya2osg" );
@@ -52,4 +54,14 @@ MStatus uninitializePlugin( MObject _obj )
 	if ( !stat )
 		stat.perror("deregisterCommand");
 	return stat;
+}
+
+bool MCheckStatus(MStatus &st, const std::string &msg)
+{
+	if( st.statusCode() != MS::kSuccess )
+	{
+		std::cout << msg << " : " << st.errorString().asChar() << std::endl;
+		return true;
+	}
+	return false;
 }

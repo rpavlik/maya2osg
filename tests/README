@@ -1,5 +1,7 @@
 This folder contains some scenes/models to test and validate MayaOSG exporter and importer.
 
-For more information, see the "Test models" wiki page:
+Test scenes have been moved to the maya project in folder "project".
+
+For more information about the tests, see the "Test models" wiki page:
 
 http://sourceforge.net/apps/mediawiki/maya2osg/index.php?title=Test_models

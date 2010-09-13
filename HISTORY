@@ -1,12 +1,13 @@
 WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+	Particle systems preliminary support
 	Maya GUI dialog window for exporter configuration
 	New maya2osg command-line options (-exportDefaultCameras, -exportOrthoCameras, -surfaceMode)
-	Test models/scenes
+	Test models/scenes in a Maya project
 	Single/double sided surfaces (backface culling) and two-side lighting mode
 	Import geometry normals
 	Automated installation for current user after compilation in Visual Studio
 	Installation batch file for Windows (INSTALL.bat)
-	Added new tools/icons to the shelf: Preview, Preview with axes
+	Added new tools/icons to the shelf: Preview, Preview with axes, quick export/option box, unload plug-in
 	Projects for Maya 2009
 	Minor bug fixes
 

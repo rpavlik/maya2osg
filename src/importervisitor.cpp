@@ -18,6 +18,7 @@
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "importervisitor.h"
+#include "common.h"
 
 #include <iostream>
 #include <sstream>
@@ -183,7 +184,6 @@ void ImporterVisitor::importGeometry(osg::Geometry *geometry, MObject &shading_e
 //	std::cout << "Importing osg::Geometry" << std::endl;
 
 	MStatus err;	// Error code
-#define ERROR_CHECK(msg) if ( err != MS::kSuccess ) std::cerr << "ERROR: " << msg << " : " << err.errorString().asChar() << std::endl;
 
 	// Vertices
 	osg::Vec3Array *osg_varray = dynamic_cast<osg::Vec3Array *>(geometry->getVertexArray());
@@ -732,11 +732,11 @@ void ImporterVisitor::importGeometry(osg::Geometry *geometry, MObject &shading_e
 			MString name_uvset;
 			name_uvset.set(i);
 			err = mfn_mesh.createUVSet(name_uvset);
-			ERROR_CHECK("createUVSet");
+			MCheckStatus(err, "createUVSet");
 			err = mfn_mesh.setUVs(u_array, v_array, &name_uvset);
-			ERROR_CHECK("setUVs");
+			MCheckStatus(err, "setUVs");
 			err = mfn_mesh.assignUVs(polygon_counts, polygon_connects, &name_uvset);
-			ERROR_CHECK("assignUVs");
+			MCheckStatus(err, "assignUVs");
 			mfn_mesh.setCurrentUVSetName(name_uvset);
 		}
 
@@ -785,7 +785,7 @@ void ImporterVisitor::importGeometry(osg::Geometry *geometry, MObject &shading_e
 						//std::cout << "vertex_list with " << vertex_list.length() << " elements" << std::endl;
 						//std::cout << vertex_list << std::endl;
 						err = mfn_mesh.setFaceVertexNormals(normal_array, face_list, vertex_list);
-						ERROR_CHECK("establishing per vertex normals");
+						MCheckStatus(err, "establishing per vertex normals");
 					}
 					break;
 				case osg::Geometry::BIND_PER_PRIMITIVE:

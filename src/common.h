@@ -23,11 +23,13 @@
 #define VENDOR "Maya2OSG"
 #define VERSION "0.3.0"
 
-#define MCheckStatus(st, msg) \
-	if( (st).statusCode() != MS::kSuccess )\
-	{\
-	std::cout << msg << std::endl;\
-	return MS::kFailure;\
-	}
+#include <string>
+#include <maya/Mstatus.h>
+
+/**
+ *	Check the status, return if there is an error
+ *	and print an informative error message if there is.
+ */
+bool MCheckStatus(MStatus &st, const std::string &msg);
 
 #endif // _COMMON_H_	

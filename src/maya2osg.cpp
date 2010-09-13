@@ -37,6 +37,8 @@
 #include "texture.h"
 #include "lights.h"
 #include "camera.h"
+#include "particle.h"
+#include "pointemitter.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -130,7 +132,9 @@ MStatus maya2osg::doIt( const MArgList & args )
 
 	MSelectionList sel;
 	status = MGlobal::getActiveSelectionList( sel );
-	MCheckStatus(status, "ERROR querying selection");
+	if ( MCheckStatus(status, "ERROR querying selection") ) {
+		return MS::kFailure;
+	}
 	std::cout << sel.length() << " element(s) selected" << std::endl;
 
     // Create the OSG scene graph and dump to disk
@@ -170,7 +174,9 @@ MStatus maya2osg::doIt( const MArgList & args )
 		MItDag dagIt;
 		MDagPath dagPath;
 		status = MDagPath::getAPathTo(dagIt.root(), dagPath);
-		MCheckStatus(status, "ERROR requesting path to DAG root node");
+		if ( MCheckStatus(status, "ERROR requesting path to DAG root node") ) {
+			return MS::kFailure;
+		}
 
 		osg::ref_ptr<osg::Node> scene = DAGNode::exporta(dagPath);
 		root->addChild(scene.get());
@@ -182,13 +188,26 @@ MStatus maya2osg::doIt( const MArgList & args )
 	// Create the states so lights affect the whole scene
 	Lights::configureStateSet(st);
 
+	// If there are particle systems, attach the ParticleSystemUpdater
+	// at the end of the scene graph
+	root->addChild( Particle::getParticleSystemUpdater() );
+	// and bind created emitters to particle systems
+	PointEmitter::bindEmittersToParticles();
+
 	// Write scene to disk file
 	osgDB::writeNodeFile(*root.get(), filename.asChar());
+
+	/////////////////////////////////////////////////////////////
+	// Reset scene-related configuration to default state
 
 	// Empty the texture cache to allow texture modifications in later exportations
 	Texture::deleteCaches();
 	// Delete accumulated lights in the scene so list is empty for later exportations
 	Lights::reset();
+
+	// Clear particle systems related information
+	Particle::reset();
+	PointEmitter::reset();
 
 	std::cout << "---------------------------------------------------" << std::endl;
 	std::cout << "---      Exportation succesfully completed      ---" << std::endl;

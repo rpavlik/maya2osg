@@ -60,7 +60,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/export:initializePlugin /export:uninitializePlugin"
-				AdditionalDependencies="Foundation.lib OpenMaya.lib osgd.lib osgDBd.lib osgViewerd.lib opengl32.lib OpenMayaAnim.lib pthreadVC2.lib"
+				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaFX.lib osgd.lib osgDBd.lib osgViewerd.lib osgParticled.lib opengl32.lib OpenMayaAnim.lib pthreadVC2.lib"
 				OutputFile="$(OutDir)/$(ProjectName).mll"
 				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
@@ -134,7 +134,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/export:initializePlugin /export:uninitializePlugin"
-				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaAnim.lib osg.lib osgDB.lib osgViewer.lib pthreadVC2.lib opengl32.lib"
+				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaAnim.lib OpenMayaFX.lib osg.lib osgDB.lib osgViewer.lib osgParticle.lib pthreadVC2.lib opengl32.lib"
 				OutputFile="$(OutDir)/$(ProjectName).mll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
@@ -198,10 +198,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\emitter.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\group.cpp"
 				>
 			</File>
@@ -231,6 +227,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\particle.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\pointemitter.cpp"
 				>
 			</File>
 			<File
@@ -287,10 +287,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\emitter.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\group.h"
 				>
 			</File>
@@ -320,6 +316,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\particle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\pointemitter.h"
 				>
 			</File>
 			<File

@@ -23,12 +23,41 @@
 #include <maya/MObject.h>
 
 #include <osg/Node>
+#include <osgParticle/ParticleSystem>
+#include <osgParticle/ParticleSystemUpdater>
+
 
 class Particle {
 
+private:
+	/**
+	 *	Particle system updater
+	 *
+	 *	@note This node must be added at the end of the
+	 *	scene graph, after emitters and programs
+	 *	When it is traversed by a cull visitor, it calls 
+	 *	the update() method on the specified particle systems.
+	 *
+	 *	@warning What to do, one updater for all or one for
+	 *	each particle system? ***********
+	 */
+	static osg::ref_ptr<osgParticle::ParticleSystemUpdater> _updater;
+
 public:
+
 	/// Exports Particle node
 	static osg::ref_ptr<osg::Node> exporta(MObject &obj);
+
+	/// Get the global particle system updater
+	static osg::ref_ptr<osg::Node> getParticleSystemUpdater()
+	{ return _updater; }
+
+	/// Map of particle systems
+	static std::map<std::string, osgParticle::ParticleSystem *> _psMap;
+
+	/// Clear the particle map
+	static void reset()
+	{ _psMap.clear(); }
 
 };
 
