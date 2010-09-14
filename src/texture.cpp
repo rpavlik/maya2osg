@@ -18,6 +18,8 @@
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "texture.h"
+#include "config.h"
+
 #include <maya/MFnDependencyNode.h>
 #include <maya/MFnStringData.h>
 #include <maya/MPlug.h>
@@ -75,9 +77,30 @@ osg::ref_ptr<osg::Texture2D> Texture::exporta(MObject &obj)
 	osg::ref_ptr<osg::Texture2D> tex = new osg::Texture2D(image.get());
 
 	// Texture filtering
-	//*** plug = dn.findPlug("filterType");
-	tex->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR );
-	tex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
+	MPlug filterType = dn.findPlug("filterType");
+	switch( filterType.asInt() ) {
+		case 0: // No filter
+			tex->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
+			tex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
+			break;
+		case 1:	// Mip Map
+		case 2:	// Box
+		case 3:	// Quadratic
+		case 4:	// Quartic
+		case 5:	// Gaussian
+			tex->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR );
+			tex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
+			break;
+	}
+
+	// Border color -> default color
+	if ( Config::instance()->getTexClampMode() == Config::COLOR ) {
+		MPlug defaultColorR = dn.findPlug("defaultColorR");
+		MPlug defaultColorG = dn.findPlug("defaultColorG");
+		MPlug defaultColorB = dn.findPlug("defaultColorB");
+		osg::Vec4 border_color( defaultColorR.asFloat(), defaultColorG.asFloat(), defaultColorB.asFloat(), 1.0 );
+		tex->setBorderColor( border_color );
+	}
 
 	// Wrapping
 	bool test;
@@ -93,8 +116,14 @@ osg::ref_ptr<osg::Texture2D> Texture::exporta(MObject &obj)
 			tex->setWrap(osg::Texture::WRAP_S, osg::Texture::REPEAT);
 		}
 		else{
-			tex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP);
-			// *** CLAMP COLOR - FIXME!!!
+			switch( Config::instance()->getTexClampMode() ) {
+				case Config::EDGE:
+					tex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+					break;
+				case Config::COLOR:
+					tex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER);
+					break;
+			}
 		}
 	}
 	plug = dn.findPlug("mirrorV");
@@ -109,8 +138,14 @@ osg::ref_ptr<osg::Texture2D> Texture::exporta(MObject &obj)
 			tex->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
 		}
 		else{
-			tex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP);
-			// *** CLAMP COLOR - FIXME!!!
+			switch( Config::instance()->getTexClampMode() ) {
+				case Config::EDGE:
+					tex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
+					break;
+				case Config::COLOR:
+					tex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_BORDER);
+					break;
+			}
 		}
 	}
 

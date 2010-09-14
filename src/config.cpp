@@ -34,4 +34,5 @@ Config::Config()
 	_exportDefaultCameras = false;
 	_exportOrthographicCameras = false;
 	_surfaceMode = KEEP;
+	_texClampMode = COLOR;
 }

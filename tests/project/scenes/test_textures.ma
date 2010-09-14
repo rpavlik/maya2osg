@@ -1,6 +1,6 @@
 //Maya ASCII 2010 scene
 //Name: test_textures.ma
-//Last modified: Tue, Sep 14, 2010 01:05:47 AM
+//Last modified: Tue, Sep 14, 2010 09:46:13 PM
 //Codeset: 1252
 requires maya "2010";
 currentUnit -l centimeter -a degree -t film;
@@ -237,6 +237,10 @@ createNode mesh -n "pSphereShape2" -p "pSphere2";
 createNode transform -n "pPlane7";
 	setAttr ".t" -type "double3" -1.6341450965652808 0 -2.8523102073233568 ;
 createNode mesh -n "pPlaneShape7" -p "pPlane7";
+	addAttr -ci true -sn "mso" -ln "miShadingSamplesOverride" -min 0 -max 1 -at "bool";
+	addAttr -ci true -sn "msh" -ln "miShadingSamples" -min 0 -smx 8 -at "float";
+	addAttr -ci true -sn "mdo" -ln "miMaxDisplaceOverride" -min 0 -max 1 -at "bool";
+	addAttr -ci true -sn "mmd" -ln "miMaxDisplace" -min 0 -smx 1 -at "float";
 	setAttr -k off ".v";
 	setAttr ".vir" yes;
 	setAttr ".vif" yes;
@@ -501,6 +505,7 @@ createNode polyTweakUV -n "polyTweakUV1";
 		0.34904015 0.34904015;
 createNode lambert -n "mat10";
 createNode file -n "file9";
+	setAttr ".dc" -type "float3" 1 0.75300002 0.9895848 ;
 	setAttr ".ftn" -type "string" "C:/subversion/maya2osg/tests/project//sourceimages/uv_map_reference.jpg";
 createNode place2dTexture -n "place2dTexture10";
 	setAttr ".wu" no;

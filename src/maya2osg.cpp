@@ -118,6 +118,17 @@ MStatus maya2osg::doIt( const MArgList & args )
 				Config::instance()->setSurfaceMode(Config::KEEP);
 			}
 		}
+		else if ( args.asString(i) == "-texClampMode" ) {
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "EDGE" ){
+				Config::instance()->setTexClampMode(Config::EDGE);
+			}
+			else if( args.asString(i) == "COLOR" ){
+				Config::instance()->setTexClampMode(Config::COLOR);
+			}
+		}
 		else if ( args.asString(i).length() > 0 ) {
 			// We discard empty arguments
 			filename = args.asString(i);

@@ -42,6 +42,12 @@ public:
 		KEEP	///< Each surface as defined in Maya
 	} SurfaceMode;
 
+	/// Texture clamping mode
+	typedef enum {
+		EDGE,	///< Clamp to edge
+		COLOR	///< Maya default color
+	} TextureClampMode;
+
 private:
 	static Config *_instance;
 
@@ -50,6 +56,9 @@ private:
 
 	/// Surface mode
 	SurfaceMode _surfaceMode;
+
+	/// Texture clamp mode
+	TextureClampMode _texClampMode;
 
 	/// Blend Function (source)
 	osg::BlendFunc::BlendFuncMode _blendFuncSrc;
@@ -102,6 +111,11 @@ public:
 	inline SurfaceMode getSurfaceMode() const
 	{ return _surfaceMode; }
 
+	inline void setTexClampMode( TextureClampMode m )
+	{ _texClampMode = m; }
+
+	inline TextureClampMode getTexClampMode() const
+	{ return _texClampMode; }
 };
 
 #endif //_CONFIG_H_

@@ -1,6 +1,6 @@
 //Maya ASCII 2010 scene
 //Name: test_particles.ma
-//Last modified: Mon, Sep 13, 2010 06:10:56 PM
+//Last modified: Tue, Sep 14, 2010 09:59:52 PM
 //Codeset: 1252
 requires maya "2010";
 currentUnit -l centimeter -a degree -t film;
@@ -8,7 +8,7 @@ fileInfo "application" "maya";
 fileInfo "product" "Maya Unlimited 2010";
 fileInfo "version" "2010";
 fileInfo "cutIdentifier" "200907280007-756013";
-fileInfo "osv" "Microsoft Windows Vista  (Build 7600)\n";
+fileInfo "osv" "Microsoft Windows Vista Service Pack 2 (Build 6002)\n";
 createNode transform -s -n "persp";
 	setAttr ".v" no;
 	setAttr ".t" -type "double3" 28 21 28 ;
@@ -81,13 +81,14 @@ createNode particle -n "particleShape1" -p "particle1";
 	setAttr ".id0" -type "doubleArray" 0 ;
 	setAttr ".bt0" -type "doubleArray" 0 ;
 	setAttr ".ag0" -type "doubleArray" 0 ;
+	setAttr ".lfm" 1;
 	setAttr ".irbx" -type "string" "";
 	setAttr ".irax" -type "string" "";
 	setAttr ".icx" -type "string" "";
 	setAttr ".cts" 1;
 	setAttr ".chw" 100;
 	setAttr ".lifespanPP0" -type "doubleArray" 0 ;
-	setAttr -k on ".lifespan" 1;
+	setAttr -k on ".lifespan" 3;
 createNode lightLinker -n "lightLinker1";
 	setAttr -s 2 ".lnk";
 	setAttr -s 2 ".slnk";
