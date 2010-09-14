@@ -25,6 +25,9 @@
 #include <maya/MPlugArray.h>
 #include <maya/MPlug.h>
 
+#include <osgParticle/ConstantRateCounter>
+#include <osgParticle/RadialShooter>
+
 
 std::vector< std::pair<osgParticle::ModularEmitter *, std::vector<std::string> > > PointEmitter::_emittersParticles;
 
@@ -61,8 +64,25 @@ osg::ref_ptr<osg::Node> PointEmitter::exporta(MObject &obj)
 
 	// Configure the emitter properties
 
-	// TO-DO ...   *****
-	
+	// Counter (controls the number of particles to be emitted at each frame)
+	MPlug rate = dnodefn.findPlug("rate");
+	osgParticle::ConstantRateCounter *counter = new osgParticle::ConstantRateCounter();
+	counter->setNumberOfParticlesPerSecondToCreate( rate.asDouble() );
+	emitter->setCounter( counter );
+
+	// Placer (initialize particle's position vector)
+
+	// ... for now we leave it as default (create particles in the position of the emitter)
+
+	// Shooter (initialize particle's velocity vector)
+	float speed = dnodefn.findPlug("speed").asFloat();
+	float speedRandom = dnodefn.findPlug("speedRandom").asFloat();
+	osgParticle::RadialShooter *shooter = new osgParticle::RadialShooter();
+	shooter->setInitialSpeedRange( speed - speedRandom, speed + speedRandom );
+	// Theta range ***
+	// Phi range ***
+	// InitialRotationalSpeed range ***
+	emitter->setShooter( shooter );
 
 	emitter->setName( dnodefn.name().asChar() );
 
