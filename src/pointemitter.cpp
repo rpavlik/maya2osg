@@ -37,7 +37,65 @@ osg::ref_ptr<osg::Node> PointEmitter::exporta(MObject &obj)
 	MFnDependencyNode dnodefn(obj);
 
 	// What we need to create the OSG emitter (osgParticle::ModularEmitter) :
-	osgParticle::ModularEmitter *emitter = new osgParticle::ModularEmitter();
+	osg::ref_ptr<osgParticle::ModularEmitter> emitter = new osgParticle::ModularEmitter();
+
+	// Configure the emitter properties
+
+	// Counter (controls the number of particles to be emitted at each frame)
+	MPlug rate = dnodefn.findPlug("rate");
+	osg::ref_ptr<osgParticle::ConstantRateCounter> counter = new osgParticle::ConstantRateCounter();
+	counter->setNumberOfParticlesPerSecondToCreate( rate.asDouble() );
+	emitter->setCounter( counter );
+
+	// Placer (initialize particle's position vector)
+
+	// ... for now we leave it as default (create particles in the position of the emitter)
+
+	// Shooter (initialize particle's velocity vector)
+	float speed = dnodefn.findPlug("speed").asFloat();
+	float speedRandom = dnodefn.findPlug("speedRandom").asFloat();
+	osg::ref_ptr<osgParticle::RadialShooter> shooter = new osgParticle::RadialShooter();
+	// Speed
+	shooter->setInitialSpeedRange( speed - speedRandom, speed + speedRandom );
+	switch ( dnodefn.findPlug("emitterType").asInt() ) {
+		case 0:	// Directional
+			std::cout << "Directional" << std::endl;
+			{
+				float spread = dnodefn.findPlug("spread").asFloat();
+				// Theta range
+				shooter->setThetaRange( 0, spread * M_PI / 2.0 );
+				// Phi range
+				shooter->setPhiRange( -M_PI, M_PI );
+				// *** FIXME!!!  spread is correct, but direction is NOT!
+			}
+			break;
+		case 1:	// Omni
+			std::cout << "Omni" << std::endl;
+			// Theta range
+			shooter->setThetaRange( 0, M_PI );
+			// Phi range
+			shooter->setPhiRange( -M_PI, M_PI );
+			break;
+		case 2:	// Surface
+			std::cout << "Surface" << std::endl;
+			std::cout << "NOT SUPPORTED" << std::endl;
+			return NULL;
+			break;
+		case 3:	// Curve
+			std::cout << "Curve" << std::endl;
+			std::cout << "NOT SUPPORTED" << std::endl;
+			return NULL;
+			break;
+		case 4:	// Volume
+			std::cout << "Volume" << std::endl;
+			std::cout << "NOT SUPPORTED" << std::endl;
+			return NULL;
+			break;
+	}
+	// InitialRotationalSpeed range *** TO-DO
+	emitter->setShooter( shooter );
+
+	emitter->setName( dnodefn.name().asChar() );
 
 	// Particle systems connected to this emitter
 	std::vector<std::string> particle_systems_names;
@@ -61,30 +119,6 @@ osg::ref_ptr<osg::Node> PointEmitter::exporta(MObject &obj)
 	}
 	std::pair<osgParticle::ModularEmitter *, std::vector<std::string> > pair ( emitter, particle_systems_names );
 	_emittersParticles.push_back( pair );
-
-	// Configure the emitter properties
-
-	// Counter (controls the number of particles to be emitted at each frame)
-	MPlug rate = dnodefn.findPlug("rate");
-	osgParticle::ConstantRateCounter *counter = new osgParticle::ConstantRateCounter();
-	counter->setNumberOfParticlesPerSecondToCreate( rate.asDouble() );
-	emitter->setCounter( counter );
-
-	// Placer (initialize particle's position vector)
-
-	// ... for now we leave it as default (create particles in the position of the emitter)
-
-	// Shooter (initialize particle's velocity vector)
-	float speed = dnodefn.findPlug("speed").asFloat();
-	float speedRandom = dnodefn.findPlug("speedRandom").asFloat();
-	osgParticle::RadialShooter *shooter = new osgParticle::RadialShooter();
-	shooter->setInitialSpeedRange( speed - speedRandom, speed + speedRandom );
-	// Theta range ***
-	// Phi range ***
-	// InitialRotationalSpeed range ***
-	emitter->setShooter( shooter );
-
-	emitter->setName( dnodefn.name().asChar() );
 
 	return emitter;
 }
