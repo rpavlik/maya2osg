@@ -33,7 +33,7 @@
 
 void* osg2maya::creator()
 {
-	return new osg2maya;
+	return new osg2maya();
 }
 
 MStatus osg2maya::doIt( const MArgList & args )

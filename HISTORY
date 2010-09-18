@@ -1,7 +1,9 @@
 WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+	Added a button to "export and preview" in the option box
+	Option to convert from Y-Up to Z-Up coordinate system when exporting
 	Particle systems preliminary support
 	Maya GUI dialog window for exporter configuration
-	New maya2osg command-line options (-exportDefaultCameras, -exportOrthoCameras, -surfaceMode, -texClampMode)
+	New maya2osg command-line options (-exportDefaultCameras, -exportOrthoCameras, -surfaceMode, -texClampMode, ...)
 	Test models/scenes in a Maya project
 	Single/double sided surfaces (backface culling) and two-side lighting mode
 	Import geometry normals

@@ -25,7 +25,7 @@
 #include <maya/MItDependencyNodes.h>
 
 #include <osg/Node>
-#include <osg/Group>
+#include <osg/PositionAttitudeTransform>
 #include <osg/StateSet>
 #include <osg/StateAttribute>
 #include <osgDB/WriteFile>
@@ -47,7 +47,7 @@
 
 void* maya2osg::creator()
 {
-	return new maya2osg;
+	return new maya2osg();
 }
 
 MStatus maya2osg::doIt( const MArgList & args )
@@ -129,6 +129,17 @@ MStatus maya2osg::doIt( const MArgList & args )
 				Config::instance()->setTexClampMode(Config::COLOR);
 			}
 		}
+		else if ( args.asString(i) == "-YUp2ZUp" ){
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "0" ){
+				Config::instance()->setYUp2ZUp( false );
+			}
+			else {
+				Config::instance()->setYUp2ZUp( true );
+			}
+		}
 		else if ( args.asString(i).length() > 0 ) {
 			// We discard empty arguments
 			filename = args.asString(i);
@@ -149,7 +160,19 @@ MStatus maya2osg::doIt( const MArgList & args )
 	std::cout << sel.length() << " element(s) selected" << std::endl;
 
     // Create the OSG scene graph and dump to disk
-	osg::ref_ptr<osg::Group> root = new osg::Group();
+
+	osg::ref_ptr<osg::Group> root;
+	
+	if ( Config::instance()->getYUp2ZUp() ) {
+		osg::PositionAttitudeTransform *pat = new osg::PositionAttitudeTransform();
+		osg::Quat q;
+		q.makeRotate( osg::Vec3(0.0, 1.0, 0.0), osg::Vec3(0.0, 0.0, 1.0) );
+		pat->setAttitude( q );
+		root = pat;
+	}
+	else {
+		root = new osg::Group();
+	}
 
 	// Remove file extension (if any)
 #ifdef WIN32

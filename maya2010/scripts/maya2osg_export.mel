@@ -22,9 +22,21 @@
 
 global proc maya2osg_doExport(string $file, string $format)
 {
-	maya2osg $file;
+	$command = "maya2osg";
+
+	// If scene is Z-Up do nothing, if scene is Y-Up repeat last behaviour
+	if ( `upAxis -q -axis` == "z" ) {
+		$command += " -YUp2ZUp 0";
+	}
+	$command += " \"" + $file + "\";";
+	eval($command);
 }
 
+global proc maya2osg_doExportGUIAndPreview(string $file, string $format)
+{
+	maya2osg_doExportGUI($file, $format);
+	exec("osgviewer --window 100 100 640 480 " + $file);
+}
 
 global proc maya2osg_doExportGUI(string $file, string $format)
 {
@@ -33,12 +45,18 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 	global string $maya2osg_cbDefaultCameras;
 	global string $maya2osg_cbOrthoCameras;
 	global string $maya2osg_bfcull;
+	global string $maya2osg_texclamp;
+	global string $maya2osg_yup2zup;
 
 	string $command = "maya2osg";
 		
 	string $texenv[];
 	$texenv = `textScrollList -q -selectItem $maya2osg_texenv`;
 	$command += " -texenv " + $texenv[0];
+
+	string $texclamp[];
+	$texclamp = `textScrollList -q -selectItem $maya2osg_texclamp`;
+	$command += " -texClampMode " + $texclamp[0];
 
 	$command += " -exportDefaultCameras " + `checkBox -q -value $maya2osg_cbDefaultCameras`;
 	$command += " -exportOrthoCameras " + `checkBox -q -value $maya2osg_cbOrthoCameras`;
@@ -56,6 +74,14 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 		break;
 	}
 
+	// Y-Up 2 Z-Up
+	if ( `upAxis -q -axis` == "y" ) {
+		$command += " -YUp2ZUp " + `checkBox -q -value $maya2osg_yup2zup`;
+	}
+	else {
+		$command += " -YUp2ZUp 0";
+	}
+	
 	$command += " \"" + $file + "\";";
 //	print($command + "\n");
 	eval($command);
@@ -71,6 +97,8 @@ proc maya2osg_options(){
 	global string $maya2osg_cbDefaultCameras;
 	global string $maya2osg_cbOrthoCameras;
 	global string $maya2osg_bfcull;
+	global string $maya2osg_texclamp;
+	global string $maya2osg_yup2zup;
 
 	// Open a dialog for the selection of export options
 	int $marginW = 15;
@@ -83,23 +111,36 @@ proc maya2osg_options(){
 					columnLayout;
 						text -label "Single/double side surfaces:" -height 30;
 						$maya2osg_bfcull = `radioButtonGrp -numberOfRadioButtons 3 -select 3 -label1 "all single" -label2 "all double" -label3 "keep state"`;
+						if ( `upAxis -q -axis` == "y" ) {
+							$maya2osg_yup2zup = `checkBox -label "Convert from Y-Up to Z-Up" -value true -height 30`;
+						}
 						setParent ..;
 					setParent ..;
-				$frame_textures = `frameLayout -label "Textures" -collapsable true -marginWidth $marginW -marginHeight $marginH`;
-					columnLayout;
-						rowLayout -nc 2;
-							text -label "Image path" -enable false;
-							textField -editable true -width 300 -enable false;
-							setParent ..;	
-						text -label "Texture default mode:";
-						$maya2osg_texenv = `textScrollList -numberOfRows 3
-							-allowMultiSelection false
-							-append "DECAL"
-							-append "MODULATE"
-							-append "BLEND"
-							-append "REPLACE"
-							-append "ADD"
-							-selectItem "MODULATE"`;
+				$frame_textures = `frameLayout -label "Texturing" -collapsable true -marginWidth $marginW -marginHeight $marginH`;
+					rowLayout -nc 2;
+// 						rowLayout -nc 2;
+// 							text -label "Image path" -enable false;
+// 							textField -editable true -width 300 -enable false;
+// 							setParent ..;
+						columnLayout;
+							text -label "Default mode: ";
+							$maya2osg_texenv = `textScrollList -numberOfRows 3
+								-allowMultiSelection false
+								-append "DECAL"
+								-append "MODULATE"
+								-append "BLEND"
+								-append "REPLACE"
+								-append "ADD"
+								-selectItem "MODULATE"`;
+							setParent ..;
+						columnLayout;
+							text -label "Clamping: ";
+							$maya2osg_texclamp = `textScrollList -numberOfRows 2
+								-allowMultiSelection false
+								-append "EDGE"
+								-append "COLOR"
+								-selectItem "COLOR"`;
+							setParent ..;
 						setParent ..;
 					setParent ..;
 				$frame_geometry = `frameLayout -label "Materials/shading"  -collapse true -collapsable true -marginWidth $marginW -marginHeight $marginH`;
@@ -132,17 +173,25 @@ proc maya2osg_options(){
 			setParent ..;
 		$buttons = `formLayout  -numberOfDivisions 100`;
 			$comm_export = "fileBrowserDialog -an \"Export as...\" -fc \"maya2osg_doExportGUI\" -ft \"osg\" -in \"OSG\" -m 1 -om \"ExportAll\";";
+			$comm_export_and_preview = "fileBrowserDialog -an \"Export as...\" -fc \"maya2osg_doExportGUIAndPreview\" -ft \"osg\" -in \"OSG\" -m 1 -om \"ExportAll\";";
 			$b1 = `button -label "Export" -align "center" -command $comm_export`;
-			$b2 = `button -label "Cancel" -align "center" -command "deleteUI -window $maya2osg_export_win"`;
+			$b2 = `button -label "Export and Preview" -align "center" -command $comm_export_and_preview`;
+			$b3 = `button -label "Cancel" -align "center" -command "deleteUI -window $maya2osg_export_win"`;
 			formLayout -e
 				-attachForm $b1 "top" 10
 				-attachForm $b1 "left" 10
 				-attachControl $b1 "right" 6 $b2
 				-attachForm $b1 "bottom" 10
-				-attachForm $b1 "top" 10
-				-attachForm $b2 "right" 10
-				-attachPosition $b2 "left" 3 50
+
+				-attachForm $b2 "top" 10
+				-attachPosition $b2 "left" 6 33
+				-attachControl $b2 "right" 6 $b3
 				-attachForm $b2 "bottom" 10
+				
+				-attachForm $b3 "top" 10
+				-attachPosition $b3 "left" 6 66
+				-attachForm $b3 "right" 10
+				-attachForm $b3 "bottom" 10
 				$buttons;
 			setParent ..;
 		formLayout -e

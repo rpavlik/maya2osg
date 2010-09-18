@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="$(NOINHERIT)"
-				PreprocessorDefinitions="NT_PLUGIN;REQUIRE_IOSTREAM"
+				PreprocessorDefinitions="WIN32,_DEBUG,_WINDOWS,_AFXDLL,_MBCS,NT_PLUGIN,REQUIRE_IOSTREAM"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
 			/>
@@ -118,7 +118,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="$(NOINHERIT)"
-				PreprocessorDefinitions="NT_PLUGIN;REQUIRE_IOSTREAM"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
 			/>

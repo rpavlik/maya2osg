@@ -26,36 +26,54 @@
 #include <maya/MObject.h>
 #include <maya/MFnPlugin.h>
 
+#include <osg/Version>
+
+
+/**
+ *
+ */
 MStatus initializePlugin( MObject _obj )
 {
-	std::cout << "Loading plug-in Maya2OSG. " << VENDOR << " " << VERSION << std::endl;
+	std::cout << "Loading plug-in Maya2OSG. " << VENDOR << " " << VERSION << " (OSG " << osgGetVersion() << ")" << std::endl;
 	MFnPlugin	plugin( _obj, VENDOR, VERSION );
 	MStatus		stat;
 	stat = plugin.registerCommand( "maya2osg",
 	                                maya2osg::creator );
-	if ( !stat )
-		stat.perror("registerCommand");
+	if ( MCheckStatus(stat, "registerCommand - maya2osg") ) {
+		return stat;
+	}
 	stat = plugin.registerCommand( "osg2maya",
 	                                osg2maya::creator );
-	if ( !stat )
-		stat.perror("registerCommand");
-	return stat;
+	if ( MCheckStatus(stat, "registerCommand - osg2maya") ) {
+		return stat;
+	}
+	return MStatus::kSuccess;
 }
 
+
+/**
+ *
+ */
 MStatus uninitializePlugin( MObject _obj )
 {
-	std::cout << "Unloading plug-in Maya2OSG. " << VENDOR << " " << VERSION << std::endl;
+	std::cout << "Unloading plug-in Maya2OSG. " << VENDOR << " " << VERSION << " (OSG " << osgGetVersion() << ")" << std::endl;
 	MFnPlugin	plugin( _obj );
 	MStatus		stat;
 	stat = plugin.deregisterCommand( "maya2osg" );
-	if ( !stat )
-		stat.perror("deregisterCommand");
+	if ( MCheckStatus(stat, "deregisterCommand - maya2osg") ) {
+		return stat;
+	}
 	stat = plugin.deregisterCommand( "osg2maya" );
-	if ( !stat )
-		stat.perror("deregisterCommand");
-	return stat;
+	if ( MCheckStatus(stat, "deregisterCommand - osg2maya") ) {
+		return stat;
+	}
+	return MStatus::kSuccess;
 }
 
+
+/**
+ *
+ */
 bool MCheckStatus(MStatus &st, const std::string &msg)
 {
 	if( st.statusCode() != MS::kSuccess )

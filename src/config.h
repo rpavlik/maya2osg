@@ -71,6 +71,9 @@ private:
 	/// Export orthograhpic cameras
 	bool _exportOrthographicCameras;
 
+	/// Convert from Y-Up to Z-Up
+	bool _YUp2ZUp;
+
 	/// Constructor
 	Config();
 
@@ -116,6 +119,13 @@ public:
 
 	inline TextureClampMode getTexClampMode() const
 	{ return _texClampMode; }
+
+	inline void setYUp2ZUp( bool v )
+	{ _YUp2ZUp = v; }
+
+	inline bool getYUp2ZUp() const
+	{ return _YUp2ZUp; }
+
 };
 
 #endif //_CONFIG_H_
