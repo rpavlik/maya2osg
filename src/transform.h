@@ -39,6 +39,8 @@ private:
 	static osg::ref_ptr<osg::AnimationPath> animCurve2AnimationPath(MObject &obj);
 	/// Build the animation from Maya MotionPath
 	static osg::ref_ptr<osg::AnimationPath> motionPath2AnimationPath(MObject &obj);
+	/// Build the animation from any Maya animated Transform
+	static osg::ref_ptr<osg::AnimationPath> animatedTransform2AnimationPath(MObject &obj);
 
 	/// Get the position of a ControlPoint
 	static osg::Vec3 getCPPosition(const MObject &obj);

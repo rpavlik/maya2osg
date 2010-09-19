@@ -1,4 +1,6 @@
 WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+	Export any transform animation, baked with configurable sampling step in the option box "sample by"
+	Bug fixed: spot light cone angle
 	Added a button to "export and preview" in the option box
 	Option to convert from Y-Up to Z-Up coordinate system when exporting
 	Particle systems preliminary support

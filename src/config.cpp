@@ -36,4 +36,5 @@ Config::Config()
 	_surfaceMode = KEEP;
 	_texClampMode = COLOR;
 	_YUp2ZUp = true;
+	_animSampleBy = 1;
 }

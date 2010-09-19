@@ -140,6 +140,12 @@ MStatus maya2osg::doIt( const MArgList & args )
 				Config::instance()->setYUp2ZUp( true );
 			}
 		}
+		else if ( args.asString(i) == "-animSampleBy" ){
+			i++;
+			if(i==args.length())
+				break;
+			Config::instance()->setAnimSampleBy( args.asInt(i) );
+		}
 		else if ( args.asString(i).length() > 0 ) {
 			// We discard empty arguments
 			filename = args.asString(i);

@@ -74,6 +74,9 @@ private:
 	/// Convert from Y-Up to Z-Up
 	bool _YUp2ZUp;
 
+	/// Animation export "sample by"
+	int _animSampleBy;
+
 	/// Constructor
 	Config();
 
@@ -125,6 +128,12 @@ public:
 
 	inline bool getYUp2ZUp() const
 	{ return _YUp2ZUp; }
+
+	inline void setAnimSampleBy( int s )
+	{ _animSampleBy = s; }
+
+	inline int getAnimSampleBy() const
+	{ return _animSampleBy; }
 
 };
 

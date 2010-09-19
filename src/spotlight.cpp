@@ -83,10 +83,7 @@ osg::ref_ptr<osg::Node> SpotLight::exporta(MObject &obj)
 	}
 
 	// Spot light parameters
-	//****** TO-DO: Get Maya spot light equations and establish 
-	// a correspondence with OpenGL formulas, to translate the 
-	// parameters correctly
-	light->setSpotCutoff( mslight.coneAngle()*180.0f/M_PI );
+	light->setSpotCutoff( osg::RadiansToDegrees( mslight.coneAngle() ) / 2.0 );
 	// *** mslight.penumbraAngle();
 	light->setSpotExponent( mslight.dropOff() );
 

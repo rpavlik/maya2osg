@@ -18,6 +18,7 @@
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "transform.h"
+#include "config.h"
 
 #include <osg/MatrixTransform>
 #include <osg/Matrix>
@@ -35,6 +36,9 @@
 #include <maya/MQuaternion.h>
 
 #include <iostream>
+
+// New strategy to export the animations. We keep it removable while testing and debugging
+#define GENERIC_EXPORTER
 
 /**
  *	Check if this node has animations connected (AnimCurves or MotionPaths)
@@ -60,6 +64,11 @@ bool Transform::hasAnimation(MObject &obj, MFn::Type &type)
 			MPlugArray connectedTo;
 			// Get all connections having this node as destination
 			conn.connectedTo(connectedTo, true, false);
+#ifdef GENERIC_EXPORTER
+			if ( connectedTo.length() > 0 ) {
+				return true;
+			}
+#else
 			for(int j=0; j<connectedTo.length(); j++){
 				MPlug origin = connectedTo[j];
 				MObject origin_node = origin.node();
@@ -72,6 +81,7 @@ bool Transform::hasAnimation(MObject &obj, MFn::Type &type)
 					return true;
 				}
 			}
+#endif
 		}
 	}
 	type = MFn::kInvalid;
@@ -122,6 +132,31 @@ osg::Vec3 Transform::getCPScale(const MObject &obj)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ *	Build the animation from a Maya generic animated Transform
+ */
+osg::ref_ptr<osg::AnimationPath> Transform::animatedTransform2AnimationPath(MObject &obj)
+{
+	osg::ref_ptr<osg::AnimationPath> anim = new osg::AnimationPath();
+
+	MTime start = MAnimControl::animationStartTime();
+	MTime end = MAnimControl::animationEndTime();
+	for( MTime t = start ; t <= end ; t += Config::instance()->getAnimSampleBy() ) {
+		// Set the right time in Maya timeline so all properties are updated
+		MAnimControl::setCurrentTime(t);
+
+		anim->insert(t.as(MTime::kSeconds), osg::AnimationPath::ControlPoint(
+			getCPPosition(obj),
+			getCPRotation(obj),
+			getCPScale(obj)
+			));
+	}
+
+	return anim;
+}
+
 
 /**
  *	Build the animation from Maya AnimCurves
@@ -381,6 +416,11 @@ osg::ref_ptr<osg::Group> Transform::exporta(MObject &obj)
 
 		// Create a callback to bind the animation to this transform
 		osg::ref_ptr< osg::AnimationPath > ap;
+#ifdef GENERIC_EXPORTER
+		// New code to create the animation path. Independent of kind of animation.
+		// It bakes any animation, not only animCurves and motionPaths, but also expressions or whatever
+		ap = animatedTransform2AnimationPath(obj);
+#else
 		switch(anim_type){
 			case MFn::kAnimCurve:
 				ap = animCurve2AnimationPath(obj);
@@ -388,7 +428,8 @@ osg::ref_ptr<osg::Group> Transform::exporta(MObject &obj)
 			case MFn::kMotionPath:
 				ap = motionPath2AnimationPath(obj);
 				break;
-		} 
+		}
+#endif
 		trans->setUpdateCallback( new osg::AnimationPathCallback( ap.get() ));
 	}
 

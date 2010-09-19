@@ -34,7 +34,8 @@
  */
 MStatus initializePlugin( MObject _obj )
 {
-	std::cout << "Loading plug-in Maya2OSG. " << VENDOR << " " << VERSION << " (OSG " << osgGetVersion() << ")" << std::endl;
+	std::cout << "Loading Maya2OSG plug-in. " << VENDOR << " " << VERSION << " (" 
+		<< osgGetLibraryName() << " " << osgGetVersion() << ")" << std::endl;
 	MFnPlugin	plugin( _obj, VENDOR, VERSION );
 	MStatus		stat;
 	stat = plugin.registerCommand( "maya2osg",
@@ -56,7 +57,8 @@ MStatus initializePlugin( MObject _obj )
  */
 MStatus uninitializePlugin( MObject _obj )
 {
-	std::cout << "Unloading plug-in Maya2OSG. " << VENDOR << " " << VERSION << " (OSG " << osgGetVersion() << ")" << std::endl;
+	std::cout << "Unloading Maya2OSG plug-in. " << VENDOR << " " << VERSION << " (" 
+		<< osgGetLibraryName() << " " << osgGetVersion() << ")" << std::endl;
 	MFnPlugin	plugin( _obj );
 	MStatus		stat;
 	stat = plugin.deregisterCommand( "maya2osg" );
