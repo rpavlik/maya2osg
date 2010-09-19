@@ -47,6 +47,7 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 	global string $maya2osg_bfcull;
 	global string $maya2osg_texclamp;
 	global string $maya2osg_yup2zup;
+	global string $maya2osg_export_anim;
 	global string $maya2osg_anim_sampleby;
 
 	string $command = "maya2osg";
@@ -83,6 +84,8 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 		$command += " -YUp2ZUp 0";
 	}
 	
+	$command += "-exportAnim " + `checkBox -q -value $maya2osg_export_anim`;
+	
 	// Animation sample by
 	$command += "-animSampleBy " + `intField -q -value $maya2osg_anim_sampleby`;
 	
@@ -103,21 +106,23 @@ proc maya2osg_options(){
 	global string $maya2osg_bfcull;
 	global string $maya2osg_texclamp;
 	global string $maya2osg_yup2zup;
+	global string $maya2osg_export_anim;
 	global string $maya2osg_anim_sampleby;
 
 	// Open a dialog for the selection of export options
 	int $marginW = 15;
 	int $marginH = 10;
+	int $line_height = 25;
 	$maya2osg_export_win = `window -title "Maya2OSG - Export options" -widthHeight 320 300 -sizeable true`;
 	$form = `formLayout -numberOfDivisions 100`;
 		$frame_config = `scrollLayout -horizontalScrollBarThickness 0 -verticalScrollBarThickness 0 -childResizable true -minChildWidth 300`;
 			columnLayout -adjustableColumn true;
 				$frame_geometry = `frameLayout -label "Geometry" -collapsable true -marginWidth $marginW -marginHeight $marginH`;
 					columnLayout;
-						text -label "Single/double side surfaces:" -height 30;
+						text -label "Single/double side surfaces:" -height $line_height;
 						$maya2osg_bfcull = `radioButtonGrp -numberOfRadioButtons 3 -select 3 -label1 "all single" -label2 "all double" -label3 "keep state"`;
 						if ( `upAxis -q -axis` == "y" ) {
-							$maya2osg_yup2zup = `checkBox -label "Convert from Y-Up to Z-Up" -value true -height 30`;
+							$maya2osg_yup2zup = `checkBox -label "Convert from Y-Up to Z-Up" -value true -height $line_height`;
 						}
 						setParent ..;
 					setParent ..;
@@ -148,18 +153,21 @@ proc maya2osg_options(){
 							setParent ..;
 						setParent ..;
 					setParent ..;
-				$frame_geometry = `frameLayout -label "Materials/shading"  -collapse true -collapsable true -marginWidth $marginW -marginHeight $marginH`;
+				$frame_geometry = `frameLayout -label "Materials/shading" -collapse true -collapsable true -marginWidth $marginW -marginHeight $marginH`;
 					columnLayout;
-						text -label "Coming soon..." -height 30;
+						//text -label "Coming soon..." -height $line_height;
+						$maya2osg_glslmats = `checkBox -label "Build GLSL shaders" -value 0 -height $line_height`;
 						setParent ..;
 					setParent ..;
-				$frame_geometry = `frameLayout -label "Lighting"  -collapse true -collapsable true -marginWidth $marginW -marginHeight $marginH`;
+				$frame_geometry = `frameLayout -label "Lighting" -collapse true -collapsable true -marginWidth $marginW -marginHeight $marginH`;
 					columnLayout;
-						text -label "Coming soon..." -height 30;
+						//text -label "Coming soon..." -height $line_height;
+						$maya2osg_shadows = `checkBox -label "Compute shadows" -value 0 -height $line_height`;
 						setParent ..;
 					setParent ..;
 				$frame_geometry = `frameLayout -label "Animation" -collapsable true -marginWidth $marginW -marginHeight $marginH`;
 					columnLayout;
+						$maya2osg_export_anim = `checkBox -label "Export animations" -value 1 -height $line_height`;
 						rowLayout -nc 2;
 							text -label "Sample by: ";
 							$maya2osg_anim_sampleby = `intField -minValue 1 -maxValue 100 -step 1 -value 1`;
@@ -168,7 +176,7 @@ proc maya2osg_options(){
 					setParent ..;
 				$frame_geometry = `frameLayout -label "Particles"  -collapse true -collapsable true -marginWidth $marginW -marginHeight $marginH`;
 					columnLayout;
-						text -label "Coming soon..." -height 30;
+						text -label "Coming soon..." -height $line_height;
 						setParent ..;
 					setParent ..;
 				$frame_cameras = `frameLayout -label "Cameras" -collapsable true -marginWidth $marginW -marginHeight $marginH`;

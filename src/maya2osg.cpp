@@ -140,6 +140,17 @@ MStatus maya2osg::doIt( const MArgList & args )
 				Config::instance()->setYUp2ZUp( true );
 			}
 		}
+		else if ( args.asString(i) == "-exportAnim" ){
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "0" ){
+				Config::instance()->setExportAnimations( false );
+			}
+			else {
+				Config::instance()->setExportAnimations( true );
+			}
+		}
 		else if ( args.asString(i) == "-animSampleBy" ){
 			i++;
 			if(i==args.length())

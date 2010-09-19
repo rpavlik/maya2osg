@@ -36,5 +36,6 @@ Config::Config()
 	_surfaceMode = KEEP;
 	_texClampMode = COLOR;
 	_YUp2ZUp = true;
+	_exportAnimations = true;
 	_animSampleBy = 1;
 }
