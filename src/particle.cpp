@@ -42,7 +42,7 @@ osg::ref_ptr<osg::Node> Particle::exporta(MObject &obj)
 	osg::ref_ptr<osgParticle::ParticleSystem> particle_system = new osgParticle::ParticleSystem();
 	geode->addDrawable( particle_system );
 
-	particle_system->setDefaultAttributes( "", true, false );
+	particle_system->setDefaultAttributes( "", true, false );	// *** TAKE THESE PARAMETERS FROM CONFIG
 
 	if ( !_updater.valid() ) {
 		_updater = new osgParticle::ParticleSystemUpdater();
@@ -97,6 +97,46 @@ osg::ref_ptr<osg::Node> Particle::exporta(MObject &obj)
 	}
 
 	switch( particlefn.renderType() ) {
+		case MFnParticleSystem::kPoints:
+			{
+				std::cout << "Points" << std::endl;
+				particle.setShape( osgParticle::Particle::POINT );
+				MPlug size = dnodefn.findPlug("pointSize",status);
+				if ( !MCheckStatus(status, "finding plug pointSize") ) {
+					particle.setSizeRange( osgParticle::rangef( size.asFloat(), size.asFloat() ) );
+				}
+			}
+			break;
+		case MFnParticleSystem::kStreak:
+			std::cout << "Streak" << std::endl;
+			particle.setShape( osgParticle::Particle::LINE );
+			break;
+		case MFnParticleSystem::kSprites:
+			{
+				std::cout << "Sprites" << std::endl;
+				particle.setShape( osgParticle::Particle::QUAD_TRIANGLESTRIP );
+				float scaleX = 1.0;
+				float scaleY = 1.0;
+				MPlug spriteScaleX = dnodefn.findPlug("spriteScaleX",status);
+				if ( !MCheckStatus(status, "finding plug spriteScaleX") ) {
+					scaleX = spriteScaleX.asFloat();
+				}
+				MPlug spriteScaleY = dnodefn.findPlug("spriteScaleY",status);
+				if ( !MCheckStatus(status, "finding plug spriteScaleY") ) {
+					scaleY = spriteScaleY.asFloat();
+				}
+				if ( scaleX != scaleY ) {
+					std::cerr << "Sprite non-uniform scaling is not currently supported" << std::endl;
+					std::cerr << "Using the average scale as particle size" << std::endl;
+				}
+				float scale = ( scaleX + scaleY ) / 2.0;
+				particle.setSizeRange( osgParticle::rangef( scale, scale ) );
+			}
+			break;
+		case MFnParticleSystem::kSpheres:
+			std::cout << "Spheres" << std::endl;
+			particle.setShape( osgParticle::Particle::HEXAGON );
+			break;
 		case MFnParticleSystem::kCloud:
 			std::cout << "Cloud" << std::endl;
 			break;
@@ -115,35 +155,50 @@ osg::ref_ptr<osg::Node> Particle::exporta(MObject &obj)
 		case MFnParticleSystem::kNumeric:
 			std::cout << "Numeric" << std::endl;
 			break;
-		case MFnParticleSystem::kPoints:
-			std::cout << "Points" << std::endl;
-			break;
-		case MFnParticleSystem::kSpheres:
-			std::cout << "Spheres" << std::endl;
-			break;
-		case MFnParticleSystem::kSprites:
-			std::cout << "Sprites" << std::endl;
-			break;
-		case MFnParticleSystem::kStreak:
-			std::cout << "Streak" << std::endl;
-			break;
 		default:
 			std::cerr << "It is impossible you reach this point in the code, because all options for particle render type were checked" << std::endl;
 			break;
 	}
 
-	// Size/radius	*** MOVE TO THE RIGHT RENDER TYPES
+	// Radius
 	MPlug radius = dnodefn.findPlug("radius", &status);
 	if ( !MCheckStatus(status, "finding plug radius") ) {
 		// *** CHECK RADIUS RAMPS/EXPRESSIONS...  FIXME!!!
 		particle.setRadius( radius.asFloat() );
 	}
 
-	// TO-DO:
-	// Size range, size interpolator, ...
-	// Color range, color interpolator, ...
+	// Color range/color interpolator
+	osg::Vec4 color;
+	MPlug colorPlug;
+	bool hasColor = true;
+	colorPlug = dnodefn.findPlug("colorRed", &status);
+	if ( !MCheckStatus(status, "finding plug colorRed") )
+		color.r() = colorPlug.asDouble();
+	else
+		hasColor = false;
+	colorPlug = dnodefn.findPlug("colorGreen", &status);
+	if ( !MCheckStatus(status, "finding plug colorGreen") )
+		color.g() = colorPlug.asDouble();
+	else
+		hasColor = false;
+	colorPlug = dnodefn.findPlug("colorBlue", &status);
+	if ( !MCheckStatus(status, "finding plug colorBlue") )
+		color.b() = colorPlug.asDouble();
+	else
+		hasColor = false;
+	if ( hasColor ) {
+		color.a() = 1.0;
+		particle.setColorRange( osgParticle::rangev4( color, color ) );
+	}
+
+	// Alpha range
+	MPlug opacity = dnodefn.findPlug("opacity", &status);
+	if ( !MCheckStatus(status, "finding plug opacity") ) {
+		particle.setAlphaRange( osgParticle::rangef( opacity.asFloat(), opacity.asFloat() ) );
+	}
+
 	// Mass
-	// ...
+//	particle.setMass();		// *** Maya only has per-particle (not per-object) mass
 
 	particle_system->setDefaultParticleTemplate( particle );
 
