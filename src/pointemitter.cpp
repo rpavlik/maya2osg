@@ -27,14 +27,17 @@
 
 #include <osgParticle/ConstantRateCounter>
 #include <osgParticle/RadialShooter>
+#include <osg/MatrixTransform>
 
 
-std::vector< std::pair<osgParticle::ModularEmitter *, std::vector<std::string> > > PointEmitter::_emittersParticles;
+std::vector< std::pair<osg::ref_ptr<osgParticle::ModularEmitter>, std::vector<std::string> > > PointEmitter::_emittersParticles;
 
 
 osg::ref_ptr<osg::Node> PointEmitter::exporta(MObject &obj)
 {
 	MFnDependencyNode dnodefn(obj);
+
+	osg::ref_ptr<osg::MatrixTransform> trans_emitter = NULL;
 
 	// What we need to create the OSG emitter (osgParticle::ModularEmitter) :
 	osg::ref_ptr<osgParticle::ModularEmitter> emitter = new osgParticle::ModularEmitter();
@@ -66,7 +69,15 @@ osg::ref_ptr<osg::Node> PointEmitter::exporta(MObject &obj)
 				shooter->setThetaRange( 0, spread * M_PI / 2.0 );
 				// Phi range
 				shooter->setPhiRange( -M_PI, M_PI );
-				// *** FIXME!!!  spread is correct, but direction is NOT!
+				// Rotate the emitter to fit the emission direction in Maya
+				osg::Vec3 direction( dnodefn.findPlug("directionX").asFloat(),
+					dnodefn.findPlug("directionY").asFloat(),
+					dnodefn.findPlug("directionZ").asFloat() );
+				trans_emitter = new osg::MatrixTransform();
+				osg::Matrix mat;
+				mat.makeRotate( osg::Vec3(0.0, 0.0, 1.0), direction );
+				trans_emitter->setMatrix( mat );
+				trans_emitter->addChild( emitter );
 			}
 			break;
 		case 1:	// Omni
@@ -120,7 +131,10 @@ osg::ref_ptr<osg::Node> PointEmitter::exporta(MObject &obj)
 	std::pair<osgParticle::ModularEmitter *, std::vector<std::string> > pair ( emitter, particle_systems_names );
 	_emittersParticles.push_back( pair );
 
-	return emitter;
+	if ( trans_emitter.valid() )
+		return trans_emitter;
+	else
+		return emitter;
 }
 
 

@@ -30,7 +30,7 @@
 
 osg::ref_ptr<osgParticle::ParticleSystemUpdater> Particle::_updater = NULL;
 
-std::map<std::string, osgParticle::ParticleSystem *> Particle::_psMap;
+std::map<std::string, osg::ref_ptr<osgParticle::ParticleSystem> > Particle::_psMap;
 
 osg::ref_ptr<osg::Node> Particle::exporta(MObject &obj)
 {
@@ -38,8 +38,8 @@ osg::ref_ptr<osg::Node> Particle::exporta(MObject &obj)
 	MFnParticleSystem particlefn(obj);
 	MStatus status;
 
-	osg::Geode *geode = new osg::Geode();
-	osgParticle::ParticleSystem *particle_system = new osgParticle::ParticleSystem();
+	osg::ref_ptr<osg::Geode> geode = new osg::Geode();
+	osg::ref_ptr<osgParticle::ParticleSystem> particle_system = new osgParticle::ParticleSystem();
 	geode->addDrawable( particle_system );
 
 	particle_system->setDefaultAttributes( "", true, false );
@@ -132,11 +132,12 @@ osg::ref_ptr<osg::Node> Particle::exporta(MObject &obj)
 			break;
 	}
 
-	// Size/radius
+	// Size/radius	*** MOVE TO THE RIGHT RENDER TYPES
 	MPlug radius = dnodefn.findPlug("radius", &status);
-	MCheckStatus(status, "finding plug radius");
-	// *** CHECK RADIUS RAMPS/EXPRESSIONS...  FIXME!!!
-	particle.setRadius( radius.asFloat() );
+	if ( !MCheckStatus(status, "finding plug radius") ) {
+		// *** CHECK RADIUS RAMPS/EXPRESSIONS...  FIXME!!!
+		particle.setRadius( radius.asFloat() );
+	}
 
 	// TO-DO:
 	// Size range, size interpolator, ...

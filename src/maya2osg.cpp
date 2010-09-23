@@ -17,6 +17,16 @@
     You should have received a copy of the GNU General Public License
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "pointemitter.h"
+#include "common.h"
+#include "maya2osg.h"
+#include "config.h"
+#include "dagnode.h"
+#include "texture.h"
+#include "lights.h"
+#include "camera.h"
+#include "particle.h"
+
 #include <maya/MGlobal.h>
 #include <maya/MArgList.h>
 #include <maya/MSelectionList.h>
@@ -29,16 +39,6 @@
 #include <osg/StateSet>
 #include <osg/StateAttribute>
 #include <osgDB/WriteFile>
-
-#include "common.h"
-#include "maya2osg.h"
-#include "config.h"
-#include "dagnode.h"
-#include "texture.h"
-#include "lights.h"
-#include "camera.h"
-#include "particle.h"
-#include "pointemitter.h"
 
 #include <stdlib.h>
 #include <string.h>

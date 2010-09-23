@@ -17,11 +17,11 @@
     You should have received a copy of the GNU General Public License
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "pointemitter.h"
 #include "group.h"
 #include "transform.h"
 #include "cameraanimation.h"
 #include "dagnode.h"
-#include "pointemitter.h"
 
 #include <maya/MFnDependencyNode.h>
 #include <osg/Group>

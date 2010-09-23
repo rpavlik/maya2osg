@@ -20,17 +20,16 @@
 #ifndef _POINTEMITTER_H_
 #define _POINTEMITTER_H_
 
-#include <maya/MObject.h>
-
 #include <osg/Node>
 #include <osgParticle/ModularEmitter>
 
+#include <maya/MObject.h>
 
 class PointEmitter {
 
 private:
 	/// Association to each emitter the particle systems that emits
-	static std::vector<std::pair<osgParticle::ModularEmitter *, std::vector<std::string> > > _emittersParticles;
+	static std::vector<std::pair<osg::ref_ptr<osgParticle::ModularEmitter>, std::vector<std::string> > > _emittersParticles;
 
 public:
 	/// Exports Emitter node

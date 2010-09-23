@@ -38,8 +38,8 @@ private:
 	 *	When it is traversed by a cull visitor, it calls 
 	 *	the update() method on the specified particle systems.
 	 *
-	 *	@warning What to do, one updater for all or one for
-	 *	each particle system? ***********
+	 *	@note We create just one updater for all
+	 *	particle systems in the scene
 	 */
 	static osg::ref_ptr<osgParticle::ParticleSystemUpdater> _updater;
 
@@ -53,11 +53,14 @@ public:
 	{ return _updater; }
 
 	/// Map of particle systems
-	static std::map<std::string, osgParticle::ParticleSystem *> _psMap;
+	static std::map<std::string, osg::ref_ptr<osgParticle::ParticleSystem> > _psMap;
 
 	/// Clear the particle map
 	static void reset()
-	{ _psMap.clear(); }
+	{ 
+		_psMap.clear(); 
+		_updater = NULL;
+	}
 
 };
 
