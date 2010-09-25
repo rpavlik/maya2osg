@@ -105,16 +105,18 @@ osg::ref_ptr<osg::Node> Particle::exporta(MObject &obj)
 				if ( !MCheckStatus(status, "finding plug pointSize") ) {
 					particle.setSizeRange( osgParticle::rangef( size.asFloat(), size.asFloat() ) );
 				}
+				// TO-DO : Point size is not affecting OSG scene  *** FIXME!!!
 			}
 			break;
 		case MFnParticleSystem::kStreak:
 			std::cout << "Streak" << std::endl;
 			particle.setShape( osgParticle::Particle::LINE );
+			// TO-DO : Line width is not affecting OSG scene  *** FIXME!!!
 			break;
 		case MFnParticleSystem::kSprites:
 			{
 				std::cout << "Sprites" << std::endl;
-				particle.setShape( osgParticle::Particle::QUAD_TRIANGLESTRIP );
+				particle.setShape( osgParticle::Particle::QUAD );
 				float scaleX = 1.0;
 				float scaleY = 1.0;
 				MPlug spriteScaleX = dnodefn.findPlug("spriteScaleX",status);
@@ -131,29 +133,38 @@ osg::ref_ptr<osg::Node> Particle::exporta(MObject &obj)
 				}
 				float scale = ( scaleX + scaleY ) / 2.0;
 				particle.setSizeRange( osgParticle::rangef( scale, scale ) );
+				// TO-DO : Sprite images are not exported *** FIXME!!!
 			}
 			break;
 		case MFnParticleSystem::kSpheres:
 			std::cout << "Spheres" << std::endl;
-			particle.setShape( osgParticle::Particle::HEXAGON );
+			// TO-DO : User custom shapes are available in latest development OSG releases (e.g. 2.9.9)  *** FIXME!!!
 			break;
 		case MFnParticleSystem::kCloud:
 			std::cout << "Cloud" << std::endl;
+			std::cout << "CURRENTLY NOT SUPPORTED!" << std::endl;
 			break;
 		case MFnParticleSystem::kTube:
 			std::cout << "Tube" << std::endl;
+			std::cout << "CURRENTLY NOT SUPPORTED!" << std::endl;
 			break;
 		case MFnParticleSystem::kBlobby:
 			std::cout << "Blobby" << std::endl;
+			std::cout << "CURRENTLY NOT SUPPORTED!" << std::endl;
+			// TO-DO : Maybe we could consider (supposed threshold is 0) to export spheres (user custom drawable)
+			//	with the corresponding material/shader (instead of colour as in hardware render kSpheres)
 			break;
 		case MFnParticleSystem::kMultiPoint:
 			std::cout << "MultiPoint" << std::endl;
+			std::cout << "CURRENTLY NOT SUPPORTED!" << std::endl;
 			break;
 		case MFnParticleSystem::kMultiStreak:
 			std::cout << "MultiStreak" << std::endl;
+			std::cout << "CURRENTLY NOT SUPPORTED!" << std::endl;
 			break;
 		case MFnParticleSystem::kNumeric:
 			std::cout << "Numeric" << std::endl;
+			std::cout << "CURRENTLY NOT SUPPORTED!" << std::endl;
 			break;
 		default:
 			std::cerr << "It is impossible you reach this point in the code, because all options for particle render type were checked" << std::endl;

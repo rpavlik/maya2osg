@@ -1,0 +1,192 @@
+//
+//  ====================== applySprite ======================
+//
+//  SYNOPSIS
+//      Apply sprite hardware rendering to a particle shape.
+//
+//  NOTE: This version of applySprite is updated and improved for version 3.0.
+//
+//  If you set "cycleEnabled", the sprites will cycle through the given
+//  image once during the lifetime of the particle. 
+// 
+//  If you set "randomIndex," a random index will be assigned at particle
+//  birth time.  (This option and "cycleEnabled" are mutually exclusive,
+//  since if you set both, the cycling will immediately override the random
+//  index.)  
+//
+//  applySprite adds controls for cycleEnable and randomIndex so you can
+//  toggle back and forth between one and the other.  
+//  If you set both  cycleEnable and randomIndex false, all particles will
+//  use the same image all the time.
+//
+//  The expression for spriteNumPP is written in terms of the startCycleExtension
+//  and endCycleExtension of the file texture.  If you want to add more images,
+//  all you need do is modify those attributes.
+// 
+//  If you want to change the sprite image after creating the sprites, you'll
+//  need to edit the file texture and possibly change the keys on
+//  the frameExtension attribute. See the Using Maya documentation.
+//
+//  To see the sprites, of course, you must set both smooth shading and 
+//  hardware texturing on (from the Shading menu).
+//
+//  EXAMPLES OF USAGE
+//
+//      particle;
+//      applySprite( "particleShape1", "funnyFace", 1,30, 0,1, 3.0,6.0 )
+//
+//        This adds sprites "funnyFace.1,"...,"funnyFace.30" to particleShape1.
+//        It selects randomly one sprite for each particle, and that
+//        particle keeps that sprite throughout its lifetime.  Each
+//        particle lives a random time between 3 and 6 seconds.
+//  
+//      particle;
+//      applySprite( "particleShape1", "funnyFace", 1,30, 1,0, 3.0,6.0 )
+//	      
+//        Same as above, but each particle will cycle over the complete
+//        sequence of sprites during its lifetime, starting with 1.
+//        If you were to make the first call to applySprite, then go to
+//        the channel box and set randomIndex to false and cycleEnabled to
+//        true, you'd get the same results as from the second call.
+//
+//  INPUT ARGUMENTS
+//
+//      string $particleShape   The name of the particle shape. Must be the shape.
+//		string $imageName		The name of the base image
+//		int $startImage 		The first image frame to use
+//		int $endImage			The end image frame to use
+//		int $cycleEnabled		Use image cycling yes/no
+//      int $randomIndex       Use random per-particle offset into the sequence
+//		float $minLifespan		The minimum lifespan (for cycling)
+//		float $maxLifespan		The maximum lifespan (for cycling)
+
+global proc int applySprite(
+						string $particleShape,
+						string $imageName,
+						int $startImage, int $endImage, 
+						int $cycleEnabled, int $randomIndex, 
+						float $minLifespan, float $maxLifespan )
+{
+	// Verify that particle object exists
+	//
+	if (!particleExists( $particleShape )) 
+	{
+		print("Error: particle shape " + $particleShape + " not found.\n");
+		return 1;
+	}
+
+	// Set sprite rendering attributes in the particle object
+	//
+	select -r $particleShape;
+	setAttr ($particleShape+".particleRenderType") 5;
+
+	// Check whether sprite attributes have been added and if not, add them.
+	// Actually we just check one, since we assume if one got added, they all did.
+	//
+	string $test[] = `listAttr -st spriteTwist $particleShape`;
+	if (size($test) == 0)
+	{
+		addAttr -is true -ln "spriteTwist" 
+			-at "float" -min -180 -max 180 -dv 0.0 
+			$particleShape;
+		addAttr -is true -ln "spriteScaleX" -dv 1.0 $particleShape;
+		addAttr -is true -ln "spriteScaleY" -dv 1.0 $particleShape;
+		addAttr -is true -ln "spriteNum" -at long -dv 1 $particleShape;
+		addAttr -is true -ln "useLighting" -at bool -dv false $particleShape;
+	}
+	setAttr ($particleShape+".depthSort") 1;
+
+	// Make a shader
+	//
+	string $lambert = `shadingNode -asShader lambert`;
+	string $lambertSG   = $lambert + "SG";
+	sets -renderable true -noSurfaceShader true -empty -name $lambertSG;
+	connectAttr -f ($lambert+".outColor") ($lambertSG+".surfaceShader");
+
+	// Make a file texture.
+	//
+	string $fileTex = `shadingNode -asTexture file`;
+	string $placeTex = `shadingNode -asUtility place2dTexture`;
+	connectAttr -f ($placeTex+".coverage") ($fileTex+".coverage");
+	connectAttr -f ($placeTex+".translateFrame") ($fileTex+".translateFrame");
+	connectAttr -f ($placeTex+".rotateFrame") ($fileTex+".rotateFrame");
+	connectAttr -f ($placeTex+".mirrorU") ($fileTex+".mirrorU");
+	connectAttr -f ($placeTex+".mirrorV") ($fileTex+".mirrorV");
+	connectAttr -f ($placeTex+".stagger") ($fileTex+".stagger");
+	connectAttr -f ($placeTex+".wrapU") ($fileTex+".wrapU");
+	connectAttr -f ($placeTex+".wrapV") ($fileTex+".wrapV");
+	connectAttr -f ($placeTex+".repeatUV") ($fileTex+".repeatUV");
+	connectAttr -f ($placeTex+".offset") ($fileTex+".offset");
+	connectAttr -f ($placeTex+".rotateUV") ($fileTex+".rotateUV");
+	connectAttr -f ($placeTex+".noiseUV") ($fileTex+".noiseUV");
+	connectAttr ($placeTex+".outUV") ($fileTex+".uv");
+	connectAttr ($placeTex+".outUvFilterSize") ($fileTex+".uvFilterSize");
+
+	// Hook the file texture to the color
+	//
+	connectAttr -f ($fileTex+".outColor") ($lambert+".color");
+
+	// Assign the source image.
+	// We use whatever is the default path.
+	// Enable frame extension and hardware texture cycling.
+	//
+	setAttr -type "string" ($fileTex+".fileTextureName") $imageName;
+	setAttr ($fileTex+".useFrameExtension") 1;
+	setAttr ($fileTex+".useHardwareTextureCycling") 1;
+	setAttr ($fileTex+".startCycleExtension") $startImage;
+	setAttr ($fileTex+".endCycleExtension")   $endImage;
+
+	// Set expression on frameExtension to force file load and reset random generator
+	//
+	expression -s "if (frame <= 1) seed(1);\n\nint $start = startCycleExtension;\nint $end =   endCycleExtension;\nif (frame <= $end-$start+1)\n\tframeExtension = $start + frame - 1;\nelse\n\tframeExtension = $end;"  -o $fileTex -ae 1 -uc all ;
+
+	// Assign the shader.
+	//
+	sets -e -forceElement $lambertSG $particleShape;
+
+	// Add spriteNumPP attribute to the particle
+	// and write expression on it.
+	//
+	$test = `listAttr -st spriteNumPP $particleShape`;
+	if (size($test) == 0)
+	{
+		addAttr -ln spriteNumPP -dt doubleArray $particleShape;
+		addAttr -ln spriteNumPP0 -dt doubleArray $particleShape;
+	}
+
+	// Upper and lower bounds for particle lifespan
+	//
+	setAttr ($particleShape+".lifespanMode") 2;
+	setAttr ($particleShape+".lifespan") (($minLifespan+$maxLifespan) / 2.0);
+	setAttr ($particleShape+".lifespanRandom") ($maxLifespan-$minLifespan);
+
+
+	// Enable/disable cycling
+	//
+	addAttr -ln "cycleEnabled" -at bool  $particleShape;
+	setAttr -e -keyable true ($particleShape+".cycleEnabled");
+	setAttr ($particleShape+".cycleEnabled") $cycleEnabled;
+
+	// Random offset toggle
+	//
+	addAttr -ln "randomIndex" -at bool  $particleShape;
+	setAttr -e -keyable true ($particleShape+".randomIndex");
+	setAttr ($particleShape+".randomIndex") $randomIndex;
+
+	
+	// Make the expressions
+	//
+	string $creationExprString;
+	$creationExprString = `dynExpression -q -c $particleShape`;
+	$creationExprString = "\nint $start = "+$fileTex+".startCycleExtension;\nint $end = "+$fileTex+".endCycleExtension;\nif (randomIndex)\n{\n\t// add random offset\n\tspriteNumPP = (int) $start + rand( 0, $end-$start+1);\n\n}" + $creationExprString;
+
+	dynExpression -s $creationExprString -c $particleShape;
+
+	string $runtimeExprString;
+	$runtimeExprString = `dynExpression -q -r $particleShape`;
+	$runtimeExprString = "\nint $start = "+$fileTex+".startCycleExtension;\nint $end = "+$fileTex+".endCycleExtension;\nint $index = $start;\nint $offset = 0;\nif ((!randomIndex) && (cycleEnabled))\n{\n\t// add offset for age\n\t$offset = (age/finalLifespanPP) * ($end-$start+1);\n\tspriteNumPP = $index + $offset;\n}" + $runtimeExprString;
+
+	dynExpression -s $runtimeExprString -r $particleShape;
+
+	return 0;
+}

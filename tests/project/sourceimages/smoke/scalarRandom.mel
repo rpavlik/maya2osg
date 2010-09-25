@@ -1,0 +1,50 @@
+//
+//  ====================== scalarRandom ======================
+//
+//  Two routines for setting the (scalar) attributes of particles
+//  to random values.  
+
+global proc scalarRandom( string $attr, float $value, float $random )
+//
+// Description: 
+//   Sets the specified attribute of all particles in a selected component to 
+// a random value uniformly distributed with a mean of $value and a distritbution of $random.
+// Thus, the value varies from $value - $random/2 to $value + $random/2.
+// This script assumes the component is already selected.
+// Does not check that the object or attribute is valid.
+// Use at your own risk.
+//
+// Usage:
+//   select -r particle1.pt[0:10];
+//   scalarRandom("myParticle", "radiusPP", 1.0, 3.0 );
+{
+	setParticleAttr -at $attr -fv $value;
+	setParticleAttr -at $attr -relative true -rf ($random/2);
+}
+
+
+global proc scalarRandomObject( string $pObj, string $attr, float $value, float $random )
+//
+// Description:
+//  Same as scalarRandom, but simply operates on all particles in the
+// given object. Does not check that the object or attribute is valid.
+// Use at your own risk.
+//
+// Usage:
+//   scalarRandomObject("myParticle", "radiusPP", 1.0, 3.0 );
+{
+	if (catch( `ls pObj`)) return;
+
+	// if ("particle" != nodeType( $pObj ) return;
+
+	int $count = `getAttr ($pObj+".count")`;
+	
+	// select a component consisting of all the particles.
+	//
+	string $selectCmd = "select -r " + $pObj + ".pt[0:" + ($count-1) + "]";
+	eval($selectCmd);
+
+	// now randomize the attribute
+	//
+	scalarRandom( $attr, $value, $random );
+}
