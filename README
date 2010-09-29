@@ -1,5 +1,5 @@
 Maya2OSG - A toolkit for exporting Maya scenes to OpenSceneGraph
-Version 0.3.0
+Version 0.4.0
 
 Copyright (C) 2010 Javier Taibo <javier.taibo@gmail.com>
 
@@ -90,5 +90,7 @@ HISTORY					Changelog of the project up to this release
 VERSION					Current release version number
 src						Source code
 doc						Documentation
+tests					Test scenes/models
+maya2009				Stuff needed for compiling and installing in Maya 2009
 maya2010				Stuff needed for compiling and installing in Maya 2010
 maya2011				Stuff needed for compiling and installing in Maya 2011

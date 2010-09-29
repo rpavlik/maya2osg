@@ -1,11 +1,9 @@
-0.4.x
-		Particle systems
-		Improved GUI
-		Improved installation
 
 0.5.x
-		osgShadow
+		Shading, lighting and shadows
+		osgShadow support
 		GLSL shaders
 
 0.6.x
+		Character animation
 		osgAnimation
