@@ -49,6 +49,8 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 	global string $maya2osg_yup2zup;
 	global string $maya2osg_export_anim;
 	global string $maya2osg_anim_sampleby;
+	global string $maya2osg_cbParticlesEmissive;
+	global string $maya2osg_cbParticlesLighting;
 
 	string $command = "maya2osg";
 		
@@ -88,6 +90,10 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 	
 	// Animation sample by
 	$command += "-animSampleBy " + `intField -q -value $maya2osg_anim_sampleby`;
+
+	// Particle systems
+	$command += " -particlesEmissive " + `checkBox -q -value $maya2osg_cbParticlesEmissive`;
+	$command += " -particlesLighting " + `checkBox -q -value $maya2osg_cbParticlesLighting`;
 	
 	$command += " \"" + $file + "\";";
 //	print($command + "\n");
@@ -108,6 +114,8 @@ proc maya2osg_options(){
 	global string $maya2osg_yup2zup;
 	global string $maya2osg_export_anim;
 	global string $maya2osg_anim_sampleby;
+	global string $maya2osg_cbParticlesEmissive;
+	global string $maya2osg_cbParticlesLighting;
 
 	// Open a dialog for the selection of export options
 	int $marginW = 15;
@@ -174,9 +182,10 @@ proc maya2osg_options(){
 							setParent ..;
 						setParent ..;
 					setParent ..;
-				$frame_geometry = `frameLayout -label "Particles"  -collapse true -collapsable true -marginWidth $marginW -marginHeight $marginH`;
+				$frame_geometry = `frameLayout -label "Particles" -collapsable true -marginWidth $marginW -marginHeight $marginH`;
 					columnLayout;
-						text -label "Coming soon..." -height $line_height;
+						$maya2osg_cbParticlesEmissive = `checkBox -label "Emissive particles"`;
+						$maya2osg_cbParticlesLighting = `checkBox -label "Particles lighting"`;
 						setParent ..;
 					setParent ..;
 				$frame_cameras = `frameLayout -label "Cameras" -collapsable true -marginWidth $marginW -marginHeight $marginH`;

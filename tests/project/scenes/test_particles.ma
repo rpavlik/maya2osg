@@ -1,6 +1,6 @@
 //Maya ASCII 2010 scene
 //Name: test_particles.ma
-//Last modified: Fri, Sep 24, 2010 01:13:00 AM
+//Last modified: Thu, Sep 30, 2010 12:25:38 AM
 //Codeset: 1252
 requires maya "2010";
 currentUnit -l centimeter -a degree -t film;
@@ -8,21 +8,22 @@ fileInfo "application" "maya";
 fileInfo "product" "Maya Unlimited 2010";
 fileInfo "version" "2010";
 fileInfo "cutIdentifier" "200907280007-756013";
-fileInfo "osv" "Microsoft Windows Vista Service Pack 2 (Build 6002)\n";
+fileInfo "osv" "Microsoft Windows Vista  (Build 7600)\n";
 createNode transform -s -n "persp";
 	setAttr ".v" no;
-	setAttr ".t" -type "double3" 26.104841050703644 12.246852912450734 11.989215974739874 ;
-	setAttr ".r" -type "double3" -19.5383527296081 65.400000000001654 -3.8202035027767354e-015 ;
-	setAttr ".rp" -type "double3" -2.9865473696379287e-015 1.2624179366844138e-016 7.1054273576010019e-015 ;
-	setAttr ".rpt" -type "double3" 4.4610327995874937e-015 4.1623074360160482e-015 -6.852018319107949e-016 ;
+	setAttr ".t" -type "double3" 28.000000000000007 21 28 ;
+	setAttr ".r" -type "double3" -27.938352729602379 44.999999999999964 0 ;
+	setAttr ".rp" -type "double3" -1.7763568394002505e-015 -8.8817841970012523e-016 
+		0 ;
+	setAttr ".rpt" -type "double3" -2.0254117314783439e-015 1.8443966591649209e-015 
+		2.6735708427391984e-015 ;
 createNode camera -s -n "perspShape" -p "persp";
 	setAttr -k off ".v" no;
-	setAttr ".fl" 34.999999999999979;
-	setAttr ".coi" 32.654817575206174;
+	setAttr ".fl" 34.999999999999986;
+	setAttr ".coi" 44.82186966202994;
 	setAttr ".imn" -type "string" "persp";
 	setAttr ".den" -type "string" "persp_depth";
 	setAttr ".man" -type "string" "persp_mask";
-	setAttr ".tp" -type "double3" -1.8764296830359193 1.3258485072064548 -0.82160998519739614 ;
 	setAttr ".hc" -type "string" "viewSet -p %camera";
 createNode transform -s -n "top";
 	setAttr ".v" no;
@@ -81,6 +82,26 @@ createNode particle -n "particleShape1" -p "particle1";
 	addAttr -is true -ci true -sn "spriteScaleY" -ln "spriteScaleY" -dv 1 -at "double";
 	addAttr -is true -ci true -sn "spriteNum" -ln "spriteNum" -dv 1 -at "long";
 	addAttr -is true -ci true -sn "useLighting" -ln "useLighting" -min 0 -max 1 -at "bool";
+	addAttr -ci true -sn "__ApplySprite__" -ln "__ApplySprite__" -at "message";
+	addAttr -ci true -k true -sn "SpriteAnimation" -ln "SpriteAnimation" -min 0 -max 
+		1 -en "off:on" -at "enum";
+	addAttr -ci true -k true -sn "SpriteStartOption" -ln "SpriteStartOption" -min 0 
+		-max 4 -en "first:particleId:random:custom:ramp" -at "enum";
+	addAttr -ci true -k true -sn "SpriteCyclePattern" -ln "SpriteCyclePattern" -min 
+		0 -max 5 -en "linearUp:easeUp:linearUpDown:easeUpDown:custom:ramp" -at "enum";
+	addAttr -ci true -k true -sn "SpriteCycleLength" -ln "SpriteCycleLength" -min 0 
+		-at "double";
+	addAttr -ci true -sn "SpriteInvertCycle" -ln "SpriteInvertCycle" -min 0 -max 1 -at "bool";
+	addAttr -ci true -sn "ageNormalized" -ln "ageNormalized" -dt "doubleArray";
+	addAttr -ci true -h true -sn "ageNormalized0" -ln "ageNormalized0" -dt "doubleArray";
+	addAttr -ci true -sn "spriteNumPP" -ln "spriteNumPP" -dt "doubleArray";
+	addAttr -ci true -h true -sn "spriteNumPP0" -ln "spriteNumPP0" -dt "doubleArray";
+	addAttr -ci true -sn "startIndexPP" -ln "startIndexPP" -dt "doubleArray";
+	addAttr -ci true -h true -sn "startIndexPP0" -ln "startIndexPP0" -dt "doubleArray";
+	addAttr -ci true -sn "spriteNumRamp" -ln "spriteNumRamp" -dt "doubleArray";
+	addAttr -ci true -h true -sn "spriteNumRamp0" -ln "spriteNumRamp0" -dt "doubleArray";
+	addAttr -ci true -sn "spriteNumRampU" -ln "spriteNumRampU" -dt "doubleArray";
+	addAttr -ci true -h true -sn "spriteNumRampU0" -ln "spriteNumRampU0" -dt "doubleArray";
 	setAttr -k off ".v";
 	setAttr ".gf" -type "Int32Array" 0 ;
 	setAttr ".pos0" -type "vectorArray" 0 ;
@@ -93,14 +114,26 @@ createNode particle -n "particleShape1" -p "particle1";
 	setAttr ".bt0" -type "doubleArray" 0 ;
 	setAttr ".ag0" -type "doubleArray" 0 ;
 	setAttr -s 2 ".npt";
-	setAttr ".lfm" 1;
-	setAttr ".irbx" -type "string" "";
+	setAttr ".lfm" 2;
+	setAttr ".lfr" 2;
+	setAttr -s 11 ".xi";
+	setAttr -s 2 ".xo";
+	setAttr ".irbx" -type "string" (
+		"// __ApplySprite_Start_Tag__\n//\n// Do not delete the tag above.  It is used to properly\n// replace this expression if the applySprite() script\n// is executed again.\n//\nint $firstImageNumber = .I[0];\nint $lastImageNumber = .I[1];\nint $imageCount = $lastImageNumber - $firstImageNumber + 1;\nint $one_based_start = 1;\n\nif( .I[2] == 1 )\n{\n\t// If particles live forever, the animation option won't work.\n\t// Switch them to constant so that the user can see their animation.\n\t//\n\tif (.O[0] == 0) {\n\t\t.O[0] = 1;\n\t}\n\n\tif ( .I[3] < 4 )\n\t{\n\t\t//\n\t\t// Find out how far into the cycle function to offset the lookup, based\n\t\t// on the startIndexPP of this particle.\n\t\t//\n\t\tfloat $startIndexPPRatio = 0;\n\t\t{\n\t\t\t$startIndexPPRatio = ( .O[1] - $one_based_start ) / ( $imageCount );\n\n\t\t\t//\n\t\t\t// If the cycle function starts off moving in the negative direction, we move the offset\n\t\t\t// forward a little bit to allow the first value to not immediately change as its value\n\t\t\t// crosses down to the next smaller integer.\n\t\t\t//\n\t\t\tif( .I[4] == 1 )\n"
+		+ "\t\t\t{\n\t\t\t\t$startIndexPPRatio = ( .O[1] + 1 - $one_based_start ) / ( $imageCount );\n\t\t\t}\n\n\t\t\t//\n\t\t\t// Adjust the offset into the cycle function so that it starts at the same place\n\t\t\t// as the startIndexPP would be in the function.\n\t\t\t//\n\t\t\tif( .I[3] == 0 )\n\t\t\t{\n\t\t\t\t$startIndexPPRatio = $startIndexPPRatio;\n\t\t\t}\n\t\t\telse if( .I[3] == 1 )\n\t\t\t{\n\t\t\t\tfloat $ts = ( ( $startIndexPPRatio * 2.0 ) - 1.0 );\n\t\t\t\tfloat $ac = acos( $ts );\n\t\t\t\t$nv = ( 3.14159 - $ac ) / 3.14159;\n\t\t\t\t$startIndexPPRatio = $nv;\n\t\t\t}\n\t\t\telse if( .I[3] == 2 )\n\t\t\t{\n\t\t\t\t$startIndexPPRatio = $startIndexPPRatio / 2.0;\n\t\t\t}\n\t\t\telse if( .I[3] == 3 )\n\t\t\t{\n\t\t\t\tfloat $ts = ( ( $startIndexPPRatio * 2.0 ) - 1.0 );\n\t\t\t\tfloat $ac = acos( $ts );\n\t\t\t\t$nv = ( 3.14159 - $ac ) / 3.14159;\n\t\t\t\t$startIndexPPRatio = $nv / 2.0;\n\t\t\t}\n\t\t}\n\n\t\t//\n\t\t// Compute the value to use to access the curve function for the given cycle option.\n\t\t//\n\t\tfloat $a = 0;\n\t\t{\n\t\t\tif( .I[5] <= 0 )\n\t\t\t{\n\t\t\t\tif( .I[4] == 0 )\n\t\t\t\t{\n\t\t\t\t\t$a = ( .I[6] + $startIndexPPRatio ) % 1.0;\n\t\t\t\t}\n\t\t\t\telse\n\t\t\t\t{\n\t\t\t\t\t$a = ( $startIndexPPRatio - .I[6] );\n"
+		+ "\t\t\t\t\twhile( $a < 0 )\n\t\t\t\t\t{\n\t\t\t\t\t\t$a = $a + 1.0;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t\telse\n\t\t\t{\n\t\t\t\tfloat $fps = 30.0;\n\t\t\t\tstring $timeUnit = `currentUnit -q -time`;\n\t\t\t\tif( $timeUnit == \"film\")\n\t\t\t\t\t$fps = 24.0;\n\t\t\t\telse if( $timeUnit == \"ntsc\")\n\t\t\t\t\t$fps = 30.0;\n\t\t\t\telse if( $timeUnit == \"pal\")\n\t\t\t\t\t$fps = 25.0;\n\t\t\t\telse if( $timeUnit == \"game\")\n\t\t\t\t\t$fps = 15.0;\n\t\t\t\telse if( $timeUnit == \"palf\")\n\t\t\t\t\t$fps = 50.0;\n\t\t\t\telse if( $timeUnit == \"ntscf\")\n\t\t\t\t\t$fsp = 60.0;\n\n\t\t\t\tfloat $age = .I[7];\n\t\t\t\tfloat $ageFrames = $age * $fps;\n\t\t\t\tif( .I[4] == 0 )\n\t\t\t\t{\n\t\t\t\t\t$a = ( ( $ageFrames / .I[5] ) + $startIndexPPRatio ) % 1.0;\n\t\t\t\t}\n\t\t\t\telse\n\t\t\t\t{\n\t\t\t\t\t$a = ( $startIndexPPRatio - ( $ageFrames / .I[5] ) );\n\t\t\t\t\twhile( $a < 0 )\n\t\t\t\t\t{\n\t\t\t\t\t\t$a = $a + 1.0;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tif( ( .I[3] == 2 ) ||\n\t\t\t    ( .I[3] == 3 ) )\n\t\t\t{\n\t\t\t\t$a = $a * 2.0;\n\t\t\t}\n\t\t}\n\n\t\t//\n\t\t// Compute value from $a and the curve representing the desired cycle option.\n\t\t//\n\t\tfloat $v = 0;\n\t\t{\n\t\t\t//\n\t\t\t// Linearly increasing.\n\t\t\t//\n\t\t\tif( .I[3] == 0 )\n\t\t\t{\n\t\t\t\t$v = 1.0 - abs( 1.0 -$a );\n"
+		+ "\t\t\t}\n\t\t\t//\n\t\t\t// Linearly decreasing.\n\t\t\t//\n\t\t\telse if( .I[3] == 1 )\n\t\t\t{\n\t\t\t\tfloat $ta = ( $a + 1.0 ) * 3.14159;\n\t\t\t\tfloat $nv = ( cos( $ta ) + 1.0 ) / 2.0;\n\t\t\t\t$v = $nv;\n\t\t\t}\n\t\t\t//\n\t\t\t// Linearly increasing, then decreasing.\n\t\t\t//\n\t\t\telse if( .I[3] == 2 )\n\t\t\t{\n\t\t\t\t$v = 1.0 - abs( 1.0 -$a );\n\t\t\t}\n\t\t\t//\n\t\t\t// Linearly decreasing, then increasing.\n\t\t\t//\n\t\t\telse if( .I[3] == 3 )\n\t\t\t{\n\t\t\t\tfloat $ta = ( $a + 1.0 ) * 3.14159;\n\t\t\t\tfloat $nv = ( cos( $ta ) + 1.0 ) / 2.0;\n\t\t\t\t$v = $nv;\n\t\t\t}\n\t\t}\n\n\t\t//\n\t\t// Now scale $v by the number of images in the set to\n\t\t// get the index.  Add one to this since the images\n\t\t// for the sprite rendering are considered to be\n\t\t// one-based.  We actually scale by just under the\n\t\t// image count.  Since this is converted to an integer,\n\t\t// this gives the last image equal time in the cycle.\n\t\t//\n\t\tint $finalIndex = $one_based_start + ( $v * ( $imageCount - 0.01 ) );\n\n\t\t//\n\t\t// Assign the index.\n\t\t//\n\t\t.O[2] = $finalIndex;\n\t}\n \telse if( .I[3] == 4 )\n \t{\n \t\t//\n \t\t// Custom Cycle\n \t\t// Put your own expression for spriteNumPP here.\n"
+		+ " \t\t//\n \t}\n\telse if( .I[3] == 5 )\n\t{\n\t\tfloat $rampValue = .I[8];\n\t\tif( .I[4] == 1 )\n\t\t{\n\t\t\t$rampValue = 1.0 - $rampValue;\n\t\t\twhile( $rampValue < 0 )\n\t\t\t{\n\t\t\t\t$rampValue = $rampValue + 1.0;\n\t\t\t}\n\t\t\tif( $rampValue > 1.0 )\n\t\t\t{\n\t\t\t\t$rampValue = $rampValue % 1.0;\n\t\t\t}\n\t\t}\n\t\tint $s = $one_based_start + ( $rampValue * ( $imageCount - 0.01 ) );\n\t\tif ( .I[9] != 4)\n\t\t{\n\t\t\t// offset the particles by the start frame\n\t\t\t//\n\t\t\t$s += ( .O[1] - $one_based_start );\n\t\t\tif ($s >= $imageCount ) $s -= $imageCount;\n\t\t}\n\t\t.O[2] = $s;\n\t}\n}\n\n//\n// Do not delete the tag below.  It is used to properly\n// replace this expression if the applySprite() script\n// is executed again.\n//\n// __ApplySprite_End_Tag__");
 	setAttr ".irax" -type "string" "";
-	setAttr ".icx" -type "string" "";
+	setAttr ".icx" -type "string" (
+		"// __ApplySprite_Start_Tag__\n//\n// Do not delete the tag above.  It is used to properly\n// replace this expression if the applySprite() script\n// is executed again.\n//\nint $firstImageNumber = .I[0];\nint $lastImageNumber = .I[1];\nint $imageCount = $lastImageNumber - $firstImageNumber + 1;\nint $one_based_start = 1;\n\nif( .I[2] == 0 )\n//\n// Fixed SpriteNumPP\n//\n{\n\t//\n\t// Use the first image in the sequence\n\t//\n\tif( .I[9] == 0 )\n\t{\n\t\t.O[2] = $one_based_start;\n\t}\n\t//\n\t// Use the particle's ID value ( MOD imageCount )\n\t//\n\telse if( .I[9] == 1 )\n\t{\n\t\t.O[2] = $one_based_start + ( .I[10] % $imageCount );\n\t}\n\t//\n\t// Random\n\t//\n\telse if( .I[9] == 2 )\n\t{\n\t\tint $s = rand( $imageCount + 0.99 ) + $one_based_start;\n\t\t.O[2] = $s;\n\t}\n\telse if( .I[9] == 3 )\n\t//\n\t// Custom Start: If your sprites are not animated\n\t//\n\t{\n\t\t//\n\t\t// Put your own expressions to set spriteNumPP here.\n\t\t//\n\t\t.O[2] = 1;\n\t}\n\t//\n\t// Ramp, spriteNumRamp\n\t//\n\telse if( .I[9] == 4 )\n\t{\n\t\tfloat $rampValue = .I[8];\n\t\tif( .I[4] == 1 )\n\t\t{\n\t\t\t$rampValue = 1.0 - $rampValue;\n"
+		+ "\t\t\twhile( $rampValue < 0 )\n\t\t\t{\n\t\t\t\t$rampValue = $rampValue + 1.0;\n\t\t\t}\n\t\t\tif( $rampValue > 1.0 )\n\t\t\t{\n\t\t\t\t$rampValue = $rampValue % 1.0;\n\t\t\t}\n\t\t}\n\t\tint $s = $one_based_start + ( $rampValue * ( $imageCount - 0.01 ) );\n\t\t.O[2] = $s;\n\t}\n}\nelse if( .I[2] == 1 )\n//\n// Cycle SpriteNumPP\n//\n{\n\t//\n\t// Use the first/last image in the sequence\n\t//\n\tif( .I[9] == 0 )\n\t{\n\t\tif( .I[4] == 1 )\n\t\t{\n\t\t\t.O[2] = $imageCount;\n\t\t}\n\t\telse\n\t\t{\n\t\t\t.O[2] = $one_based_start;\n\t\t}\n\t}\n\t//\n\t// Use the particle's ID value ( MOD imageCount )\n\t//\n\telse if( .I[9] == 1 )\n\t{\n\t\t.O[2] = $one_based_start + ( .I[10] % $imageCount );\n\t}\n\t//\n\t// Random\n\t//\n\telse if( .I[9] == 2 )\n\t{\n\t\tint $s = rand( $imageCount - 0.01 ) + $one_based_start;\n\t\t.O[2] = $s;\n\t}\n\t//\n\t// Custom Start: if your sprites are animated\n\t//\n\telse if( .I[9] == 3 )\n\t{\n\t\t//\n\t\t// Put your own expressions to set spriteNumPP here .\n\t\t//\n\t\t.O[2] = 1;\n\t}\n\t//\n\t// Ramp, spriteNumRamp\n\t//\n\telse if( .I[9] == 4 )\n\t{\n\t\tfloat $rampValue = .I[8];\n\t\tif( .I[4] == 1 )\n\t\t{\n\t\t\t$rampValue = 1.0 - $rampValue;\n"
+		+ "\t\t\twhile( $rampValue < 0 )\n\t\t\t{\n\t\t\t\t$rampValue = $rampValue + 1.0;\n\t\t\t}\n\t\t\tif( $rampValue > 1.0 )\n\t\t\t{\n\t\t\t\t$rampValue = $rampValue % 1.0;\n\t\t\t}\n\t\t}\n\t\tint $s = $one_based_start + ( $rampValue * ( $imageCount - 0.01 ) );\n\t\t.O[2] = $s;\n\t}\n}\n\n//\n// Copy the spriteIndexPP value into startNumPP so that we can use that\n// value in the runtime expression.\n//\n.O[1] = .O[2];\n\n//\n// Do not delete the tag below.  It is used to properly\n// replace this expression if the applySprite() script\n// is executed again.\n//\n// __ApplySprite_End_Tag__");
 	setAttr -s 2 ".sd";
 	setAttr -s 2 ".sd";
 	setAttr ".cts" 1;
 	setAttr ".chw" 100;
+	setAttr ".ds" yes;
 	setAttr ".prt" 5;
 	setAttr ".lifespanPP0" -type "doubleArray" 0 ;
 	setAttr -k on ".lifespan" 3;
@@ -110,10 +143,19 @@ createNode particle -n "particleShape1" -p "particle1";
 	setAttr -k on ".colorGreen" 1;
 	setAttr -k on ".colorBlue";
 	setAttr -k on ".spriteTwist";
-	setAttr -k on ".spriteScaleX" 0.25;
-	setAttr -k on ".spriteScaleY" 0.25;
+	setAttr -k on ".spriteScaleX" 3;
+	setAttr -k on ".spriteScaleY" 3;
 	setAttr -k on ".spriteNum";
 	setAttr -k on ".useLighting";
+	setAttr -k on ".SpriteAnimation";
+	setAttr -k on ".SpriteStartOption" 2;
+	setAttr -k on ".SpriteCyclePattern";
+	setAttr -k on ".SpriteCycleLength";
+	setAttr ".ageNormalized0" -type "doubleArray" 0 ;
+	setAttr ".spriteNumPP0" -type "doubleArray" 0 ;
+	setAttr ".startIndexPP0" -type "doubleArray" 0 ;
+	setAttr ".spriteNumRamp0" -type "doubleArray" 0 ;
+	setAttr ".spriteNumRampU0" -type "doubleArray" 0 ;
 createNode transform -n "emitting_cylinder";
 	setAttr ".smd" 7;
 createNode pointEmitter -n "emitter1" -p "emitting_cylinder";
@@ -253,8 +295,8 @@ createNode pointEmitter -n "emitter4";
 	setAttr ".spr" 0.2;
 	setAttr ".spd" 10;
 createNode lightLinker -n "lightLinker1";
-	setAttr -s 3 ".lnk";
-	setAttr -s 3 ".slnk";
+	setAttr -s 4 ".lnk";
+	setAttr -s 4 ".slnk";
 createNode displayLayerManager -n "layerManager";
 createNode displayLayer -n "defaultLayer";
 createNode renderLayerManager -n "renderLayerManager";
@@ -280,9 +322,9 @@ createNode script -n "uiConfigurationScriptNode";
 		+ "            -selectionHiliteDisplay 1\n            -useDefaultMaterial 0\n            -bufferMode \"double\" \n            -twoSidedLighting 1\n            -backfaceCulling 0\n            -xray 0\n            -jointXray 0\n            -activeComponentsXray 0\n            -displayTextures 0\n            -smoothWireframe 0\n            -lineWidth 1\n            -textureAnisotropic 0\n            -textureHilight 1\n            -textureSampling 2\n            -textureDisplay \"modulate\" \n            -textureMaxSize 8192\n            -fogging 0\n            -fogSource \"fragment\" \n            -fogMode \"linear\" \n            -fogStart 0\n            -fogEnd 100\n            -fogDensity 0.1\n            -fogColor 0.5 0.5 0.5 1 \n            -maxConstantTransparency 1\n            -rendererName \"base_OpenGL_Renderer\" \n            -colorResolution 256 256 \n            -bumpResolution 512 512 \n            -textureCompression 0\n            -transparencyAlgorithm \"frontAndBackCull\" \n            -transpInShadows 0\n            -cullingOverride \"none\" \n"
 		+ "            -lowQualityLighting 0\n            -maximumNumHardwareLights 1\n            -occlusionCulling 0\n            -shadingModel 0\n            -useBaseRenderer 0\n            -useReducedRenderer 0\n            -smallObjectCulling 0\n            -smallObjectThreshold -1 \n            -interactiveDisableShadows 0\n            -interactiveBackFaceCull 0\n            -sortTransparent 1\n            -nurbsCurves 1\n            -nurbsSurfaces 1\n            -polymeshes 1\n            -subdivSurfaces 1\n            -planes 1\n            -lights 1\n            -cameras 1\n            -controlVertices 1\n            -hulls 1\n            -grid 1\n            -joints 1\n            -ikHandles 1\n            -deformers 1\n            -dynamics 1\n            -fluids 1\n            -hairSystems 1\n            -follicles 1\n            -nCloths 1\n            -nParticles 1\n            -nRigids 1\n            -dynamicConstraints 1\n            -locators 1\n            -manipulators 1\n            -dimensions 1\n            -handles 1\n            -pivots 1\n"
 		+ "            -textures 1\n            -strokes 1\n            -shadows 0\n            $editorName;\nmodelEditor -e -viewSelected 0 $editorName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextPanel \"modelPanel\" (localizedPanelLabel(\"Persp View\")) `;\n\tif (\"\" == $panelName) {\n\t\tif ($useSceneConfig) {\n\t\t\t$panelName = `modelPanel -unParent -l (localizedPanelLabel(\"Persp View\")) -mbv $menusOkayInPanels `;\n\t\t\t$editorName = $panelName;\n            modelEditor -e \n                -camera \"persp\" \n                -useInteractiveMode 0\n                -displayLights \"default\" \n                -displayAppearance \"smoothShaded\" \n                -activeOnly 0\n                -wireframeOnShaded 0\n                -headsUpDisplay 1\n                -selectionHiliteDisplay 1\n                -useDefaultMaterial 0\n                -bufferMode \"double\" \n                -twoSidedLighting 1\n                -backfaceCulling 0\n                -xray 0\n                -jointXray 0\n"
-		+ "                -activeComponentsXray 0\n                -displayTextures 0\n                -smoothWireframe 0\n                -lineWidth 1\n                -textureAnisotropic 0\n                -textureHilight 1\n                -textureSampling 2\n                -textureDisplay \"modulate\" \n                -textureMaxSize 8192\n                -fogging 0\n                -fogSource \"fragment\" \n                -fogMode \"linear\" \n                -fogStart 0\n                -fogEnd 100\n                -fogDensity 0.1\n                -fogColor 0.5 0.5 0.5 1 \n                -maxConstantTransparency 1\n                -rendererName \"base_OpenGL_Renderer\" \n                -colorResolution 256 256 \n                -bumpResolution 512 512 \n                -textureCompression 0\n                -transparencyAlgorithm \"frontAndBackCull\" \n                -transpInShadows 0\n                -cullingOverride \"none\" \n                -lowQualityLighting 0\n                -maximumNumHardwareLights 1\n                -occlusionCulling 0\n"
+		+ "                -activeComponentsXray 0\n                -displayTextures 1\n                -smoothWireframe 0\n                -lineWidth 1\n                -textureAnisotropic 0\n                -textureHilight 1\n                -textureSampling 2\n                -textureDisplay \"modulate\" \n                -textureMaxSize 8192\n                -fogging 0\n                -fogSource \"fragment\" \n                -fogMode \"linear\" \n                -fogStart 0\n                -fogEnd 100\n                -fogDensity 0.1\n                -fogColor 0.5 0.5 0.5 1 \n                -maxConstantTransparency 1\n                -rendererName \"base_OpenGL_Renderer\" \n                -colorResolution 256 256 \n                -bumpResolution 512 512 \n                -textureCompression 0\n                -transparencyAlgorithm \"frontAndBackCull\" \n                -transpInShadows 0\n                -cullingOverride \"none\" \n                -lowQualityLighting 0\n                -maximumNumHardwareLights 1\n                -occlusionCulling 0\n"
 		+ "                -shadingModel 0\n                -useBaseRenderer 0\n                -useReducedRenderer 0\n                -smallObjectCulling 0\n                -smallObjectThreshold -1 \n                -interactiveDisableShadows 0\n                -interactiveBackFaceCull 0\n                -sortTransparent 1\n                -nurbsCurves 1\n                -nurbsSurfaces 1\n                -polymeshes 1\n                -subdivSurfaces 1\n                -planes 1\n                -lights 1\n                -cameras 1\n                -controlVertices 1\n                -hulls 1\n                -grid 1\n                -joints 1\n                -ikHandles 1\n                -deformers 1\n                -dynamics 1\n                -fluids 1\n                -hairSystems 1\n                -follicles 1\n                -nCloths 1\n                -nParticles 1\n                -nRigids 1\n                -dynamicConstraints 1\n                -locators 1\n                -manipulators 1\n                -dimensions 1\n                -handles 1\n"
-		+ "                -pivots 1\n                -textures 1\n                -strokes 1\n                -shadows 0\n                $editorName;\nmodelEditor -e -viewSelected 0 $editorName;\n\t\t}\n\t} else {\n\t\t$label = `panel -q -label $panelName`;\n\t\tmodelPanel -edit -l (localizedPanelLabel(\"Persp View\")) -mbv $menusOkayInPanels  $panelName;\n\t\t$editorName = $panelName;\n        modelEditor -e \n            -camera \"persp\" \n            -useInteractiveMode 0\n            -displayLights \"default\" \n            -displayAppearance \"smoothShaded\" \n            -activeOnly 0\n            -wireframeOnShaded 0\n            -headsUpDisplay 1\n            -selectionHiliteDisplay 1\n            -useDefaultMaterial 0\n            -bufferMode \"double\" \n            -twoSidedLighting 1\n            -backfaceCulling 0\n            -xray 0\n            -jointXray 0\n            -activeComponentsXray 0\n            -displayTextures 0\n            -smoothWireframe 0\n            -lineWidth 1\n            -textureAnisotropic 0\n            -textureHilight 1\n            -textureSampling 2\n"
+		+ "                -pivots 1\n                -textures 1\n                -strokes 1\n                -shadows 0\n                $editorName;\nmodelEditor -e -viewSelected 0 $editorName;\n\t\t}\n\t} else {\n\t\t$label = `panel -q -label $panelName`;\n\t\tmodelPanel -edit -l (localizedPanelLabel(\"Persp View\")) -mbv $menusOkayInPanels  $panelName;\n\t\t$editorName = $panelName;\n        modelEditor -e \n            -camera \"persp\" \n            -useInteractiveMode 0\n            -displayLights \"default\" \n            -displayAppearance \"smoothShaded\" \n            -activeOnly 0\n            -wireframeOnShaded 0\n            -headsUpDisplay 1\n            -selectionHiliteDisplay 1\n            -useDefaultMaterial 0\n            -bufferMode \"double\" \n            -twoSidedLighting 1\n            -backfaceCulling 0\n            -xray 0\n            -jointXray 0\n            -activeComponentsXray 0\n            -displayTextures 1\n            -smoothWireframe 0\n            -lineWidth 1\n            -textureAnisotropic 0\n            -textureHilight 1\n            -textureSampling 2\n"
 		+ "            -textureDisplay \"modulate\" \n            -textureMaxSize 8192\n            -fogging 0\n            -fogSource \"fragment\" \n            -fogMode \"linear\" \n            -fogStart 0\n            -fogEnd 100\n            -fogDensity 0.1\n            -fogColor 0.5 0.5 0.5 1 \n            -maxConstantTransparency 1\n            -rendererName \"base_OpenGL_Renderer\" \n            -colorResolution 256 256 \n            -bumpResolution 512 512 \n            -textureCompression 0\n            -transparencyAlgorithm \"frontAndBackCull\" \n            -transpInShadows 0\n            -cullingOverride \"none\" \n            -lowQualityLighting 0\n            -maximumNumHardwareLights 1\n            -occlusionCulling 0\n            -shadingModel 0\n            -useBaseRenderer 0\n            -useReducedRenderer 0\n            -smallObjectCulling 0\n            -smallObjectThreshold -1 \n            -interactiveDisableShadows 0\n            -interactiveBackFaceCull 0\n            -sortTransparent 1\n            -nurbsCurves 1\n            -nurbsSurfaces 1\n"
 		+ "            -polymeshes 1\n            -subdivSurfaces 1\n            -planes 1\n            -lights 1\n            -cameras 1\n            -controlVertices 1\n            -hulls 1\n            -grid 1\n            -joints 1\n            -ikHandles 1\n            -deformers 1\n            -dynamics 1\n            -fluids 1\n            -hairSystems 1\n            -follicles 1\n            -nCloths 1\n            -nParticles 1\n            -nRigids 1\n            -dynamicConstraints 1\n            -locators 1\n            -manipulators 1\n            -dimensions 1\n            -handles 1\n            -pivots 1\n            -textures 1\n            -strokes 1\n            -shadows 0\n            $editorName;\nmodelEditor -e -viewSelected 0 $editorName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextPanel \"outlinerPanel\" (localizedPanelLabel(\"Outliner\")) `;\n\tif (\"\" == $panelName) {\n\t\tif ($useSceneConfig) {\n\t\t\t$panelName = `outlinerPanel -unParent -l (localizedPanelLabel(\"Outliner\")) -mbv $menusOkayInPanels `;\n"
 		+ "\t\t\t$editorName = $panelName;\n            outlinerEditor -e \n                -showShapes 0\n                -showAttributes 0\n                -showConnected 0\n                -showAnimCurvesOnly 0\n                -showMuteInfo 0\n                -organizeByLayer 1\n                -showAnimLayerWeight 1\n                -autoExpandLayers 1\n                -autoExpand 0\n                -showDagOnly 1\n                -showAssets 1\n                -showContainedOnly 1\n                -showPublishedAsConnected 0\n                -showContainerContents 1\n                -ignoreDagHierarchy 0\n                -expandConnections 0\n                -showUnitlessCurves 1\n                -showCompounds 1\n                -showLeafs 1\n                -showNumericAttrsOnly 0\n                -highlightActive 1\n                -autoSelectNewObjects 0\n                -doNotSelectNewObjects 0\n                -dropIsParent 1\n                -transmitFilters 0\n                -setFilter \"defaultSetFilter\" \n                -showSetMembers 1\n"
@@ -312,8 +354,8 @@ createNode script -n "uiConfigurationScriptNode";
 		+ "\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\tif ($useSceneConfig) {\n        string $configName = `getPanel -cwl (localizedPanelLabel(\"Current Layout\"))`;\n        if (\"\" != $configName) {\n\t\t\tpanelConfiguration -edit -label (localizedPanelLabel(\"Current Layout\")) \n\t\t\t\t-defaultImage \"\"\n\t\t\t\t-image \"\"\n\t\t\t\t-sc false\n\t\t\t\t-configString \"global string $gMainPane; paneLayout -e -cn \\\"vertical2\\\" -ps 1 20 100 -ps 2 80 100 $gMainPane;\"\n\t\t\t\t-removeAllPanels\n\t\t\t\t-ap false\n\t\t\t\t\t(localizedPanelLabel(\"Outliner\")) \n\t\t\t\t\t\"outlinerPanel\"\n\t\t\t\t\t\"$panelName = `outlinerPanel -unParent -l (localizedPanelLabel(\\\"Outliner\\\")) -mbv $menusOkayInPanels `;\\n$editorName = $panelName;\\noutlinerEditor -e \\n    -showShapes 0\\n    -showAttributes 0\\n    -showConnected 0\\n    -showAnimCurvesOnly 0\\n    -showMuteInfo 0\\n    -organizeByLayer 1\\n    -showAnimLayerWeight 1\\n    -autoExpandLayers 1\\n    -autoExpand 0\\n    -showDagOnly 1\\n    -showAssets 1\\n    -showContainedOnly 1\\n    -showPublishedAsConnected 0\\n    -showContainerContents 1\\n    -ignoreDagHierarchy 0\\n    -expandConnections 0\\n    -showUnitlessCurves 1\\n    -showCompounds 1\\n    -showLeafs 1\\n    -showNumericAttrsOnly 0\\n    -highlightActive 1\\n    -autoSelectNewObjects 0\\n    -doNotSelectNewObjects 0\\n    -dropIsParent 1\\n    -transmitFilters 0\\n    -setFilter \\\"defaultSetFilter\\\" \\n    -showSetMembers 1\\n    -allowMultiSelection 1\\n    -alwaysToggleSelect 0\\n    -directSelect 0\\n    -displayMode \\\"DAG\\\" \\n    -expandObjects 0\\n    -setsIgnoreFilters 1\\n    -containersIgnoreFilters 0\\n    -editAttrName 0\\n    -showAttrValues 0\\n    -highlightSecondary 0\\n    -showUVAttrsOnly 0\\n    -showTextureNodesOnly 0\\n    -attrAlphaOrder \\\"default\\\" \\n    -animLayerFilterOptions \\\"allAffecting\\\" \\n    -sortOrder \\\"none\\\" \\n    -longNames 0\\n    -niceNames 1\\n    -showNamespace 1\\n    $editorName\"\n"
 		+ "\t\t\t\t\t\"outlinerPanel -edit -l (localizedPanelLabel(\\\"Outliner\\\")) -mbv $menusOkayInPanels  $panelName;\\n$editorName = $panelName;\\noutlinerEditor -e \\n    -showShapes 0\\n    -showAttributes 0\\n    -showConnected 0\\n    -showAnimCurvesOnly 0\\n    -showMuteInfo 0\\n    -organizeByLayer 1\\n    -showAnimLayerWeight 1\\n    -autoExpandLayers 1\\n    -autoExpand 0\\n    -showDagOnly 1\\n    -showAssets 1\\n    -showContainedOnly 1\\n    -showPublishedAsConnected 0\\n    -showContainerContents 1\\n    -ignoreDagHierarchy 0\\n    -expandConnections 0\\n    -showUnitlessCurves 1\\n    -showCompounds 1\\n    -showLeafs 1\\n    -showNumericAttrsOnly 0\\n    -highlightActive 1\\n    -autoSelectNewObjects 0\\n    -doNotSelectNewObjects 0\\n    -dropIsParent 1\\n    -transmitFilters 0\\n    -setFilter \\\"defaultSetFilter\\\" \\n    -showSetMembers 1\\n    -allowMultiSelection 1\\n    -alwaysToggleSelect 0\\n    -directSelect 0\\n    -displayMode \\\"DAG\\\" \\n    -expandObjects 0\\n    -setsIgnoreFilters 1\\n    -containersIgnoreFilters 0\\n    -editAttrName 0\\n    -showAttrValues 0\\n    -highlightSecondary 0\\n    -showUVAttrsOnly 0\\n    -showTextureNodesOnly 0\\n    -attrAlphaOrder \\\"default\\\" \\n    -animLayerFilterOptions \\\"allAffecting\\\" \\n    -sortOrder \\\"none\\\" \\n    -longNames 0\\n    -niceNames 1\\n    -showNamespace 1\\n    $editorName\"\n"
 		+ "\t\t\t\t-ap false\n\t\t\t\t\t(localizedPanelLabel(\"Persp View\")) \n\t\t\t\t\t\"modelPanel\"\n"
-		+ "\t\t\t\t\t\"$panelName = `modelPanel -unParent -l (localizedPanelLabel(\\\"Persp View\\\")) -mbv $menusOkayInPanels `;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -cam `findStartUpCamera persp` \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"smoothShaded\\\" \\n    -activeOnly 0\\n    -wireframeOnShaded 0\\n    -headsUpDisplay 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 1\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 0\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 8192\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -maxConstantTransparency 1\\n    -rendererName \\\"base_OpenGL_Renderer\\\" \\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -nurbsCurves 1\\n    -nurbsSurfaces 1\\n    -polymeshes 1\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 1\\n    -cameras 1\\n    -controlVertices 1\\n    -hulls 1\\n    -grid 1\\n    -joints 1\\n    -ikHandles 1\\n    -deformers 1\\n    -dynamics 1\\n    -fluids 1\\n    -hairSystems 1\\n    -follicles 1\\n    -nCloths 1\\n    -nParticles 1\\n    -nRigids 1\\n    -dynamicConstraints 1\\n    -locators 1\\n    -manipulators 1\\n    -dimensions 1\\n    -handles 1\\n    -pivots 1\\n    -textures 1\\n    -strokes 1\\n    -shadows 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
-		+ "\t\t\t\t\t\"modelPanel -edit -l (localizedPanelLabel(\\\"Persp View\\\")) -mbv $menusOkayInPanels  $panelName;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -cam `findStartUpCamera persp` \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"smoothShaded\\\" \\n    -activeOnly 0\\n    -wireframeOnShaded 0\\n    -headsUpDisplay 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 1\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 0\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 8192\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -maxConstantTransparency 1\\n    -rendererName \\\"base_OpenGL_Renderer\\\" \\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -nurbsCurves 1\\n    -nurbsSurfaces 1\\n    -polymeshes 1\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 1\\n    -cameras 1\\n    -controlVertices 1\\n    -hulls 1\\n    -grid 1\\n    -joints 1\\n    -ikHandles 1\\n    -deformers 1\\n    -dynamics 1\\n    -fluids 1\\n    -hairSystems 1\\n    -follicles 1\\n    -nCloths 1\\n    -nParticles 1\\n    -nRigids 1\\n    -dynamicConstraints 1\\n    -locators 1\\n    -manipulators 1\\n    -dimensions 1\\n    -handles 1\\n    -pivots 1\\n    -textures 1\\n    -strokes 1\\n    -shadows 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
+		+ "\t\t\t\t\t\"$panelName = `modelPanel -unParent -l (localizedPanelLabel(\\\"Persp View\\\")) -mbv $menusOkayInPanels `;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -cam `findStartUpCamera persp` \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"smoothShaded\\\" \\n    -activeOnly 0\\n    -wireframeOnShaded 0\\n    -headsUpDisplay 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 1\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 1\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 8192\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -maxConstantTransparency 1\\n    -rendererName \\\"base_OpenGL_Renderer\\\" \\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -nurbsCurves 1\\n    -nurbsSurfaces 1\\n    -polymeshes 1\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 1\\n    -cameras 1\\n    -controlVertices 1\\n    -hulls 1\\n    -grid 1\\n    -joints 1\\n    -ikHandles 1\\n    -deformers 1\\n    -dynamics 1\\n    -fluids 1\\n    -hairSystems 1\\n    -follicles 1\\n    -nCloths 1\\n    -nParticles 1\\n    -nRigids 1\\n    -dynamicConstraints 1\\n    -locators 1\\n    -manipulators 1\\n    -dimensions 1\\n    -handles 1\\n    -pivots 1\\n    -textures 1\\n    -strokes 1\\n    -shadows 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
+		+ "\t\t\t\t\t\"modelPanel -edit -l (localizedPanelLabel(\\\"Persp View\\\")) -mbv $menusOkayInPanels  $panelName;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -cam `findStartUpCamera persp` \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"smoothShaded\\\" \\n    -activeOnly 0\\n    -wireframeOnShaded 0\\n    -headsUpDisplay 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 1\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 1\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 8192\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -maxConstantTransparency 1\\n    -rendererName \\\"base_OpenGL_Renderer\\\" \\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -nurbsCurves 1\\n    -nurbsSurfaces 1\\n    -polymeshes 1\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 1\\n    -cameras 1\\n    -controlVertices 1\\n    -hulls 1\\n    -grid 1\\n    -joints 1\\n    -ikHandles 1\\n    -deformers 1\\n    -dynamics 1\\n    -fluids 1\\n    -hairSystems 1\\n    -follicles 1\\n    -nCloths 1\\n    -nParticles 1\\n    -nRigids 1\\n    -dynamicConstraints 1\\n    -locators 1\\n    -manipulators 1\\n    -dimensions 1\\n    -handles 1\\n    -pivots 1\\n    -textures 1\\n    -strokes 1\\n    -shadows 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
 		+ "\t\t\t\t$configName;\n\n            setNamedPanelLayout (localizedPanelLabel(\"Current Layout\"));\n        }\n\n        panelHistory -e -clear mainPanelHistory;\n        setFocus `paneLayout -q -p1 $gMainPane`;\n        sceneUIReplacement -deleteRemaining;\n        sceneUIReplacement -clear;\n\t}\n\n\ngrid -spacing 5 -size 12 -divisions 5 -displayAxes yes -displayGridLines yes -displayDivisionLines yes -displayPerspectiveLabels no -displayOrthographicLabels no -displayAxesBold yes -perspectiveLabelPosition axis -orthographicLabelPosition edge;\nviewManip -drawCompass 0 -compassAngle 0 -frontParameters \"\" -homeParameters \"\" -selectionLockParameters \"\";\n}\n");
 	setAttr ".st" 3;
 createNode script -n "sceneConfigurationScriptNode";
@@ -343,20 +385,45 @@ createNode animCurveTL -n "motionPath1_uValue";
 createNode addDoubleLinear -n "addDoubleLinear1";
 createNode addDoubleLinear -n "addDoubleLinear2";
 createNode addDoubleLinear -n "addDoubleLinear3";
+createNode lambert -n "lambert3";
+createNode shadingEngine -n "lambert3SG";
+	setAttr ".ihi" 0;
+	setAttr ".ro" yes;
+createNode materialInfo -n "materialInfo2";
+createNode file -n "file1";
+	setAttr ".ftn" -type "string" "C:/devel/subversion/maya2osg/tests/project//sourceimages/smoke/Smoke.tga";
+	setAttr ".uhc" yes;
+	setAttr ".sce" 0;
+	setAttr ".ece" 50;
+createNode place2dTexture -n "place2dTexture1";
+createNode expression -n "expression1";
+	setAttr -k on ".nds";
+	setAttr -s 2 ".in";
+	setAttr -s 2 ".in";
+	setAttr ".ixp" -type "string" "if (frame <= 1) seed(1);\n\nint $start = .I[0];\nint $end =   .I[1];\nif (frame <= $end-$start+1)\n\t.O[0] = $start + frame - 1;\nelse\n\t.O[0] = $end;";
+createNode ramp -n "spriteNumRamp1";
+	setAttr -s 2 ".cel";
+	setAttr ".cel[0].ep" 0;
+	setAttr ".cel[0].ec" -type "float3" 0 0 0 ;
+	setAttr ".cel[1].ep" 1;
+	setAttr ".cel[1].ec" -type "float3" 1 1 1 ;
+createNode arrayMapper -n "spriteNumRampMapper1";
 select -ne :time1;
 	setAttr ".o" 1;
 select -ne :renderPartition;
-	setAttr -s 3 ".st";
+	setAttr -s 4 ".st";
 select -ne :renderGlobalsList1;
 select -ne :defaultShaderList1;
-	setAttr -s 3 ".s";
+	setAttr -s 4 ".s";
 select -ne :postProcessList1;
 	setAttr -s 2 ".p";
+select -ne :defaultRenderUtilityList1;
 select -ne :lightList1;
+select -ne :defaultTextureList1;
+	setAttr -s 2 ".tx";
 select -ne :initialShadingGroup;
 	setAttr ".ro" yes;
 select -ne :initialParticleSE;
-	setAttr -s 2 ".dsm";
 	setAttr ".ro" yes;
 select -ne :hardwareRenderGlobals;
 	setAttr ".ctrs" 256;
@@ -367,6 +434,20 @@ select -ne :defaultHardwareRenderGlobals;
 connectAttr ":time1.o" "particleShape1.cti";
 connectAttr "emitter1.ot[0]" "particleShape1.npt[0]";
 connectAttr "emitter2.ot[1]" "particleShape1.npt[1]";
+connectAttr "spriteNumRampMapper1.ovpp" "particleShape1.spriteNumRamp";
+connectAttr "file1.sce" "particleShape1.xi[0]";
+connectAttr "file1.ece" "particleShape1.xi[1]";
+connectAttr "particleShape1.SpriteAnimation" "particleShape1.xi[2]";
+connectAttr "particleShape1.SpriteCyclePattern" "particleShape1.xi[3]";
+connectAttr "particleShape1.SpriteInvertCycle" "particleShape1.xi[4]";
+connectAttr "particleShape1.SpriteCycleLength" "particleShape1.xi[5]";
+connectAttr "particleShape1.ageNormalized" "particleShape1.xi[6]";
+connectAttr "particleShape1.ag" "particleShape1.xi[7]";
+connectAttr "particleShape1.spriteNumRamp" "particleShape1.xi[8]";
+connectAttr "particleShape1.SpriteStartOption" "particleShape1.xi[9]";
+connectAttr "particleShape1.id" "particleShape1.xi[10]";
+connectAttr "particleShape1.xo[1]" "particleShape1.startIndexPP";
+connectAttr "particleShape1.xo[2]" "particleShape1.spriteNumPP";
 connectAttr "addDoubleLinear1.o" "emitting_cylinder.tx";
 connectAttr "addDoubleLinear2.o" "emitting_cylinder.ty";
 connectAttr "addDoubleLinear3.o" "emitting_cylinder.tz";
@@ -409,12 +490,16 @@ connectAttr ":defaultLightSet.msg" "lightLinker1.lnk[1].llnk";
 connectAttr ":initialParticleSE.msg" "lightLinker1.lnk[1].olnk";
 connectAttr ":defaultLightSet.msg" "lightLinker1.lnk[2].llnk";
 connectAttr "lambert2SG.msg" "lightLinker1.lnk[2].olnk";
+connectAttr ":defaultLightSet.msg" "lightLinker1.lnk[3].llnk";
+connectAttr "lambert3SG.msg" "lightLinker1.lnk[3].olnk";
 connectAttr ":defaultLightSet.msg" "lightLinker1.slnk[0].sllk";
 connectAttr ":initialShadingGroup.msg" "lightLinker1.slnk[0].solk";
 connectAttr ":defaultLightSet.msg" "lightLinker1.slnk[1].sllk";
 connectAttr ":initialParticleSE.msg" "lightLinker1.slnk[1].solk";
 connectAttr ":defaultLightSet.msg" "lightLinker1.slnk[2].sllk";
 connectAttr "lambert2SG.msg" "lightLinker1.slnk[2].solk";
+connectAttr ":defaultLightSet.msg" "lightLinker1.slnk[3].sllk";
+connectAttr "lambert3SG.msg" "lightLinker1.slnk[3].solk";
 connectAttr "layerManager.dli[0]" "defaultLayer.id";
 connectAttr "renderLayerManager.rlmi[0]" "defaultRenderLayer.rlid";
 connectAttr "mat_rocket.oc" "lambert2SG.ss";
@@ -431,9 +516,47 @@ connectAttr "emitting_cylinder.tmry" "addDoubleLinear2.i1";
 connectAttr "motionPath1.yc" "addDoubleLinear2.i2";
 connectAttr "emitting_cylinder.tmrz" "addDoubleLinear3.i1";
 connectAttr "motionPath1.zc" "addDoubleLinear3.i2";
+connectAttr "file1.oc" "lambert3.c";
+connectAttr "file1.ot" "lambert3.it";
+connectAttr "lambert3.oc" "lambert3SG.ss";
+connectAttr "particleShape1.iog" "lambert3SG.dsm" -na;
+connectAttr "lambert3SG.msg" "materialInfo2.sg";
+connectAttr "lambert3.msg" "materialInfo2.m";
+connectAttr "file1.msg" "materialInfo2.t" -na;
+connectAttr "place2dTexture1.c" "file1.c";
+connectAttr "place2dTexture1.tf" "file1.tf";
+connectAttr "place2dTexture1.rf" "file1.rf";
+connectAttr "place2dTexture1.mu" "file1.mu";
+connectAttr "place2dTexture1.mv" "file1.mv";
+connectAttr "place2dTexture1.s" "file1.s";
+connectAttr "place2dTexture1.wu" "file1.wu";
+connectAttr "place2dTexture1.wv" "file1.wv";
+connectAttr "place2dTexture1.re" "file1.re";
+connectAttr "place2dTexture1.of" "file1.of";
+connectAttr "place2dTexture1.r" "file1.ro";
+connectAttr "place2dTexture1.n" "file1.n";
+connectAttr "place2dTexture1.vt1" "file1.vt1";
+connectAttr "place2dTexture1.vt2" "file1.vt2";
+connectAttr "place2dTexture1.vt3" "file1.vt3";
+connectAttr "place2dTexture1.vc1" "file1.vc1";
+connectAttr "place2dTexture1.o" "file1.uv";
+connectAttr "place2dTexture1.ofs" "file1.fs";
+connectAttr "expression1.out[0]" "file1.fe";
+connectAttr ":time1.o" "expression1.tim";
+connectAttr "file1.sce" "expression1.in[0]";
+connectAttr "file1.ece" "expression1.in[1]";
+connectAttr "file1.msg" "expression1.obm";
+connectAttr "spriteNumRamp1.msg" "spriteNumRampMapper1.cn";
+connectAttr "spriteNumRamp1.oc" "spriteNumRampMapper1.cnc";
+connectAttr "particleShape1.spriteNumRampU" "spriteNumRampMapper1.upp";
+connectAttr "particleShape1.ageNormalized" "spriteNumRampMapper1.vpp";
 connectAttr "lambert2SG.pa" ":renderPartition.st" -na;
+connectAttr "lambert3SG.pa" ":renderPartition.st" -na;
 connectAttr "mat_rocket.msg" ":defaultShaderList1.s" -na;
+connectAttr "lambert3.msg" ":defaultShaderList1.s" -na;
+connectAttr "place2dTexture1.msg" ":defaultRenderUtilityList1.u" -na;
 connectAttr "lightLinker1.msg" ":lightList1.ln" -na;
-connectAttr "particleShape1.iog" ":initialParticleSE.dsm" -na;
+connectAttr "file1.msg" ":defaultTextureList1.tx" -na;
+connectAttr "spriteNumRamp1.msg" ":defaultTextureList1.tx" -na;
 connectAttr "particleShape2.iog" ":initialParticleSE.dsm" -na;
 // End of test_particles.ma

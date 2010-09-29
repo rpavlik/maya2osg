@@ -28,13 +28,28 @@
 class Shader {
 
 public:
-	static osg::ref_ptr<osg::StateSet> exporta(MObject &obj, MObjectArray &textures);
+	/// Create and return the StateSet of the ShadingEngine/ShadingGroup object
+	static osg::ref_ptr<osg::StateSet> exporta(const MObject &shading_engine, const MObjectArray &textures);
+
+	/// Get the shading engine applied to the dependency node 
+	static void getShadingEngine(const MObject &dependency_node, MObject &shading_engine);
+
+	/// Get the surface shader applied to the shading engine
+	static void getSurfaceShader(const MObject &shading_engine, MObject &surface_shader);
+
+	/// Gather the textures applied to a surface shader
+	static void getTextures( const MObject &surface_shader, MObjectArray &textures );
+
+	/// Get the file texture connected to color channel (if any)
+	static void getColorTexture( const MObject &surface_shader, MObject &texture );
 
 private:
-	static osg::ref_ptr<osg::Material> material(MObject &obj, bool &mat_trans);
-	static void setTextures(osg::ref_ptr<osg::StateSet> st, MObjectArray &textures, bool tex_trans);
+	/// Create OSG/OpenGL material corresponding to Maya material
+	static osg::ref_ptr<osg::Material> material(const MObject &obj, bool &mat_trans);
+	/// Add textures to the StateSet
+	static void setTextures(osg::ref_ptr<osg::StateSet> st, const MObjectArray &textures, bool tex_trans);
 	/// Check if the material has any texture connected to the specified channel
-	static bool connectedTexture(MObject &obj, std::string channel);
+	static bool connectedTexture(const MObject &obj, std::string channel);
 
 };
 

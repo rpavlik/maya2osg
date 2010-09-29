@@ -80,6 +80,12 @@ private:
 	/// Animation export "sample by"
 	int _animSampleBy;
 
+	/// Emissive particles
+	bool _particlesEmissive;
+
+	/// Particles lighting
+	bool _particlesLighting;
+
 	/// Constructor
 	Config();
 
@@ -143,6 +149,18 @@ public:
 
 	inline int getAnimSampleBy() const
 	{ return _animSampleBy; }
+
+	inline void setParticlesEmissive( bool v )
+	{ _particlesEmissive = v; }
+
+	inline bool getParticlesEmissive() const
+	{ return _particlesEmissive; }
+
+	inline void setParticlesLighting( bool v )
+	{ _particlesLighting = v; }
+
+	inline bool getParticlesLighting() const
+	{ return _particlesLighting; }
 
 };
 

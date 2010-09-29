@@ -38,4 +38,6 @@ Config::Config()
 	_YUp2ZUp = true;
 	_exportAnimations = true;
 	_animSampleBy = 1;
+	_particlesEmissive = false;
+	_particlesLighting = false;
 }

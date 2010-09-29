@@ -256,7 +256,7 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 #endif
 		std::cerr << "WARNING!!! This kMesh has more than one shader applied. OpenGL won't like this at all..." << std::endl;
 		std::cerr << "Splitting a kMesh with different shaders applied to different faces is not currently supported" << std::endl;
-		// ***** TO-DO : SPLITTING KMESHES
+		// ***** TO-DO : SPLIT KMESHES
 	}
 	if(shaders.length() > 0){
 		// Check textures bound to this mesh in order to include them in the StateSet

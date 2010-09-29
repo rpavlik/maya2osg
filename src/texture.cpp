@@ -42,7 +42,7 @@ void Texture::deleteCaches()
 /**
  *	Export the texture
  */
-osg::ref_ptr<osg::Texture2D> Texture::exporta(MObject &obj)
+osg::ref_ptr<osg::Texture2D> Texture::exporta(const MObject &obj)
 {
 	MPlug plug;
 	MString texname;
@@ -159,7 +159,7 @@ osg::ref_ptr<osg::Texture2D> Texture::exporta(MObject &obj)
 /**
  *	Export the texture matrix
  */
-osg::ref_ptr<osg::TexMat> Texture::exportTexMat(MObject &obj)
+osg::ref_ptr<osg::TexMat> Texture::exportTexMat(const MObject &obj)
 {
 	MPlug plug;
 	MFnDependencyNode dn(obj);

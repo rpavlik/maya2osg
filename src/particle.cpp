@@ -20,6 +20,8 @@
 
 #include "particle.h"
 #include "common.h"
+#include "shader.h"
+#include "config.h"
 
 #include <maya/MFnDependencyNode.h>
 #include <maya/MFnParticleSystem.h>
@@ -133,7 +135,21 @@ osg::ref_ptr<osg::Node> Particle::exporta(MObject &obj)
 				}
 				float scale = ( scaleX + scaleY ) / 2.0;
 				particle.setSizeRange( osgParticle::rangef( scale, scale ) );
-				// TO-DO : Sprite images are not exported *** FIXME!!!
+
+				// Export sprite image (file texture connected to color channel of surface shader)
+				MObject shading_engine;
+				Shader::getShadingEngine( obj, shading_engine );
+				MObject surface_shader;
+				Shader::getSurfaceShader( shading_engine, surface_shader );
+				MObject texture;
+				Shader::getColorTexture( surface_shader, texture );
+				if ( texture.hasFn( MFn::kFileTexture ) ) {
+					MFnDependencyNode dn_texture(texture);
+					MPlug plug_texture_file = dn_texture.findPlug("fileTextureName");
+					particle_system->setDefaultAttributes( plug_texture_file.asString().asChar(), 
+						Config::instance()->getParticlesEmissive(), 
+						Config::instance()->getParticlesLighting(), 0 );
+				}
 			}
 			break;
 		case MFnParticleSystem::kSpheres:

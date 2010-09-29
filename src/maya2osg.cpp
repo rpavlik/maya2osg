@@ -157,6 +157,28 @@ MStatus maya2osg::doIt( const MArgList & args )
 				break;
 			Config::instance()->setAnimSampleBy( args.asInt(i) );
 		}
+		else if ( args.asString(i) == "-particlesEmissive" ){
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "0" ){
+				Config::instance()->setParticlesEmissive( false );
+			}
+			else {
+				Config::instance()->setParticlesEmissive( true );
+			}
+		}
+		else if ( args.asString(i) == "-particlesLighting" ){
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "0" ){
+				Config::instance()->setParticlesLighting( false );
+			}
+			else {
+				Config::instance()->setParticlesLighting( true );
+			}
+		}
 		else if ( args.asString(i).length() > 0 ) {
 			// We discard empty arguments
 			filename = args.asString(i);

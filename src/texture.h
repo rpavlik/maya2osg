@@ -34,10 +34,10 @@ class Texture {
 
 public:
 	/// Export textures in this Maya Object
-	static osg::ref_ptr<osg::Texture2D> exporta(MObject &obj);
+	static osg::ref_ptr<osg::Texture2D> exporta(const MObject &obj);
 
 	/// Export texture matrix of this object
-	static osg::ref_ptr<osg::TexMat> exportTexMat(MObject &obj);
+	static osg::ref_ptr<osg::TexMat> exportTexMat(const MObject &obj);
 
 	/// Delete texture and images cache
 	static void deleteCaches();
