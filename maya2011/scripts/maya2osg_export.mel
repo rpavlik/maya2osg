@@ -99,9 +99,6 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 	// Particle systems
 	$command += " -particlesEmissive " + `checkBox -q -value $maya2osg_cbParticlesEmissive`;
 	$command += " -particlesLighting " + `checkBox -q -value $maya2osg_cbParticlesLighting`;
-	
-	$command += " \"" + $file + "\";";
-//	print($command + "\n");
 
 	// Shadows computation
 	$command += "-computeShadows " + `checkBox -q -value $maya2osg_compute_shadows`;
@@ -115,8 +112,8 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 	$command += " -globalAmbient " + $ambient_color[0] + " " + $ambient_color[1] + " " + $ambient_color[2];
 	$command += " -localViewer " + `checkBox -q -value $maya2osg_local_viewer`;
 		
-//	$command += " \"" + $file + "\";";
-	print($command + "\n");
+	$command += " \"" + $file + "\";";
+//	print($command + "\n");
 	eval($command);
 
 	deleteUI -window $maya2osg_export_win;
