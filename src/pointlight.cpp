@@ -19,14 +19,20 @@
 */
 #include "pointlight.h"
 #include "lights.h"
+#include "shadows.h"
+#include "config.h"
+
 #include <maya/MFnLight.h>
 #include <maya/MFnNonAmbientLight.h>
 #include <maya/MColor.h>
+#include <maya/MFnDependencyNode.h>
+#include <maya/MPlug.h>
 
 #include <iostream>
 
 osg::ref_ptr<osg::Node> PointLight::exporta(MObject &obj)
 {
+	MFnDependencyNode dn(obj);
 	MFnLight mlight(obj);
 	MFnNonAmbientLight mnalight(obj);
 
@@ -79,5 +85,15 @@ osg::ref_ptr<osg::Node> PointLight::exporta(MObject &obj)
 			break;
 	}
 
-	return Lights::registerLight(light).get();
+	osg::ref_ptr<osg::LightSource> light_source = Lights::registerLight(light);
+
+	// Shadow casting
+	if ( Config::instance()->getComputeShadows() ) {
+		if ( dn.findPlug("useDepthMapShadows").asBool() ) {
+			std::cout << "Light " << dn.name().asChar() << " useDepthMapShadows with resolution " << dn.findPlug("dmapResolution").asInt() << std::endl;
+			Shadows::addLightSource( light_source, dn.findPlug("dmapResolution").asInt() );
+		}
+	}
+
+	return light_source;
 }

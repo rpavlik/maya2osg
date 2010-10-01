@@ -51,6 +51,10 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 	global string $maya2osg_anim_sampleby;
 	global string $maya2osg_cbParticlesEmissive;
 	global string $maya2osg_cbParticlesLighting;
+	global string $maya2osg_compute_shadows;
+	global string $maya2osg_shadow_technique;
+	global string $maya2osg_global_ambient;
+	global string $maya2osg_local_viewer;
 
 	string $command = "maya2osg";
 		
@@ -86,6 +90,7 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 		$command += " -YUp2ZUp 0";
 	}
 	
+	// Export animations
 	$command += "-exportAnim " + `checkBox -q -value $maya2osg_export_anim`;
 	
 	// Animation sample by
@@ -97,6 +102,21 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 	
 	$command += " \"" + $file + "\";";
 //	print($command + "\n");
+
+	// Shadows computation
+	$command += "-computeShadows " + `checkBox -q -value $maya2osg_compute_shadows`;
+
+	string $shadow_technique[];
+	$shadow_technique = `textScrollList -q -selectItem $maya2osg_shadow_technique`;
+	$command += " -shadowTechnique " + $shadow_technique[0];
+
+	// Lighting model
+	float $ambient_color[] = `colorSliderGrp -q -rgbValue $maya2osg_global_ambient`;
+	$command += " -globalAmbient " + $ambient_color[0] + " " + $ambient_color[1] + " " + $ambient_color[2];
+	$command += " -localViewer " + `checkBox -q -value $maya2osg_local_viewer`;
+		
+//	$command += " \"" + $file + "\";";
+	print($command + "\n");
 	eval($command);
 
 	deleteUI -window $maya2osg_export_win;
@@ -116,6 +136,10 @@ proc maya2osg_options(){
 	global string $maya2osg_anim_sampleby;
 	global string $maya2osg_cbParticlesEmissive;
 	global string $maya2osg_cbParticlesLighting;
+	global string $maya2osg_compute_shadows;
+	global string $maya2osg_shadow_technique;
+	global string $maya2osg_global_ambient;
+	global string $maya2osg_local_viewer;
 
 	// Open a dialog for the selection of export options
 	int $marginW = 15;
@@ -161,16 +185,26 @@ proc maya2osg_options(){
 							setParent ..;
 						setParent ..;
 					setParent ..;
-				$frame_geometry = `frameLayout -label "Materials/shading" -collapse true -collapsable true -marginWidth $marginW -marginHeight $marginH`;
+				$frame_geometry = `frameLayout -label "Materials/shading" -collapsable true -marginWidth $marginW -marginHeight $marginH`;
 					columnLayout;
 						//text -label "Coming soon..." -height $line_height;
 						$maya2osg_glslmats = `checkBox -label "Build GLSL shaders" -value 0 -height $line_height`;
 						setParent ..;
 					setParent ..;
-				$frame_geometry = `frameLayout -label "Lighting" -collapse true -collapsable true -marginWidth $marginW -marginHeight $marginH`;
+				$frame_geometry = `frameLayout -label "Lighting" -collapsable true -marginWidth $marginW -marginHeight $marginH`;
 					columnLayout;
-						//text -label "Coming soon..." -height $line_height;
-						$maya2osg_shadows = `checkBox -label "Compute shadows" -value 0 -height $line_height`;
+						$maya2osg_global_ambient = `colorSliderGrp -label "Global ambient color" -rgbValue 0 0 0`;
+						$maya2osg_local_viewer = `checkBox -label "Local viewer" -value 1 -height $line_height`;
+						$maya2osg_compute_shadows = `checkBox -label "Compute shadows" -value 1 -height $line_height`;
+						text -label "Shadow technique: ";
+						$maya2osg_shadow_technique = `textScrollList -numberOfRows 3
+							-allowMultiSelection false
+							-append "SHADOW_MAP"
+							-append "SOFT_SHADOW_MAP"
+							-append "SHADOW_VOLUME"
+							-append "SHADOW_TEXTURE"
+							-append "PARALLEL_SPLIT_SHADOW_MAP"
+							-selectItem "SHADOW_MAP"`;
 						setParent ..;
 					setParent ..;
 				$frame_geometry = `frameLayout -label "Animation" -collapsable true -marginWidth $marginW -marginHeight $marginH`;

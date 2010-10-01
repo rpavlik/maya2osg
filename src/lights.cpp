@@ -18,7 +18,8 @@
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "lights.h"
-#include <osg/LightModel>
+#include "config.h"
+
 #include <iostream>
 
 // Lights list
@@ -59,18 +60,27 @@ void Lights::configureStateSet(osg::ref_ptr<osg::StateSet> ss)
 {
 	if( _lights.size() > 0 )
 	{
-		// Light model
-		osg::ref_ptr<osg::LightModel> lm = new osg::LightModel();
-		lm->setAmbientIntensity(osg::Vec4(0,0,0,1));
-		lm->setLocalViewer(false);
-		lm->setColorControl(osg::LightModel::SINGLE_COLOR);
-		lm->setTwoSided(false);
-
 		ss->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-		ss->setAttribute(lm);
+		ss->setAttribute( getDefaultLightModel() );
 
 		for(int i=0; i < _lights.size(); i++){
 			ss->setMode(GL_LIGHT0+i, osg::StateAttribute::ON);
 		}
 	}
+}
+
+/**
+ *	Get a LightModel that follow default configuration
+ */
+osg::ref_ptr<osg::LightModel> Lights::getDefaultLightModel()
+{
+	osg::ref_ptr<osg::LightModel> lm = new osg::LightModel();
+	std::cout << "AMBIENT : " << Config::instance()->getGlobalAmbient().x()
+		<< Config::instance()->getGlobalAmbient().y()
+		<< Config::instance()->getGlobalAmbient().z() << std::endl;
+	lm->setAmbientIntensity( osg::Vec4(Config::instance()->getGlobalAmbient(), 1.0) );
+	lm->setLocalViewer( Config::instance()->getLocalViewer() );
+	lm->setColorControl(osg::LightModel::SINGLE_COLOR);
+	lm->setTwoSided(false);
+	return lm;
 }

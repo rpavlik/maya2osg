@@ -20,6 +20,8 @@
 #include "mesh.h"
 #include "shader.h"
 #include "config.h"
+#include "lights.h"
+#include "shadows.h"
 
 #include <osg/Geometry>
 #include <osg/Geode>
@@ -303,7 +305,7 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 		|| Config::instance()->getSurfaceMode() == Config::DOUBLE ) 
 	{
 		ss->setMode( osg::StateAttribute::CULLFACE, osg::StateAttribute::OFF );
-		osg::LightModel *lm = new osg::LightModel();
+		osg::ref_ptr<osg::LightModel> lm = Lights::getDefaultLightModel();
 		lm->setTwoSided( true );
 		ss->setAttribute( lm );
 	}
@@ -316,6 +318,16 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 			cull->setMode(osg::CullFace::BACK);
 		}
 		ss->setAttributeAndModes( cull, osg::StateAttribute::ON );
+	}
+
+	// Shadows
+	if ( Config::instance()->getComputeShadows() ) {
+		if ( ! dnodefn.findPlug("castsShadows").asBool() ) {
+			geode->setNodeMask( geode->getNodeMask() & ~Shadows::CastsShadowTraversalMask );
+		}
+		if ( ! dnodefn.findPlug("receiveShadows").asBool() ) {
+			geode->setNodeMask( geode->getNodeMask() & ~Shadows::ReceivesShadowTraversalMask );
+		}
 	}
 
     // Name the node (mesh)

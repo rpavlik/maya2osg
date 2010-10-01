@@ -20,13 +20,11 @@
 #ifndef _LIGHTS_H_
 #define _LIGHTS_H_
 
-#if defined(_WINDLL) || defined(_WIN32)
-#	include <windows.h>
-#endif
 #include <vector>
 #include <osg/Light>
 #include <osg/LightSource>
 #include <osg/StateSet>
+#include <osg/LightModel>
 
 /**
  *	This class manages the lights in the scene
@@ -50,6 +48,9 @@ public:
 	/// Empty the lights list (leaving the system ready to export the next scene)
 	static inline void reset()
 	{ _lights.clear(); }
+
+	/// Get a LightModel that follow default configuration
+	static osg::ref_ptr<osg::LightModel> getDefaultLightModel();
 
 };
 

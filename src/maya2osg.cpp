@@ -26,6 +26,7 @@
 #include "lights.h"
 #include "camera.h"
 #include "particle.h"
+#include "shadows.h"
 
 #include <maya/MGlobal.h>
 #include <maya/MArgList.h>
@@ -179,6 +180,57 @@ MStatus maya2osg::doIt( const MArgList & args )
 				Config::instance()->setParticlesLighting( true );
 			}
 		}
+		else if ( args.asString(i) == "-computeShadows" ){
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "0" ){
+				Config::instance()->setComputeShadows( false );
+			}
+			else {
+				Config::instance()->setComputeShadows( true );
+			}
+		}
+		else if ( args.asString(i) == "-shadowTechnique" ) {
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "SHADOW_MAP" ){
+				Config::instance()->setShadowTechnique(Config::SHADOW_MAP);
+			}
+			else if( args.asString(i) == "SOFT_SHADOW_MAP" ){
+				Config::instance()->setShadowTechnique(Config::SOFT_SHADOW_MAP);
+			}
+			else if( args.asString(i) == "SHADOW_VOLUME" ){
+				Config::instance()->setShadowTechnique(Config::SHADOW_VOLUME);
+			}
+			else if( args.asString(i) == "SHADOW_TEXTURE" ){
+				Config::instance()->setShadowTechnique(Config::SHADOW_TEXTURE);
+			}
+			else if( args.asString(i) == "PARALLEL_SPLIT_SHADOW_MAP" ){
+				Config::instance()->setShadowTechnique(Config::PARALLEL_SPLIT_SHADOW_MAP);
+			}
+		}
+		else if ( args.asString(i) == "-globalAmbient" ){
+			if(i+3 >= args.length())
+				break;
+			float x = args.asDouble(++i);
+			float y = args.asDouble(++i);
+			float z = args.asDouble(++i);
+			osg::Vec3 ambient_color( x, y, z );
+			Config::instance()->setGlobalAmbient( ambient_color );
+		}
+		else if ( args.asString(i) == "-localViewer" ){
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "0" ){
+				Config::instance()->setLocalViewer( false );
+			}
+			else {
+				Config::instance()->setLocalViewer( true );
+			}
+		}
 		else if ( args.asString(i).length() > 0 ) {
 			// We discard empty arguments
 			filename = args.asString(i);
@@ -261,6 +313,15 @@ MStatus maya2osg::doIt( const MArgList & args )
 	// Create the states so lights affect the whole scene
 	Lights::configureStateSet(st);
 
+	// Cast shadows
+	if ( Config::instance()->getComputeShadows() ) {
+		osg::ref_ptr<osg::Group> shadow_group = Shadows::createShadowGroup();
+		if ( shadow_group.valid() ) {
+			shadow_group->addChild( root );
+			root = shadow_group;
+		}
+	}
+
 	// If there are particle systems, attach the ParticleSystemUpdater
 	// at the end of the scene graph
 	root->addChild( Particle::getParticleSystemUpdater() );
@@ -281,6 +342,9 @@ MStatus maya2osg::doIt( const MArgList & args )
 	// Clear particle systems related information
 	Particle::reset();
 	PointEmitter::reset();
+
+	// Clear register of lights casting shadows
+	Shadows::reset();
 
 	std::cout << "---------------------------------------------------" << std::endl;
 	std::cout << "---      Exportation succesfully completed      ---" << std::endl;

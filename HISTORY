@@ -1,3 +1,7 @@
+WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+	Lighting model: local viewer, global ambient color
+	Shadows: osgShadow support
+
 0.4.0	2010/09/30	Javier Taibo <javier.taibo@gmail.com>
 	Export any transform animation, baked with configurable sampling step in the option box "sample by"
 	Bug fixed: spot light cone angle

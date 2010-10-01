@@ -20,12 +20,9 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
-#if defined(_WIN32) || defined(_WINDLL)
-#	include <windows.h>
-#endif
-
 #include <osg/TexEnv>
 #include <osg/BlendFunc>
+#include <osg/Vec3>
 
 /**
 *	Exporter Global Configuration
@@ -47,6 +44,15 @@ public:
 		EDGE,	///< Clamp to edge
 		COLOR	///< Maya default color
 	} TextureClampMode;
+
+	/// Supported shadow techniques
+	typedef enum {
+		SHADOW_MAP,
+		SOFT_SHADOW_MAP,
+		SHADOW_VOLUME,
+		SHADOW_TEXTURE,
+		PARALLEL_SPLIT_SHADOW_MAP
+	} ShadowTechnique;
 
 private:
 	static Config *_instance;
@@ -85,6 +91,18 @@ private:
 
 	/// Particles lighting
 	bool _particlesLighting;
+
+	/// Compute shadows
+	bool _computeShadows;
+
+	/// Shadow technique
+	ShadowTechnique _shadowTechnique;
+
+	/// Global ambient color
+	osg::Vec3 _globalAmbient;
+
+	/// Local viewer (for lighting model)
+	bool _localViewer;
 
 	/// Constructor
 	Config();
@@ -161,6 +179,30 @@ public:
 
 	inline bool getParticlesLighting() const
 	{ return _particlesLighting; }
+
+	inline void setComputeShadows( bool v )
+	{ _computeShadows = v; }
+
+	inline bool getComputeShadows() const
+	{ return _computeShadows; }
+
+	inline void setShadowTechnique( ShadowTechnique st )
+	{ _shadowTechnique = st; }
+
+	inline ShadowTechnique getShadowTechnique() const
+	{ return _shadowTechnique; }
+
+	inline void setGlobalAmbient( osg::Vec3 color )
+	{ _globalAmbient = color; }
+
+	inline osg::Vec3 getGlobalAmbient() const
+	{ return _globalAmbient; }
+
+	inline void setLocalViewer( bool lv )
+	{ _localViewer = lv; }
+
+	inline bool getLocalViewer() const
+	{ return _localViewer; }
 
 };
 

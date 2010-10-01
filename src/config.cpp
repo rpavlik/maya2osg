@@ -40,4 +40,8 @@ Config::Config()
 	_animSampleBy = 1;
 	_particlesEmissive = false;
 	_particlesLighting = false;
+	_computeShadows = true;
+	_shadowTechnique = SHADOW_MAP;
+	_globalAmbient.set(0.0, 0.0, 0.0);
+	_localViewer = true;
 }
