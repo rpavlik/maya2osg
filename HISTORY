@@ -1,6 +1,7 @@
-WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+0.4.1	2010/10/01	Javier Taibo <javier.taibo@gmail.com>
+	BUG FIX in export MEL script, when using shelf button "Export to OSG (option box)"
 	Lighting model: local viewer, global ambient color
-	Shadows: osgShadow support
+	Preliminary shadows support (osgShadow)
 
 0.4.0	2010/09/30	Javier Taibo <javier.taibo@gmail.com>
 	Export any transform animation, baked with configurable sampling step in the option box "sample by"
