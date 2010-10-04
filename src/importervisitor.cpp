@@ -765,9 +765,17 @@ void ImporterVisitor::importGeometry(osg::Geometry *geometry, MObject &shading_e
 					{
 						// Build the normal array (per face vertices)
 						MVectorArray normal_array;
-						for( int i=0; i < osg_niarray->getNumElements() ; i++ ){
-							osg::Vec3 n = (*osg_narray)[osg_niarray->index(i)];
-							normal_array.append( MVector(n.x(), n.y(), n.z()) );
+						if ( osg_niarray ) {
+							for( int i=0; i < osg_niarray->getNumElements() ; i++ ){
+								osg::Vec3 n = (*osg_narray)[osg_niarray->index(i)];
+								normal_array.append( MVector(n.x(), n.y(), n.z()) );
+							}
+						}
+						else {
+							for( int i=0; i < osg_narray->getNumElements() ; i++ ){
+								osg::Vec3 n = (*osg_narray)[i];
+								normal_array.append( MVector(n.x(), n.y(), n.z()) );
+							}
 						}
 						MIntArray face_list;
 						MIntArray vertex_list;
