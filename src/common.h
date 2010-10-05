@@ -21,7 +21,7 @@
 #define _COMMON_H_
 
 #define VENDOR "Maya2OSG"
-#define VERSION "0.4.1"
+#define VERSION "0.4.1-SVN"
 
 #include <string>
 #include <maya/Mstatus.h>

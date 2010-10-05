@@ -104,6 +104,9 @@ private:
 	/// Local viewer (for lighting model)
 	bool _localViewer;
 
+	/// Use GLSL shaders to emulate Maya shaders
+	bool _useGLSL;
+
 	/// Constructor
 	Config();
 
@@ -203,6 +206,12 @@ public:
 
 	inline bool getLocalViewer() const
 	{ return _localViewer; }
+
+	inline void setUseGLSL( bool v )
+	{ _useGLSL = v; }
+
+	inline bool getUseGLSL() const
+	{ return _useGLSL; }
 
 };
 

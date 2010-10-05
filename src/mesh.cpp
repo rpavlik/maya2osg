@@ -19,6 +19,7 @@
 */
 #include "mesh.h"
 #include "shader.h"
+#include "shaderglsl.h"
 #include "config.h"
 #include "lights.h"
 #include "shadows.h"
@@ -286,8 +287,12 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 		UVidx.clear();
 
 		osg::ref_ptr<osg::StateSet> st = Shader::exporta(shaders[0],textures);
-		if(st.valid())
+		if(st.valid()) {
+			if ( Config::instance()->getUseGLSL() ) {
+				ShaderGLSL::exporta(shaders[0], textures, st);
+			}
 			geode->setStateSet(st.get());
+		}
 	}
 
 	// Check whether mesh is single or double sided

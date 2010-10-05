@@ -247,6 +247,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\shaderglsl.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\shadows.cpp"
 				>
 			</File>
@@ -337,6 +341,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\shader.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\shaderglsl.h"
 				>
 			</File>
 			<File

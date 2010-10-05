@@ -37,13 +37,13 @@
 /**
  *	Check whether there is any texture connected to any channel of this material (color, transparency, ...)
  */
-bool Shader::connectedTexture(const MObject &obj, std::string canal)
+bool Shader::connectedTexture(const MObject &surface_shader, std::string canal)
 {
-	MFnDependencyNode dn(obj);
+	MFnDependencyNode dn(surface_shader);
 	// Most Maya materials inherit from Lambert node, so if it is not a lambert, 
 	// we do not consider it a material
-	if(obj.hasFn(MFn::kLambert)){
-		MFnLambertShader lambert(obj);
+	if(surface_shader.hasFn(MFn::kLambert)){
+		MFnLambertShader lambert(surface_shader);
 
 		MStatus status;
 		MPlug plug = dn.findPlug(canal.c_str(), &status);
@@ -187,16 +187,16 @@ void Shader::setTextures(osg::ref_ptr<osg::StateSet> st, const MObjectArray &tex
  *	@param obj ShadingEngine (ShadingGroup) object
  *	@param textures 
  */
-osg::ref_ptr<osg::StateSet> Shader::exporta(const MObject &obj, const MObjectArray &textures)
+osg::ref_ptr<osg::StateSet> Shader::exporta(const MObject &shading_engine, const MObjectArray &textures)
 {
-	MFnDependencyNode dn(obj);
+	MFnDependencyNode dn(shading_engine);
 	/*
 		Received object is a "shading engine", a set containing the geometry
 		to which the shader is applied.
 		We must take the connections of this node, and follow them to the shader
 		(or shaders) being used.
 	*/
-	if(obj.hasFn(MFn::kShadingEngine)){
+	if(shading_engine.hasFn(MFn::kShadingEngine)){
 		// Shading engine
 #ifdef _DEBUG
 		std::cout << "Shading Engine : " << dn.name().asChar() << std::endl;
@@ -231,7 +231,7 @@ osg::ref_ptr<osg::StateSet> Shader::exporta(const MObject &obj, const MObjectArr
 	}
 	else {
 		std::cerr << "ERROR. Unknown shader type (" << 
-			obj.apiTypeStr() << ") : " << dn.name().asChar() << std::endl;
+			shading_engine.apiTypeStr() << ") : " << dn.name().asChar() << std::endl;
 	}
 	return NULL;
 }

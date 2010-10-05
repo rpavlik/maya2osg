@@ -49,7 +49,7 @@ private:
 	/// Add textures to the StateSet
 	static void setTextures(osg::ref_ptr<osg::StateSet> st, const MObjectArray &textures, bool tex_trans);
 	/// Check if the material has any texture connected to the specified channel
-	static bool connectedTexture(const MObject &obj, std::string channel);
+	static bool connectedTexture(const MObject &surface_shader, std::string channel);
 
 };
 

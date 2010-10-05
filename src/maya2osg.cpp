@@ -231,6 +231,17 @@ MStatus maya2osg::doIt( const MArgList & args )
 				Config::instance()->setLocalViewer( true );
 			}
 		}
+		else if ( args.asString(i) == "-useGLSL" ){
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "0" ){
+				Config::instance()->setUseGLSL( false );
+			}
+			else {
+				Config::instance()->setUseGLSL( true );
+			}
+		}
 		else if ( args.asString(i).length() > 0 ) {
 			// We discard empty arguments
 			filename = args.asString(i);

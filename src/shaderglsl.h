@@ -17,32 +17,29 @@
     You should have received a copy of the GNU General Public License
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "config.h"
+#ifndef _SHADERGLSL_H_
+#define _SHADERGLSL_H_
 
-Config *Config::_instance = new Config();
+#include <maya/MObject.h>
+#include <maya/MObjectArray.h>
+
+#include <osg/StateSet>
+
 
 /**
- *	Constructor
+ *	ShaderGLSL class works similar to Shader class, but instead of OpenGL materials
+ *	it uses GLSL shaders to emulate the visual quality of "Maya soft" renderer.
  */
-Config::Config()
-{
-	// Default values
+class ShaderGLSL {
 
-	_mode = osg::TexEnv::MODULATE; 
-	_blendFuncSrc = osg::BlendFunc::SRC_ALPHA;
-	_blendFuncDst = osg::BlendFunc::ONE_MINUS_SRC_ALPHA;
-	_exportDefaultCameras = false;
-	_exportOrthographicCameras = false;
-	_surfaceMode = KEEP;
-	_texClampMode = COLOR;
-	_YUp2ZUp = true;
-	_exportAnimations = true;
-	_animSampleBy = 1;
-	_particlesEmissive = false;
-	_particlesLighting = false;
-	_computeShadows = true;
-	_shadowTechnique = SHADOW_MAP;
-	_globalAmbient.set(0.0, 0.0, 0.0);
-	_localViewer = true;
-	_useGLSL = false;
-}
+public:
+	/// Configure the shaders for the StateSet of the ShadingEngine/ShadingGroup object
+	static void exporta(const MObject &shading_engine, const MObjectArray &textures,
+						osg::ref_ptr<osg::StateSet> state_set);
+
+private:
+	/// Create the stateset for a Lambert material
+	static void exportLambert(const MObject &surface_shader, osg::ref_ptr<osg::StateSet> state_set);
+};
+
+#endif //_SHADERGLSL_H_

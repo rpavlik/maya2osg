@@ -1,5 +1,9 @@
-0.4.1	2010/10/01	Javier Taibo <javier.taibo@gmail.com>
+WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
 	BUG FIX in importer. It crashed when importing geometry with normals but no normal indices
+	Per-fragment lighting Lambert shader (with fallback to OpenGL material if shader not supported)
+	Config option for creating GLSL shaders
+
+0.4.1	2010/10/01	Javier Taibo <javier.taibo@gmail.com>
 	BUG FIX in export MEL script, when using shelf button "Export to OSG (option box)"
 	Lighting model: local viewer, global ambient color
 	Preliminary shadows support (osgShadow)
