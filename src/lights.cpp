@@ -26,7 +26,7 @@
 std::vector< osg::ref_ptr<osg::Light> > Lights::_lights;
 
 /// Uniform indicating the number of lights in the scene
-osg::ref_ptr<osg::Uniform> Lights::_uniformNumEnabledLights = new osg::Uniform(osg::Uniform::UNSIGNED_INT, "NumEnabledLights");
+osg::ref_ptr<osg::Uniform> Lights::_uniformNumEnabledLights = new osg::Uniform(osg::Uniform::INT, "NumEnabledLights");
 
 /**
  *	Register a light in the scene (and create the LightSource node)
@@ -90,6 +90,6 @@ osg::ref_ptr<osg::LightModel> Lights::getDefaultLightModel()
  */
 void Lights::configureUniforms()
 {
-	_uniformNumEnabledLights->set( _lights.size() );
+	_uniformNumEnabledLights->set( (int) _lights.size() );
 }
 

@@ -4,7 +4,6 @@
 uniform bool LocalViewer;
 
 uniform int NumEnabledLights;
-//int NumEnabledLights=1;
 
 uniform sampler2D ColorTexture;
 uniform sampler2D TranspTexture;
@@ -129,7 +128,6 @@ void main() {
 	// Loop through enabled lights, compute contribution from each
 	int i;
 	for (i = 0; i < NumEnabledLights; i++)
-//	for (i = 0; i < 1; i++)
 	{
 	    if (gl_LightSource[i].position.w == 0.0)
 	        DirectionalLight(i, normalize(normal), amb, diff);
