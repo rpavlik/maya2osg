@@ -43,13 +43,14 @@ public:
 	/// Get the file texture connected to color channel (if any)
 	static void getColorTexture( const MObject &surface_shader, MObject &texture );
 
+	/// Check if the material has any texture connected to the specified channel
+	static bool connectedTexture(const MObject &surface_shader, std::string channel);
+
 private:
 	/// Create OSG/OpenGL material corresponding to Maya material
 	static osg::ref_ptr<osg::Material> material(const MObject &obj, bool &mat_trans);
 	/// Add textures to the StateSet
 	static void setTextures(osg::ref_ptr<osg::StateSet> st, const MObjectArray &textures, bool tex_trans);
-	/// Check if the material has any texture connected to the specified channel
-	static bool connectedTexture(const MObject &surface_shader, std::string channel);
 
 };
 

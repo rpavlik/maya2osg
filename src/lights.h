@@ -37,13 +37,22 @@ private:
 
 	static std::vector< osg::ref_ptr<osg::Light> > _lights;	///< Lights present in the scene
 
+	/// Uniform indicating the number of lights in the scene
+	static osg::ref_ptr<osg::Uniform> _uniformNumEnabledLights;
+
 public:
 
-	// Registers a light in the scene (and creates the LightSource node)
+	/// Registers a light in the scene (and creates the LightSource node)
 	static osg::ref_ptr<osg::LightSource> registerLight(osg::ref_ptr<osg::Light> light);
 
-	// Configure the global stateset to use the defined lights
+	/// Configure the global stateset to use the defined lights
 	static void configureStateSet(osg::ref_ptr<osg::StateSet> ss);
+
+	/// Configure uniforms needed for lighting
+	static void configureUniforms();
+
+	static osg::ref_ptr<osg::Uniform> getUniformNumEnabledLights()
+	{ return _uniformNumEnabledLights; }
 
 	/// Empty the lights list (leaving the system ready to export the next scene)
 	static inline void reset()

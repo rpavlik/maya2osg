@@ -43,8 +43,6 @@ bool Shader::connectedTexture(const MObject &surface_shader, std::string canal)
 	// Most Maya materials inherit from Lambert node, so if it is not a lambert, 
 	// we do not consider it a material
 	if(surface_shader.hasFn(MFn::kLambert)){
-		MFnLambertShader lambert(surface_shader);
-
 		MStatus status;
 		MPlug plug = dn.findPlug(canal.c_str(), &status);
 		MPlugArray connections;

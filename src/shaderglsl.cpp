@@ -20,20 +20,33 @@
 #include "shaderglsl.h"
 #include "shader.h"
 #include "config.h"
+#include "lights.h"
 
 #include <osg/BlendFunc>
 
 #include <maya/MFnDependencyNode.h>
 #include <maya/MPlug.h>
 
+#include <sstream>
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // NOTE: See Orange Book chapter 9 (Emulating OpenGL Fixed Functionality)
 
-const std::string vertex_src_lambert =
+/**
+ *	Build the vertex shader GLSL source code for Lambert materials
+ *
+ *	@param num_tc_sets	Number of texture coordinate sets used by this shader
+ */
+std::string LambertVertexShaderSrc( int num_tc_sets )
+{
+	std::string shader_src =
+"// Texture units used\n"
+"uniform int numTexCoordSets;\n"
 "\n"
-"uniform vec3 color;\n"
+"varying vec3 ecPosition3;\n"
+"varying vec3 normal;\n"
 "\n"
 "void main() {\n"
 "	// Transform vertex from object space to clip space\n"
@@ -43,17 +56,26 @@ const std::string vertex_src_lambert =
 "	// because OpenGL specifies that light positions are transformed\n"
 "	// by the modelview matrix when they are provided to OpenGL\n"
 "\n"
-"//	ecPosition = gl_ModelViewMatrix * gl_Vertex;\n"
-"//	ecPosition3 = (vec3(ecPosition)) / ecPosition.w;\n"
+"	// Vertex position in eye coordinates (and projected)\n"
+"	vec4 ecPosition = gl_ModelViewMatrix * gl_Vertex;\n"
+"	ecPosition3 = (vec3(ecPosition)) / ecPosition.w;\n"
 "\n"
-"//	normal = gl_NormalMatrix * gl_Normal;\n"
-"//	normal = normalize(normal);\n"
+"	// Normals (in eye coordinates, we will normalize them after interpolation)\n"
+"	normal = gl_NormalMatrix * gl_Normal;\n"
 "\n"
-"	// For every used texture unit... ***\n"
-"//	gl_TexCoord[0] = gl_TextureMatrix[0] * glMultiTexCoord0;\n"
-"\n"
+;
+	for ( int i=0 ; i < num_tc_sets ; i++ ) {
+		std::stringstream tc_set;
+		tc_set << i;
+		shader_src += 
+"	gl_TexCoord[" + tc_set.str() + "] = gl_TextureMatrix[" + 
+				tc_set.str() + "] * gl_MultiTexCoord" + tc_set.str() + ";\n"
 "}\n"
 ;
+	}
+	return shader_src;
+}
+
 
 const std::string fragment_src_lambert =
 "\n"
@@ -76,7 +98,7 @@ void ShaderGLSL::exporta(const MObject &shading_engine, const MObjectArray &text
 	Shader::getSurfaceShader( shading_engine, surface_shader );
 
 	if ( surface_shader.hasFn(MFn::kLambert) ) {
-		exportLambert( surface_shader, state_set );
+		exportLambert( surface_shader, textures, state_set );
 	}
 	//else if ...
 	// TO-DO : rest (non Lambert-derived) of Maya shaders *****  FIXME!!!
@@ -88,23 +110,33 @@ void ShaderGLSL::exporta(const MObject &shading_engine, const MObjectArray &text
  *
  *	********* UNDER CONSTRUCTION!!!   --- FIXME!!!!!!!!
  */
-void ShaderGLSL::exportLambert(const MObject &surface_shader, osg::ref_ptr<osg::StateSet> state_set)
+void ShaderGLSL::exportLambert(const MObject &surface_shader, const MObjectArray &textures, osg::ref_ptr<osg::StateSet> state_set)
 {
 	MFnDependencyNode dn(surface_shader);
 
-	// **** FIXME!!! check if there is transparency
-	bool transparency = false;
+	// Check if there is transparency
+	bool transparency = Shader::connectedTexture(surface_shader, "transparency") 
+		|| dn.findPlug("transparencyR").asFloat() > 0.0
+		|| dn.findPlug("transparencyG").asFloat() > 0.0
+		|| dn.findPlug("transparencyB").asFloat() > 0.0;
 
 	// Export common material attributes
 	// FIXME *** -> this code will be common to every shader that inherit from lambert node,
 	//		it will be put on a separate function/method
 
 	// Color
+	//	texture?
+	
 	// Transparency
+	//	texture?
 	// Ambient Color
+	//	texture?
 	// Incandescence
+	//	texture?
 	// Bump Mapping
+	//	texture?
 	// Diffuse
+
 	// Translucence (*)
 	// Translucence Depth (*)
 	// Translucence Focus (*)
@@ -113,25 +145,36 @@ void ShaderGLSL::exportLambert(const MObject &surface_shader, osg::ref_ptr<osg::
 
 	// GLSL Program
 	osg::Program *program = new osg::Program();
-#if 1
+	// Vertex shader
+#if 0
 	osg::Shader *vertex_shader = new osg::Shader(osg::Shader::VERTEX);
-	osg::Shader *fragment_shader = new osg::Shader(osg::Shader::FRAGMENT);
 	vertex_shader->loadShaderSourceFromFile( "../../shaders/lambert_vertex.glsl" );
-	fragment_shader->loadShaderSourceFromFile( "../../shaders/lambert_fragment.glsl" );
 	program->addShader( vertex_shader );
+#else
+	// FIXME!!! *** num_tc_sets
+	int num_tc_sets = 1;
+	program->addShader( new osg::Shader(osg::Shader::VERTEX, LambertVertexShaderSrc(num_tc_sets)) );
+#endif
+	// Fragment shader
+#if 1
+	osg::Shader *fragment_shader = new osg::Shader(osg::Shader::FRAGMENT);
+	fragment_shader->loadShaderSourceFromFile( "../../shaders/lambert_fragment.glsl" );
 	program->addShader( fragment_shader );
 #else
-	program->addShader( new osg::Shader(osg::Shader::VERTEX, vertex_src_lambert) );
 	program->addShader( new osg::Shader(osg::Shader::FRAGMENT, fragment_src_lambert) );
 #endif
 	state_set->setAttribute( program );
 
-	// WARNING - Code under development. By now we don't consider textures 
-	// connected to this attribue, just a constant value
-	osg::Vec3 color( dn.findPlug("colorR").asFloat(),
-					dn.findPlug("colorG").asFloat(),
-					dn.findPlug("colorB").asFloat() );
-	state_set->addUniform( new osg::Uniform("color", color) );
+	// Uniform: LocalViewer
+	state_set->addUniform( new osg::Uniform("LocalViewer", Config::instance()->getLocalViewer()) );
+
+	// Uniform: NumEnabledLights
+	state_set->addUniform( Lights::getUniformNumEnabledLights() );
+
+	// Set texture samplers
+
+	// we need to know what textures are connected to each channel, in what texture unit they are
+	// and what texture coordinate set (UV set) they use.
 
 	if( transparency ){
 		state_set->setMode(GL_BLEND, osg::StateAttribute::ON);

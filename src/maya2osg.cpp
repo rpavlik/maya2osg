@@ -323,6 +323,8 @@ MStatus maya2osg::doIt( const MArgList & args )
     st->setMode(GL_NORMALIZE, osg::StateAttribute::ON);
 	// Create the states so lights affect the whole scene
 	Lights::configureStateSet(st);
+	// Configure the uniforms related to lighting
+	Lights::configureUniforms();
 
 	// Cast shadows
 	if ( Config::instance()->getComputeShadows() ) {

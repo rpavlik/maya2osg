@@ -25,6 +25,8 @@
 // Lights list
 std::vector< osg::ref_ptr<osg::Light> > Lights::_lights;
 
+/// Uniform indicating the number of lights in the scene
+osg::ref_ptr<osg::Uniform> Lights::_uniformNumEnabledLights = new osg::Uniform(osg::Uniform::UNSIGNED_INT, "NumEnabledLights");
 
 /**
  *	Register a light in the scene (and create the LightSource node)
@@ -75,12 +77,19 @@ void Lights::configureStateSet(osg::ref_ptr<osg::StateSet> ss)
 osg::ref_ptr<osg::LightModel> Lights::getDefaultLightModel()
 {
 	osg::ref_ptr<osg::LightModel> lm = new osg::LightModel();
-	std::cout << "AMBIENT : " << Config::instance()->getGlobalAmbient().x()
-		<< Config::instance()->getGlobalAmbient().y()
-		<< Config::instance()->getGlobalAmbient().z() << std::endl;
 	lm->setAmbientIntensity( osg::Vec4(Config::instance()->getGlobalAmbient(), 1.0) );
 	lm->setLocalViewer( Config::instance()->getLocalViewer() );
 	lm->setColorControl(osg::LightModel::SINGLE_COLOR);
 	lm->setTwoSided(false);
 	return lm;
 }
+
+
+/**
+ *	Configure uniforms needed for lighting
+ */
+void Lights::configureUniforms()
+{
+	_uniformNumEnabledLights->set( _lights.size() );
+}
+

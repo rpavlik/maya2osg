@@ -38,8 +38,9 @@ public:
 						osg::ref_ptr<osg::StateSet> state_set);
 
 private:
-	/// Create the stateset for a Lambert material
-	static void exportLambert(const MObject &surface_shader, osg::ref_ptr<osg::StateSet> state_set);
+	/// Configure the shader in the stateset for a Lambert material
+	static void exportLambert(const MObject &surface_shader, const MObjectArray &textures, 
+								osg::ref_ptr<osg::StateSet> state_set);
 };
 
 #endif //_SHADERGLSL_H_
