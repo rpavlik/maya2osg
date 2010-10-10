@@ -309,7 +309,7 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	if ( ( Config::instance()->getSurfaceMode() == Config::KEEP && double_sided ) 
 		|| Config::instance()->getSurfaceMode() == Config::DOUBLE ) 
 	{
-		ss->setMode( osg::StateAttribute::CULLFACE, osg::StateAttribute::OFF );
+		ss->setMode( GL_CULL_FACE, osg::StateAttribute::OFF );
 		osg::ref_ptr<osg::LightModel> lm = Lights::getDefaultLightModel();
 		lm->setTwoSided( true );
 		ss->setAttribute( lm );
@@ -334,6 +334,9 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 			geode->setNodeMask( geode->getNodeMask() & ~Shadows::ReceivesShadowTraversalMask );
 		}
 	}
+
+    // *** FIXME!!!
+    geometry->setUseDisplayList( false );
 
     // Name the node (mesh)
 	geode->setName( dnodefn.name().asChar() );

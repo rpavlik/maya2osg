@@ -158,7 +158,8 @@ void ShaderGLSL::exportLambert(const MObject &surface_shader, const MObjectArray
 	// Fragment shader
 #if 1
 	osg::Shader *fragment_shader = new osg::Shader(osg::Shader::FRAGMENT);
-	fragment_shader->loadShaderSourceFromFile( "../../shaders/lambert_fragment.glsl" );
+//	fragment_shader->loadShaderSourceFromFile( "../../shaders/lambert_fragment.glsl" );
+	fragment_shader->loadShaderSourceFromFile( "C:/subversion/maya2osg/tests/shaders/lambert_fragment_notex.glsl" );
 	program->addShader( fragment_shader );
 #else
 	program->addShader( new osg::Shader(osg::Shader::FRAGMENT, fragment_src_lambert) );
