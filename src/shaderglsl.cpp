@@ -77,14 +77,150 @@ std::string LambertVertexShaderSrc( int num_tc_sets )
 }
 
 
-const std::string fragment_src_lambert =
+/**
+ *	Build the fragment shader GLSL source code for Lambert materials
+ *
+ *	@param num_tc_sets	Number of texture coordinate sets used by this shader
+ */
+std::string LambertFragmentShaderSrc()
+{
+	std::string shader_src =
+"#version 120\n"
 "\n"
-"uniform vec3 color;\n"
+"// Uniforms set from Maya2OSG exporter\n"
+"uniform bool LocalViewer;\n"
+"uniform int NumEnabledLights;\n"
+"\n"
+"// From vertex shader\n"
+"varying vec3 ecPosition3;\n"
+"varying vec3 normal;\n"
+"\n"
+"void DirectionalLight(in int i,\n"
+"                      in vec3 normal,\n"
+"                      inout vec4 ambient,\n"
+"                      inout vec4 diffuse)\n"
+"{\n"
+"     float nDotVP;         // normal . light direction\n"
+"     float pf;             // power factor\n"
+"\n"
+"     nDotVP = max(0.0, dot(normal,\n"
+"                   normalize(vec3(gl_LightSource[i].position))));\n"
+"\n"
+"     ambient  += gl_LightSource[i].ambient;\n"
+"     diffuse  += gl_LightSource[i].diffuse * nDotVP;\n"
+"}\n"
+"\n"
+"void PointLight(in int i,\n"
+"                in vec3 eye,\n"
+"                in vec3 ecPosition3,\n"
+"                in vec3 normal,\n"
+"                inout vec4 ambient,\n"
+"                inout vec4 diffuse)\n"
+"{\n"
+"    float nDotVP;         // normal . light direction\n"
+"    float attenuation;    // computed attenuation factor\n"
+"    float d;              // distance from surface to light source\n"
+"    vec3  VP;             // direction from surface to light position\n"
+"\n"
+"    // Compute vector from surface to light position\n"
+"    VP = vec3(gl_LightSource[i].position) - ecPosition3;\n"
+"\n"
+"    // Compute distance between surface and light position\n"
+"    d = length(VP);\n"
+"\n"
+"    // Normalize the vector from surface to light position\n"
+"    VP = normalize(VP);\n"
+"\n"
+"    // Compute attenuation\n"
+"    attenuation = 1.0 / (gl_LightSource[i].constantAttenuation +\n"
+"                         gl_LightSource[i].linearAttenuation * d +\n"
+"                         gl_LightSource[i].quadraticAttenuation * d * d);\n"
+"\n"
+"    nDotVP = max(0.0, dot(normal, VP));\n"
+"\n"
+"    ambient += gl_LightSource[i].ambient * attenuation;\n"
+"    diffuse += gl_LightSource[i].diffuse * nDotVP * attenuation;\n"
+"}\n"
+"\n"
+"void SpotLight(in int i,\n"
+"               in vec3 eye,\n"
+"               in vec3 ecPosition3,\n"
+"               in vec3 normal,\n"
+"               inout vec4 ambient,\n"
+"               inout vec4 diffuse)\n"
+"{\n"
+"    float nDotVP;           // normal . light direction\n"
+"    float spotDot;          // cosine of angle between spotlight\n"
+"    float spotAttenuation;  // spotlight attenuation factor\n"
+"    float attenuation;      // computed attenuation factor\n"
+"    float d;                // distance from surface to light source\n"
+"    vec3 VP;                // direction from surface to light position\n"
+"\n"
+"    // Compute vector from surface to light position\n"
+"    VP = vec3(gl_LightSource[i].position) - ecPosition3;\n"
+"\n"
+"    // Compute distance between surface and light position\n"
+"    d = length(VP);\n"
+"\n"
+"    // Normalize the vector from surface to light position\n"
+"    VP = normalize(VP);\n"
+"\n"
+"    // Compute attenuation\n"
+"    attenuation = 1.0 / (gl_LightSource[i].constantAttenuation +\n"
+"                         gl_LightSource[i].linearAttenuation * d +\n"
+"                         gl_LightSource[i].quadraticAttenuation * d * d);\n"
+"\n"
+"    // See if point on surface is inside cone of illumination\n"
+"    spotDot = dot(-VP, normalize(gl_LightSource[i].spotDirection));\n"
+"\n"
+"    if (spotDot < gl_LightSource[i].spotCosCutoff)\n"
+"        spotAttenuation = 0.0; // light adds no contribution\n"
+"    else\n"
+"        spotAttenuation = pow(spotDot, gl_LightSource[i].spotExponent);\n"
+"\n"
+"    // Combine the spotlight and distance attenuation.\n"
+"    attenuation *= spotAttenuation;\n"
+"\n"
+"    nDotVP = max(0.0, dot(normal, VP));\n"
+"\n"
+"    ambient  += gl_LightSource[i].ambient * attenuation;\n"
+"    diffuse  += gl_LightSource[i].diffuse * nDotVP * attenuation;\n"
+"}\n"
+"\n"
 "\n"
 "void main() {\n"
-"	gl_FragColor = vec4(color, 1.0);\n"
-"}\n"
-;
+"\n"
+"	vec3 eye;\n"
+"	if (LocalViewer)\n"
+"	    eye = -normalize(ecPosition3);\n"
+"	else\n"
+"	    eye = vec3(0.0, 0.0, 1.0);\n"
+"\n"
+"	// Clear the light intensity accumulators\n"
+"	vec4 amb  = vec4(0.0);\n"
+"	vec4 diff = vec4(0.0);\n"
+"\n"
+"	// Loop through enabled lights, compute contribution from each\n"
+"	int i;\n"
+"	for (i = 0; i < NumEnabledLights; i++)\n"
+"	{\n"
+"	    if (gl_LightSource[i].position.w == 0.0)\n"
+"	        DirectionalLight(i, normalize(normal), amb, diff);\n"
+"	    else if (gl_LightSource[i].spotCutoff == 180.0)\n"
+"	        PointLight(i, eye, ecPosition3, normalize(normal), amb, diff);\n"
+"	    else\n"
+"	        SpotLight(i, eye, ecPosition3, normalize(normal), amb, diff);\n"
+"	}\n"
+"\n"
+"	// NOTE: gl_FrontLightModelProduct.sceneColor = gl_FrontMaterial.emission + gl_FrontMaterial.ambient * gl_LightModel.ambient\n"
+"	vec4 color = gl_FrontLightModelProduct.sceneColor +\n"
+"	            amb * gl_FrontMaterial.ambient +\n"
+"	            diff * gl_FrontMaterial.diffuse;\n"
+"\n"
+"	gl_FragColor = color;\n"
+"}\n";
+    return shader_src;
+}
 
 
 /**
@@ -156,13 +292,13 @@ void ShaderGLSL::exportLambert(const MObject &surface_shader, const MObjectArray
 	program->addShader( new osg::Shader(osg::Shader::VERTEX, LambertVertexShaderSrc(num_tc_sets)) );
 #endif
 	// Fragment shader
-#if 1
+#if 0
 	osg::Shader *fragment_shader = new osg::Shader(osg::Shader::FRAGMENT);
 //	fragment_shader->loadShaderSourceFromFile( "../../shaders/lambert_fragment.glsl" );
 	fragment_shader->loadShaderSourceFromFile( "C:/subversion/maya2osg/tests/shaders/lambert_fragment_notex.glsl" );
 	program->addShader( fragment_shader );
 #else
-	program->addShader( new osg::Shader(osg::Shader::FRAGMENT, fragment_src_lambert) );
+	program->addShader( new osg::Shader(osg::Shader::FRAGMENT, LambertFragmentShaderSrc()) );
 #endif
 	state_set->setAttribute( program );
 
