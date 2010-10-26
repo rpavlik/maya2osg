@@ -264,7 +264,7 @@ MStatus maya2osg::doIt( const MArgList & args )
     // Create the OSG scene graph and dump to disk
 
 	osg::ref_ptr<osg::Group> root;
-	
+
 	if ( Config::instance()->getYUp2ZUp() ) {
 		osg::PositionAttitudeTransform *pat = new osg::PositionAttitudeTransform();
 		osg::Quat q;
@@ -290,8 +290,8 @@ MStatus maya2osg::doIt( const MArgList & args )
 	// osgDB functions, such as osgDB::getSimpleFileName
 
 	root->setName(filebasename);
-	// Set the base name to the Camera exporter
-	Camera::setSceneFileBaseName( filebasename );
+	// Set the base name to the Config (used to export Camera and CameraAnimation files)
+	Config::instance()->setSceneFileBaseName( filebasename );
 
 	if ( sel.length() > 0 ) {
 		// If there is a selection, export only the selected elements
@@ -300,7 +300,8 @@ MStatus maya2osg::doIt( const MArgList & args )
 			sel.getDagPath(i, dagPath);
 //			std::cout << "SELECTION - ELEMENT " << i << " PATH = " << dagPath.fullPathName().asChar() << std::endl;
 			osg::ref_ptr<osg::Node> scene = DAGNode::exporta(dagPath);
-			root->addChild(scene.get());
+            if ( scene.valid() )
+    			root->addChild(scene.get());
 		}
 	}
 	else {
@@ -315,7 +316,8 @@ MStatus maya2osg::doIt( const MArgList & args )
 		}
 
 		osg::ref_ptr<osg::Node> scene = DAGNode::exporta(dagPath);
-		root->addChild(scene.get());
+        if ( scene.valid() )
+    		root->addChild(scene.get());
 	}
 
 	osg::ref_ptr<osg::StateSet> st = root->getOrCreateStateSet();

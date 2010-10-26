@@ -133,7 +133,7 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 #endif
 		meshfn.getUVSetNames(namesUVSets);
 		for(int i=0; i<numUVSets; i++){
-			std::cout << "Unit " << i << " (" << namesUVSets[i].asChar() << ") : " << meshfn.numUVs(namesUVSets[i]) << std::endl;
+//			std::cout << "Unit " << i << " (" << namesUVSets[i].asChar() << ") : " << meshfn.numUVs(namesUVSets[i]) << std::endl;
 			if(meshfn.numUVs(namesUVSets[i]) == 0){
 				std::cout << " *********** BAD THING IF THE UVSET HAS 0 COORDINATES..." << std::endl;
 				//// Remove texture coordinates for this object
@@ -315,6 +315,7 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 		ss->setAttribute( lm );
 	}
 	else {
+		ss->setMode( GL_CULL_FACE, osg::StateAttribute::ON );
 		osg::CullFace *cull = new osg::CullFace();
 		if ( opposite ) {
 			cull->setMode(osg::CullFace::FRONT);
@@ -336,7 +337,7 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	}
 
     // *** FIXME!!!
-    geometry->setUseDisplayList( false );
+//    geometry->setUseDisplayList( false );
 
     // Name the node (mesh)
 	geode->setName( dnodefn.name().asChar() );

@@ -57,6 +57,9 @@ public:
 private:
 	static Config *_instance;
 
+	/// Scene file base name
+	std::string _sceneFileBaseName;
+
 	/// TexEnv
 	osg::TexEnv::Mode _mode;
 
@@ -113,6 +116,14 @@ private:
 public:
 	static inline Config *instance()
 	{ return _instance; }
+
+	/// Get the scene file base name
+	inline const std::string &getSceneFileBaseName()
+    { return _sceneFileBaseName; }
+
+	/// Set the scene file base name
+	inline void setSceneFileBaseName( const std::string &name )
+    { _sceneFileBaseName = name; }
 
 	inline void setMode(osg::TexEnv::Mode mode)
 	{ _mode = mode; }

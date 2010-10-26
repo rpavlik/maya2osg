@@ -41,12 +41,17 @@
  */
 osg::ref_ptr<osg::Node> DAGNode::exporta(MDagPath &dp)
 {
-	osg::ref_ptr<osg::Node> osgnode;
-
 	// Get the node from the path
 	MObject node = dp.node();
-
 	MFnDependencyNode dnodefn(node);
+
+    bool visible;
+    dnodefn.findPlug("visibility").getValue(visible);
+    if ( !visible ) {
+        return NULL;
+    }
+
+	osg::ref_ptr<osg::Node> osgnode;
 
 #ifdef _DEBUG
 	std::cout << "Exporting node " << node.apiTypeStr() << " (" << 

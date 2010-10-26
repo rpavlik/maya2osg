@@ -21,10 +21,38 @@
 
 
 global proc maya2osg_preview( string $opts ) {
+
 	string $options = "";
+	string $filebasename = "preview";
+
+	string $camera_file_name = "";
+	string $camera_shape[];
+	$panel = `getPanel -withFocus`;
+	// Compare the panel's type to confirm it is a "modelPanel"
+	if ( "modelPanel" == `getPanel -to $panel` )
+	{
+		$camera = `modelEditor -q -camera $panel`;
+		$camera_shape = `listRelatives -shapes $camera`;
+		$camera_file_name = $filebasename + "_" + $camera_shape[0] + ".osg";
+	}
+
 	loadPlugin -quiet "maya2osg";
-	$tmp_file = `internalVar -utd` + "preview.osg";
+	$tmp_file = `internalVar -utd` + $filebasename + ".osg";
 	maya2osg $tmp_file;
-	$options += $opts;
-	exec("osgviewer --window 100 100 640 480 " + $options + " " + $tmp_file);
+
+	// If "current camera" was exported to OSG, then use it for preview
+	if ( `filetest -r $camera_file_name` ) {
+		$options += " -c " + $camera_file_name; // + " --noautohomeview";
+	}
+
+	int $offs_x = 100;
+	int $offs_y = 100;
+	int $width = `getAttr defaultResolution.width`;
+	int $height = `getAttr defaultResolution.height`;
+	$options += " --window " + $offs_x + " " + $offs_y + " " + $width + " " + $height;
+
+	// Additional options (proc parameter)
+	$options += " " + $opts;
+
+	exec("osgviewer " + $options + " " + $tmp_file);
 }

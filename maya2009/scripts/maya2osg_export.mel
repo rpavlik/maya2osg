@@ -34,8 +34,37 @@ global proc maya2osg_doExport(string $file, string $format)
 
 global proc maya2osg_doExportGUIAndPreview(string $file, string $format)
 {
+	string $extension = fileExtension($file);
+	string $filebasename = basename($file, "." + $extension);
+	string $dirname = dirname($file);
+
+	int $offs_x = 100;
+	int $offs_y = 100;
+	int $width = `getAttr defaultResolution.width`;
+	int $height = `getAttr defaultResolution.height`;
+	
+	$options = " --window " + $offs_x + " " + $offs_y + " " + $width + " " + $height;
+
+	string $camera_file_name = "";
+	string $camera_shape[];
+	$panel = `getPanel -withFocus`;
+	// Compare the panel's type to confirm it is a "modelPanel"
+	if ( "modelPanel" == `getPanel -to $panel` )
+	{
+		$camera = `modelEditor -q -camera $panel`;
+		$camera_shape = `listRelatives -shapes $camera`;
+		$camera_file_name = $filebasename + "_" + $camera_shape[0] + ".osg";
+	}
+
 	maya2osg_doExportGUI($file, $format);
-	exec("osgviewer --window 100 100 640 480 " + $file);
+
+	// If "current camera" was exported to OSG, then use it for preview
+	if ( `filetest -r $camera_file_name` ) {
+		$options += " -c " + $camera_file_name; // + " --noautohomeview";
+	}
+	
+	print( "osgviewer " + $options + " " + $file);
+	exec("osgviewer " + $options + " " + $file);
 }
 
 global proc maya2osg_doExportGUI(string $file, string $format)

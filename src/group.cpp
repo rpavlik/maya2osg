@@ -22,6 +22,7 @@
 #include "transform.h"
 #include "cameraanimation.h"
 #include "dagnode.h"
+#include "config.h"
 
 #include <maya/MFnDependencyNode.h>
 #include <osg/Group>
@@ -75,7 +76,7 @@ osg::ref_ptr<osg::Node> Group::exporta(MDagPath &dp)
 		if(cb){
 			MFnDependencyNode dn(node);
 			std::cout << "EXPORTING CAMERA ANIMATION: " << dn.name().asChar() << std::endl;
-			CameraAnimation::save(cb->getAnimationPath(), std::string(dn.name().asChar()) + ".path" );
+			CameraAnimation::save(cb->getAnimationPath(), Config::instance()->getSceneFileBaseName() + "_" + std::string(dn.name().asChar()) + ".path" );
 		}
 		return NULL;
 	}

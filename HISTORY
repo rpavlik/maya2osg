@@ -1,4 +1,9 @@
 WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+	Hidden (visibility=false) nodes (and their children) are not exported
+	Camera animation files are now prefixed by the scene base file name
+	Previsualization from Maya uses camera configuration from active panel (if exported)
+	BUG FIX exporting cameras under transform nodes. Now the whole hierarchy is correctly applied
+	BUG FIX exporting camera animations. Path was wrong when converting from Y-up to Z-up
 	BUG FIX in importer. It crashed when importing geometry with normals but no normal indices
 	Per-fragment lighting Lambert shader (with fallback to OpenGL material if shader not supported)
 	Config option for creating GLSL shaders

@@ -24,19 +24,9 @@
 
 class Camera {
 
-private:
-	/// Scene file base name
-	static std::string _sceneFileBaseName;
-
 public:
 	/// Exports Camera node
 	static osg::ref_ptr<osg::Node> exporta(MObject &obj);
-
-	/// Get the scene file base name
-	static const std::string &getSceneFileBaseName();
-
-	/// Set the scene file base name
-	static void setSceneFileBaseName( const std::string &name );
 
 };
 

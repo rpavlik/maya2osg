@@ -366,7 +366,7 @@ osg::ref_ptr<osg::Group> Transform::exporta(MObject &obj)
 {
 	MFnDependencyNode dn(obj);
 	MFnTransform trfn(obj);
-	MMatrix mat = trfn.transformation().asMatrix();
+	MMatrix mat = trfn.transformationMatrix();
 
 	osg::ref_ptr<osg::MatrixTransform> trans = new osg::MatrixTransform();
 	osg::Matrix osgmat;
