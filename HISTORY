@@ -1,3 +1,6 @@
+WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+	BUG FIX. Corrected typo in common.h that broke compilation under Linux
+
 0.4.2	2010/10/26	Javier Taibo <javier.taibo@gmail.com>
 	Hidden (visibility=false) nodes (and their children) are not exported
 	Camera animation files are now prefixed by the scene base file name
