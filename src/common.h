@@ -21,10 +21,10 @@
 #define _COMMON_H_
 
 #define VENDOR "Maya2OSG"
-#define VERSION "0.4.2"
+#define VERSION "0.4.2-SVN"
 
 #include <string>
-#include <maya/Mstatus.h>
+#include <maya/MStatus.h>
 
 /**
  *	Check the status, return if there is an error
