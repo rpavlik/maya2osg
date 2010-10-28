@@ -53,7 +53,7 @@
  *	@note If there is no node name, we do not establish any,
  *	because Maya will automagically name it
  */
-void nameNode(osg::Node &OSG_node, MObject &obj)
+void nameNode(osg::Node &OSG_node, const MObject &obj)
 {
 	std::string name = OSG_node.getName();
 //	std::cout << "Rewriting name " << name << std::endl;
