@@ -1,6 +1,6 @@
 MAYA_BASE=/usr/autodesk/maya2011-x64
 CXXFLAGS_MAYA= -pipe -m64 -O3 -pipe -D_BOOL -DLINUX_64 -DREQUIRE_IOSTREAM -fPIC -w -c -I$(MAYA_BASE)/include
-CXXFLAGS=-D_DEBUG -Wall -pedantic -Wno-long-long $(CXXFLAGS_MAYA)
+CXXFLAGS=-Wall -pedantic -Wno-long-long $(CXXFLAGS_MAYA)
 LDFLAGS=-L$(MAYA_BASE)/lib -m64 -O3 -pipe
 LDLIBS=-lOpenMaya -losg -losgDB -losgViewer
 #VPATH=../../src
