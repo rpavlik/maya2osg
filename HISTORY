@@ -1,5 +1,5 @@
-WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
-	BUG FIX. Corrected Linux Makefile
+0.4.2b	2010/10/28	Javier Taibo <javier.taibo@gmail.com>
+	BUG FIX. Corrected Linux Makefiles and compilation bugs in Linux
 	BUG FIX. Corrected typo in common.h that broke compilation under Linux
 
 0.4.2	2010/10/26	Javier Taibo <javier.taibo@gmail.com>

@@ -1,7 +1,7 @@
 MAYA_BASE=/usr/autodesk/maya2010-x64
-CXXFLAGS_MAYA= -pipe -D_BOOL -DLINUX_64 -DREQUIRE_IOSTREAM -w -c -I$(MAYA_BASE)/include
+CXXFLAGS_MAYA= -pipe -m64 -O3 -pipe -D_BOOL -DLINUX_64 -DREQUIRE_IOSTREAM -fPIC -w -c -I$(MAYA_BASE)/include
 CXXFLAGS=-D_DEBUG -Wall -pedantic -Wno-long-long $(CXXFLAGS_MAYA)
-LDFLAGS=-L$(MAYA_BASE)/lib
+LDFLAGS=-L$(MAYA_BASE)/lib -m64 -O3 -pipe
 LDLIBS=-lOpenMaya -losg -losgDB -losgViewer
 #VPATH=../../src
 
@@ -18,7 +18,7 @@ INSTDIR=$(MAYA_BASE)/bin/plug-ins
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CXX) -shared -o $(TARGET) $(OBJS) $(LDFLAGS) $(LDLIBS)
+	$(CXX) -shared $(LDFLAGS) -o $(TARGET) $(OBJS) $(LDLIBS)
 
 install: $(TARGET)
 	cp $(TARGET) $(INSTDIR)
