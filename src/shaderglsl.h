@@ -33,14 +33,18 @@
 class ShaderGLSL {
 
 public:
+
+    /// Map that associates each Maya texture (map key) to a OpenGL texturing unit (for accessing the corresponding TC set)
+    typedef std::map<std::string, int> Texture2UVSetMap;
+
 	/// Configure the shaders for the StateSet of the ShadingEngine/ShadingGroup object
-	static void exporta(const MObject &shading_engine, const MObjectArray &textures,
-						osg::ref_ptr<osg::StateSet> state_set);
+	static void exporta(const MObject &shading_engine, const Texture2UVSetMap &textures_map,
+						int num_tc_sets, osg::ref_ptr<osg::StateSet> state_set);
 
 private:
 	/// Configure the shader in the stateset for a Lambert material
-	static void exportLambert(const MObject &surface_shader, const MObjectArray &textures, 
-								osg::ref_ptr<osg::StateSet> state_set);
+	static void exportLambert(const MObject &surface_shader, const Texture2UVSetMap &textures_map, 
+								int num_tc_sets, osg::ref_ptr<osg::StateSet> state_set);
 };
 
 #endif //_SHADERGLSL_H_

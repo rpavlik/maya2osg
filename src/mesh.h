@@ -20,6 +20,9 @@
 #ifndef _MESH_H_
 #define _MESH_H_
 
+#include <map>
+#include <string>
+
 #include "dagnode.h"
 
 class Mesh {
@@ -28,6 +31,12 @@ public:
 	static osg::ref_ptr<osg::Node> exporta(MObject &obj);
 
 private:
+    /// Map of OSG Texture Coordinate Sets by Maya UV set name
+    typedef std::map<std::string, osg::ref_ptr<osg::Vec2Array> > TCSetsMap;
+
+    /// Map of OSG Texture Coordinate Sets Indices by Maya UV set name
+    typedef std::map<std::string, osg::ref_ptr<osg::UIntArray> > TCSetsIndicesMap;
+
 	static bool colorPerVertex(MObject &obj);
 
 };

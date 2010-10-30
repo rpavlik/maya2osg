@@ -46,6 +46,7 @@ private:
 	typedef std::map< std::string, osg::ref_ptr< osg::Texture2D > > TTexturesMap;
 	/// OSG textures map
 	static TTexturesMap texMap;
+
 	typedef std::map< std::string, osg::ref_ptr< osg::Image > > TImagesMap;
 	/// OSG images map (used by textures)
 	static TImagesMap imagesMap;

@@ -225,16 +225,15 @@ std::string LambertFragmentShaderSrc()
 
 /**
  *	Configure the shaders for the StateSet of the ShadingEngine/ShadingGroup object
- *
- *	@todo Recheck the need and use of parameter "textures"  ***** FIXME!!!
  */
-void ShaderGLSL::exporta(const MObject &shading_engine, const MObjectArray &textures, osg::ref_ptr<osg::StateSet> state_set)
+void ShaderGLSL::exporta(const MObject &shading_engine, const Texture2UVSetMap &textures_map,
+						int num_tc_sets, osg::ref_ptr<osg::StateSet> state_set)
 {
 	MObject surface_shader;
 	Shader::getSurfaceShader( shading_engine, surface_shader );
 
 	if ( surface_shader.hasFn(MFn::kLambert) ) {
-		exportLambert( surface_shader, textures, state_set );
+		exportLambert( surface_shader, textures_map, num_tc_sets, state_set );
 	}
 	//else if ...
 	// TO-DO : rest (non Lambert-derived) of Maya shaders *****  FIXME!!!
@@ -246,12 +245,13 @@ void ShaderGLSL::exporta(const MObject &shading_engine, const MObjectArray &text
  *
  *	********* UNDER CONSTRUCTION!!!   --- FIXME!!!!!!!!
  */
-void ShaderGLSL::exportLambert(const MObject &surface_shader, const MObjectArray &textures, osg::ref_ptr<osg::StateSet> state_set)
+void ShaderGLSL::exportLambert(const MObject &surface_shader, const Texture2UVSetMap &textures_map,
+                               int num_tc_sets, osg::ref_ptr<osg::StateSet> state_set)
 {
 	MFnDependencyNode dn(surface_shader);
 
 	// Check if there is transparency
-	bool transparency = Shader::connectedTexture(surface_shader, "transparency") 
+	bool transparency = Shader::connectedChannel(surface_shader, "transparency") 
 		|| dn.findPlug("transparencyR").asFloat() > 0.0
 		|| dn.findPlug("transparencyG").asFloat() > 0.0
 		|| dn.findPlug("transparencyB").asFloat() > 0.0;
@@ -281,26 +281,27 @@ void ShaderGLSL::exportLambert(const MObject &surface_shader, const MObjectArray
 
 	// GLSL Program
 	osg::Program *program = new osg::Program();
-	// Vertex shader
+
+    // Vertex shader
 #if 0
 	osg::Shader *vertex_shader = new osg::Shader(osg::Shader::VERTEX);
 	vertex_shader->loadShaderSourceFromFile( "../../shaders/lambert_vertex.glsl" );
 	program->addShader( vertex_shader );
 #else
-	// FIXME!!! *** num_tc_sets
-	int num_tc_sets = 1;
 	program->addShader( new osg::Shader(osg::Shader::VERTEX, LambertVertexShaderSrc(num_tc_sets)) );
 #endif
-	// Fragment shader
-#if 0
+
+    // Fragment shader
+#if 1
 	osg::Shader *fragment_shader = new osg::Shader(osg::Shader::FRAGMENT);
 //	fragment_shader->loadShaderSourceFromFile( "../../shaders/lambert_fragment.glsl" );
-	fragment_shader->loadShaderSourceFromFile( "C:/subversion/maya2osg/tests/shaders/lambert_fragment_notex.glsl" );
+	fragment_shader->loadShaderSourceFromFile( "C:/subversion/maya2osg/tests/shaders/lambert_fragment.glsl" );
 	program->addShader( fragment_shader );
 #else
 	program->addShader( new osg::Shader(osg::Shader::FRAGMENT, LambertFragmentShaderSrc()) );
 #endif
-	state_set->setAttribute( program );
+
+    state_set->setAttribute( program );
 
 	// Uniform: LocalViewer
 	state_set->addUniform( new osg::Uniform("LocalViewer", Config::instance()->getLocalViewer()) );

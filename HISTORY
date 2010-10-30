@@ -1,3 +1,8 @@
+WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+	Multiple texture coordinate sets (Maya UV sets) for use in GLSL shaders. Each texture connected to a shader channel use the corresponding TC set
+	Shading code revamp. Now OpenGL fixed function pipeline is limited to only one color texture (optionally including transparency)
+	Added two handy buttons to the shelf: toggle face normals display and reverse polygon normals. Very handy to quickly check and correct single side polygonal surfaces
+
 0.4.2b	2010/10/28	Javier Taibo <javier.taibo@gmail.com>
 	BUG FIX. Corrected Linux Makefiles and compilation bugs in Linux
 	BUG FIX. Corrected typo in common.h that broke compilation under Linux

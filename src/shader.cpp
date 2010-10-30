@@ -20,6 +20,7 @@
 #include "shader.h"
 #include "texture.h"
 #include "config.h"
+#include "common.h"
 
 #include <iostream>
 #include <maya/MFnDependencyNode.h>
@@ -35,19 +36,19 @@
 
 
 /**
- *	Check whether there is any texture connected to any channel of this material (color, transparency, ...)
+ *	Check whether there is any node connected to any channel of this material (color, transparency, ...)
  */
-bool Shader::connectedTexture(const MObject &surface_shader, std::string canal)
+bool Shader::connectedChannel(const MObject &surface_shader, std::string channel)
 {
 	MFnDependencyNode dn(surface_shader);
-	// Most Maya materials inherit from Lambert node, so if it is not a lambert, 
-	// we do not consider it a material
-	if(surface_shader.hasFn(MFn::kLambert)){
-		MStatus status;
-		MPlug plug = dn.findPlug(canal.c_str(), &status);
-		MPlugArray connections;
-		if(plug.connectedTo(connections, true, false) && connections.length() > 0 )
-			return true;
+	MStatus status;
+	MPlug plug = dn.findPlug(channel.c_str(), &status);
+    if ( MCheckStatus(status, "ERROR: Could not find plug " + channel ) ) {
+        return false;
+    }
+	MPlugArray connections;
+    if(plug.connectedTo(connections, true, false) && connections.length() > 0 ) {
+		return true;
 	}
 	return false;
 }
@@ -64,24 +65,24 @@ bool Shader::connectedTexture(const MObject &surface_shader, std::string canal)
  *	@todo We should make a material cache/register as it is done with textures
  *	to avoid wasting memory pretty badly.
  */
-osg::ref_ptr<osg::Material> Shader::material(const MObject &obj, bool &mat_trans)
+osg::ref_ptr<osg::Material> Shader::material(const MObject &surface_shader, bool &mat_trans)
 {
-	MFnDependencyNode dn(obj);
+	MFnDependencyNode dn(surface_shader);
 
 #ifdef _DEBUG
 	std::cout << "Material (" << obj.apiTypeStr() << ") : " << dn.name().asChar() << std::endl;
 #endif
 
-	if(obj.hasFn(MFn::kLambert)){
+	if(surface_shader.hasFn(MFn::kLambert)){
 
 		osg::ref_ptr<osg::Material> material = new osg::Material();
-		MFnLambertShader lambert(obj);
+		MFnLambertShader lambert(surface_shader);
 		material->setName(lambert.name().asChar());
 
 		// Transparency
 		mat_trans = false;
 		float opacity;
-		if(connectedTexture(obj,"transparency")){
+		if(connectedChannel(surface_shader,"transparency")){
 			opacity = 1.0f;
 			mat_trans = true;
 		}
@@ -104,7 +105,7 @@ osg::ref_ptr<osg::Material> Shader::material(const MObject &obj, bool &mat_trans
 
 		// Diffuse
 		MColor color;
-		if(connectedTexture(obj,"color"))
+		if(connectedChannel(surface_shader,"color"))
 			color.r = color.g = color.b = color.a = 1.0;
 		else
 			color = lambert.color();
@@ -112,8 +113,8 @@ osg::ref_ptr<osg::Material> Shader::material(const MObject &obj, bool &mat_trans
 		material->setDiffuse(osg::Material::FRONT_AND_BACK,
 			osg::Vec4(color.r*dc, color.g*dc, color.b*dc, opacity));
 
-		if(obj.hasFn(MFn::kReflect)){
-			MFnReflectShader reflect(obj);
+		if(surface_shader.hasFn(MFn::kReflect)){
+			MFnReflectShader reflect(surface_shader);
 			// Specular
 			MColor spec = reflect.specularColor();
 			material->setSpecular(osg::Material::FRONT_AND_BACK,
@@ -130,62 +131,16 @@ osg::ref_ptr<osg::Material> Shader::material(const MObject &obj, bool &mat_trans
 
 	else {
 		std::cerr << "ERROR. Unknown material type (" << 
-			obj.apiTypeStr() << ") : " << dn.name().asChar() << std::endl;
+			surface_shader.apiTypeStr() << ") : " << dn.name().asChar() << std::endl;
 	}
 	return NULL;
 }
 
 
 /**
- *	Add textures to the StateSet
- *
- *  @param tex_transp Indicates if the material has any texture connected to transparency
- *
- */
-void Shader::setTextures(osg::ref_ptr<osg::StateSet> st, const MObjectArray &textures, bool tex_transp)
-{
-	for(int i=0; i<textures.length(); i++){
-		// For each texturing unit
-		if( textures[i].hasFn(MFn::kFileTexture) ){
-			osg::ref_ptr<osg::Texture2D> tex = Texture::exporta(textures[i]);
-			if(tex.valid()){
-
-				st->setTextureAttribute(i,tex.get());
-
-// *** NOTA: Se desactiva esto porque provoca que las texturas no aparezcan en los opacos (no entiendo el porqué)
-				// Transparencia
-/*				if(tex_transp){
-					tex->setInternalFormatMode(osg::Texture::USE_IMAGE_DATA_FORMAT);
-				}
-				else {
-					tex->setInternalFormat(GL_RGB);  // NOTA: Ya se establece el InternalFormatMode a USE_USER_DEFINED_FORMAT implícitamente
-				}
-*/
-				// Texture matrix
-				osg::ref_ptr<osg::TexMat> texmat = Texture::exportTexMat(textures[i]);
-				if(texmat.valid())
-					st->setTextureAttribute(i,texmat.get());
-
-				// TexEnv (from configuration)
-				osg::ref_ptr<osg::TexEnv> texenv = new osg::TexEnv();
-				texenv->setMode(Config::instance()->getMode());
-				st->setTextureAttribute(i,texenv.get());
-
-				st->setTextureMode(i, GL_TEXTURE_2D, osg::StateAttribute::ON);
-			}
-		}
-		else {
-			std::cerr << ":-m  Mmmm... I expected a kFileTexture, not a " << textures[0].apiTypeStr() << std::endl;
-		}
-	}
-}
-
-
-/**
  *	@param obj ShadingEngine (ShadingGroup) object
- *	@param textures 
  */
-osg::ref_ptr<osg::StateSet> Shader::exporta(const MObject &shading_engine, const MObjectArray &textures)
+osg::ref_ptr<osg::StateSet> Shader::exporta(const MObject &shading_engine)
 {
 	MFnDependencyNode dn(shading_engine);
 	/*
@@ -211,12 +166,12 @@ osg::ref_ptr<osg::StateSet> Shader::exporta(const MObject &shading_engine, const
 				std::cerr << "Shader::exporta() There are several connections to plug \"surfaceShader\", this can be a problem..." << std::endl;
 			}
 			if(connections.length() == 1){
-                MObject obj = connections[0].node();
+                MObject surface_shader = connections[0].node();
 				bool mat_trans;		// transparency in the material
 				bool tex_trans;		// transparency in the texture
-				st->setAttribute( Shader::material(obj, mat_trans).get() );
-				tex_trans = connectedTexture(obj,"transparency");
-				setTextures( st, textures, tex_trans );
+				st->setAttribute( Shader::material(surface_shader, mat_trans).get() );
+				tex_trans = connectedChannel(surface_shader,"transparency");
+                tex_trans = setColorTexture( *st, surface_shader );
 				if( mat_trans || tex_trans ){
 					st->setMode(GL_BLEND, osg::StateAttribute::ON);
 					st->setAttribute( new osg::BlendFunc( Config::instance()->getBlendFuncSrc(),
@@ -228,7 +183,7 @@ osg::ref_ptr<osg::StateSet> Shader::exporta(const MObject &shading_engine, const
 		}
 	}
 	else {
-		std::cerr << "ERROR. Unknown shader type (" << 
+		std::cerr << "ERROR. Unknown shading engine (" << 
 			shading_engine.apiTypeStr() << ") : " << dn.name().asChar() << std::endl;
 	}
 	return NULL;
@@ -268,41 +223,6 @@ void Shader::getShadingEngine(const MObject &dependency_node, MObject &shading_e
 
 
 /**
- *	Gather the textures applied to a surface shader
- *
- *	@param obj Surface shader node
- *	@param textures Array of textures applied to the surface shader
- */
-void Shader::getTextures( const MObject &surface_shader, MObjectArray &textures )
-{
-	MFnDependencyNode dn(surface_shader);
-	if ( surface_shader.hasFn(MFn::kLambert) ) {
-
-		// Get output connections to locate the shading engine
-		MPlugArray conns;
-		dn.getConnections(conns);
-		for(int i=0; i<conns.length(); i++){
-			MPlug conn = conns[i];
-			MPlugArray connectedTo;
-			// Get the connections having this node as destination
-			conn.connectedTo(connectedTo, true, false);
-			for(int j=0; j<connectedTo.length(); j++){
-				MPlug source = connectedTo[j];
-				MObject source_node = source.node();
-				if(source_node.hasFn(MFn::kFileTexture)){
-					MFnDependencyNode file_texture(source_node);
-					std::cout << "FILE TEXTURE " << file_texture.name().asChar() << std::endl;
-					// ...
-					textures.append( source_node );
-				}
-			}
-		}
-
-	}
-}
-
-
-/**
  *	Get the surface shader applied to the shading engine
  */
 void Shader::getSurfaceShader(const MObject &shading_engine, MObject &surface_shader)
@@ -323,17 +243,87 @@ void Shader::getSurfaceShader(const MObject &shading_engine, MObject &surface_sh
 
 
 /**
+ *  Get the node connected to a channel of the surface shader
+ */
+void Shader::getNodeConnectedToChannel( const MObject &surface_shader, std::string channel, MObject &node )
+{
+	MFnDependencyNode dn(surface_shader);
+	MPlug plug = dn.findPlug(channel.c_str(), true);
+	MPlugArray connectedTo;
+	// Get the connections having this node as destination
+	plug.connectedTo(connectedTo, true, false);
+    // We consider only the first (should be the only one) connection
+    if ( connectedTo.length() > 0 )
+        node = connectedTo[0].node();
+}
+
+
+/**
  *	Get the file texture connected to color channel (if any)
  */
 void Shader::getColorTexture( const MObject &surface_shader, MObject &texture )
 {
+    getNodeConnectedToChannel( surface_shader, "color", texture );
+}
+
+
+/**
+ *  Establish the color (and maybe transparency) texture
+ *
+ *  @return Color texture contains transparency/opacity/alpha channel
+ */
+bool Shader::setColorTexture(osg::StateSet &st, const MObject &surface_shader, int texture_unit)
+{
 	MFnDependencyNode dn(surface_shader);
-	MPlug plug_color = dn.findPlug("color", true);
-	MPlugArray connectedTo;
-	// Get the connections having this node as destination
-	plug_color.connectedTo(connectedTo, true, false);
-	for(int j=0; j<connectedTo.length(); j++){
-		MPlug source = connectedTo[j];
-		texture = source.node();
-	}
+    bool transparent;
+
+    MObject color_texture;
+    MPlug plug_color = dn.findPlug("color");
+    if ( plug_color.isConnected() ) {
+        // Get the color texture
+        MPlugArray connected_to_color;
+        plug_color.connectedTo( connected_to_color, true, false );
+        // NOTE: We assume that only one node is connected to color channel
+        color_texture = connected_to_color[0].node();
+		if( color_texture.hasFn(MFn::kFileTexture) ){
+			osg::ref_ptr<osg::Texture2D> tex = Texture::exporta(color_texture);
+			if(tex.valid()){
+				st.setTextureAttribute(texture_unit, tex.get());
+				// Texture matrix
+				osg::ref_ptr<osg::TexMat> texmat = Texture::exportTexMat(color_texture);
+				if(texmat.valid())
+					st.setTextureAttribute(texture_unit, texmat.get());
+
+				// TexEnv (from configuration)
+				osg::ref_ptr<osg::TexEnv> texenv = new osg::TexEnv();
+				texenv->setMode(Config::instance()->getMode());
+				st.setTextureAttribute(texture_unit,texenv.get());
+
+				st.setTextureMode(texture_unit, GL_TEXTURE_2D, osg::StateAttribute::ON);
+			}
+		}
+		else {
+			std::cerr << ":-m  Mmmm... I expected a kFileTexture, not a " << color_texture.apiTypeStr() << std::endl;
+		}
+    }
+    MPlug plug_transparency = dn.findPlug("transparency");
+    if ( plug_transparency.isConnected() ) {
+#if 1
+        // Get the transparency texture
+        MPlugArray connected_to_transparency;
+        plug_color.connectedTo( connected_to_transparency, true, false );
+        // NOTE: We assume that only one node is connected to transparency channel
+        MObject transparency_texture = connected_to_transparency[0].node();
+        if ( transparency_texture != color_texture ) {
+            std::cerr << "WARNING: Transparency texture is different from color texture" << std::endl;
+        }
+#endif
+        transparent = true;
+    }
+/*    else {
+        transparent = dn.findPlug("transparencyR").asFloat() > 0.0
+            || dn.findPlug("transparencyG").asFloat() > 0.0
+            || dn.findPlug("transparencyB").asFloat() > 0.0;
+    }*/
+    return transparent;
 }

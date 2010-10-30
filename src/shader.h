@@ -29,7 +29,7 @@ class Shader {
 
 public:
 	/// Create and return the StateSet of the ShadingEngine/ShadingGroup object
-	static osg::ref_ptr<osg::StateSet> exporta(const MObject &shading_engine, const MObjectArray &textures);
+	static osg::ref_ptr<osg::StateSet> exporta(const MObject &shading_engine);
 
 	/// Get the shading engine applied to the dependency node 
 	static void getShadingEngine(const MObject &dependency_node, MObject &shading_engine);
@@ -37,20 +37,25 @@ public:
 	/// Get the surface shader applied to the shading engine
 	static void getSurfaceShader(const MObject &shading_engine, MObject &surface_shader);
 
-	/// Gather the textures applied to a surface shader
-	static void getTextures( const MObject &surface_shader, MObjectArray &textures );
-
 	/// Get the file texture connected to color channel (if any)
 	static void getColorTexture( const MObject &surface_shader, MObject &texture );
 
-	/// Check if the material has any texture connected to the specified channel
-	static bool connectedTexture(const MObject &surface_shader, std::string channel);
+	/// Check if the material has any node connected to the specified channel
+	static bool connectedChannel(const MObject &surface_shader, std::string channel);
 
 private:
 	/// Create OSG/OpenGL material corresponding to Maya material
-	static osg::ref_ptr<osg::Material> material(const MObject &obj, bool &mat_trans);
-	/// Add textures to the StateSet
-	static void setTextures(osg::ref_ptr<osg::StateSet> st, const MObjectArray &textures, bool tex_trans);
+	static osg::ref_ptr<osg::Material> material(const MObject &surface_shader, bool &mat_trans);
+
+    /// Get the node connected to a channel of the surface shader
+    static void getNodeConnectedToChannel( const MObject &surface_shader, std::string channel, MObject &node );
+
+    /**
+     *  Establish the color (and maybe transparency) texture
+     *  Texture is bound to texture unit 0 unless otherwise explicited in the "texture_unit" parameter
+     *  @return Color texture contains transparency/opacity/alpha channel
+     */
+    static bool setColorTexture(osg::StateSet &st, const MObject &surface_shader, int texture_unit=0);
 
 };
 

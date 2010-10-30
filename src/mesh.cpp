@@ -126,19 +126,18 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 
 	int numUVSets = meshfn.numUVSets();
 	MStringArray namesUVSets;
-	std::vector<osg::ref_ptr<osg::Vec2Array> > uv_sets;
+    // Map of OSG Texture Coordinate Sets (by Maya UV set name)
+    TCSetsMap tc_sets_map;
 	if(numUVSets > 0){
 #ifdef _DEBUG
 		std::cout << numUVSets << " UV sets" << std::endl;
 #endif
 		meshfn.getUVSetNames(namesUVSets);
 		for(int i=0; i<numUVSets; i++){
-//			std::cout << "Unit " << i << " (" << namesUVSets[i].asChar() << ") : " << meshfn.numUVs(namesUVSets[i]) << std::endl;
 			if(meshfn.numUVs(namesUVSets[i]) == 0){
-				std::cout << " *********** BAD THING IF THE UVSET HAS 0 COORDINATES..." << std::endl;
-				//// Remove texture coordinates for this object
-				//numUVSets = 0;
-				//break;
+                std::cerr << "WARNING: UV Set " << namesUVSets[i].asChar() << " has no coordinates. It will be ignored." << std::endl;
+				//// Ignore UV set
+                continue;
 			}
 			MFloatArray us, vs;
 			meshfn.getUVs(us, vs, &(namesUVSets[i]));
@@ -146,10 +145,8 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 			for(int j=0; j< meshfn.numUVs(namesUVSets[i]); j++){
 				uv_array->push_back(osg::Vec2( us[j], vs[j]));
 			}
-			uv_sets.push_back(uv_array.get());
-			// We leave here texture coordinates to apply them when exporting shaders.
-			// We don't apply them here because UV sets can be reused for different textures
-			// (there is no one-to-one binding)
+            tc_sets_map[namesUVSets[i].asChar()] = uv_array;
+            // NOTE: UV sets are accumulated in the map as TC arrays to assign them later to OpenGL texture units
 		}
 	}
 
@@ -162,9 +159,10 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
     // Normals indices array
 	osg::ref_ptr<osg::UIntArray> normalidx = new osg::UIntArray();
     // UV indices arrays
-	std::vector< osg::ref_ptr< osg::UIntArray > > UVidx;
-	for(int i=0; i<numUVSets; i++)
-		UVidx.push_back( new osg::UIntArray() );
+    TCSetsIndicesMap tc_idx_map;
+    for ( TCSetsMap::iterator i = tc_sets_map.begin() ; i != tc_sets_map.end() ; i++ ) {
+        tc_idx_map[i->first] = new osg::UIntArray();
+    }
 
 	// Index of indices (face-vertex)
 	int ii=0;
@@ -194,15 +192,16 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
             // normal index
 			normalidx->push_back( itmp.normalIndex(i) );
 			// UV sets indices
-			for( int j=0; j<numUVSets; j++){
-				if(itmp.hasUVs(namesUVSets[j])){
+            for( TCSetsMap::iterator tcsi = tc_sets_map.begin() ; tcsi != tc_sets_map.end() ; tcsi++ ) {
+                MString uv_set_name(tcsi->first.c_str());
+				if(itmp.hasUVs(uv_set_name)){
 					int iuv;
-					itmp.getUVIndex(i, iuv, &(namesUVSets[j]));
-					UVidx[j]->push_back(iuv);
+					itmp.getUVIndex(i, iuv, &uv_set_name);
+                    tc_idx_map[tcsi->first]->push_back(iuv);
 				}
 				else {
-					std::cout << "ERROR. There are polygons without texture coordinates in this mesh." << std::endl;
-					UVidx[j]->push_back(0);
+					std::cerr << "ERROR. There are polygons without texture coordinates in this mesh." << std::endl;
+                    tc_idx_map[tcsi->first]->push_back(0);
 				}
 			}
 
@@ -261,35 +260,39 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 		std::cerr << "Splitting a kMesh with different shaders applied to different faces is not currently supported" << std::endl;
 		// ***** TO-DO : SPLIT KMESHES
 	}
-	if(shaders.length() > 0){
-		// Check textures bound to this mesh in order to include them in the StateSet
-		MObjectArray textures;
-		int texture_unit=0;
-		for(int i=0; i<numUVSets; i++){
-			MObjectArray tex_unit;
-			meshfn.getAssociatedUVSetTextures(namesUVSets[i],tex_unit);
-			for(int j=0; j<tex_unit.length(); j++){
-				// Set the texture coordinates (previously computed)
-				geometry->setTexCoordArray(texture_unit, uv_sets[i].get());
-				// Set texture coordinates indices (previously computed)
-				geometry->setTexCoordIndices(texture_unit, UVidx[i].get());
-				// Set the texture for this unit
-				textures.append(tex_unit[j]);
-				texture_unit++;
-			}
-//			if(tex_unidad.length() > 1){
-//				std::cerr << "Alguien me puede decir qué *@#!% hacen varias texturas asignadas a un sólo UVset ???" << std::endl;
-//				// ***** TEXTURAS QUE COMPARTEN COORDENADAS DE MAPEADO. HAY QUE DUPLICAR LAS COORDENADAS EN OPENGL
-//			}
-//			// nos quedamos con la primera
-//			texturas.append(tex_unidad[0]);
-		}
-		UVidx.clear();
+	if(shaders.length() > 0){   // Just ONE surface shader
 
-		osg::ref_ptr<osg::StateSet> st = Shader::exporta(shaders[0],textures);
+        // Map of connections between textures and UV sets
+        ShaderGLSL::Texture2UVSetMap textures_map;
+        // OpenGL texture unit we bind this TC set to
+        int texture_unit = 0;
+        // For each TC set
+        for ( TCSetsMap::iterator i = tc_sets_map.begin() ; i != tc_sets_map.end() ; i++ ) {
+            MString uv_set_name( i->first.c_str() );
+
+            // Get textures bound to this UV set in this mesh
+			MObjectArray textures;
+			meshfn.getAssociatedUVSetTextures(uv_set_name, textures);
+            // Register the association between textures and UV sets in textures_map 
+            // to pass this info to the GLSL shader
+            // (in case of fixed function, only the first TC set will be used)
+            for( unsigned int j = 0 ; j < textures.length() ; j++ ) {
+                MFnDagNode texture(textures[j]);
+                // Store the association of each texture to the TC set (OpenGL texture unit)
+                textures_map[texture.name().asChar()] = texture_unit;
+            }
+
+            // Set the texture coordinates (previously computed)
+			geometry->setTexCoordArray(texture_unit, i->second);
+			// Set texture coordinates indices (previously computed)
+			geometry->setTexCoordIndices(texture_unit, tc_idx_map[i->first]);
+            texture_unit++;
+        }
+        // Configure the StateSet for fixed function OpenGL pipeline
+		osg::ref_ptr<osg::StateSet> st = Shader::exporta(shaders[0]);
 		if(st.valid()) {
 			if ( Config::instance()->getUseGLSL() ) {
-				ShaderGLSL::exporta(shaders[0], textures, st);
+				ShaderGLSL::exporta(shaders[0], textures_map, texture_unit, st);
 			}
 			geode->setStateSet(st.get());
 		}
