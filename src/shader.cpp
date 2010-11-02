@@ -70,7 +70,7 @@ osg::ref_ptr<osg::Material> Shader::material(const MObject &surface_shader, bool
 	MFnDependencyNode dn(surface_shader);
 
 #ifdef _DEBUG
-	std::cout << "Material (" << obj.apiTypeStr() << ") : " << dn.name().asChar() << std::endl;
+	std::cout << "Material (" << surface_shader.apiTypeStr() << ") : " << dn.name().asChar() << std::endl;
 #endif
 
 	if(surface_shader.hasFn(MFn::kLambert)){
