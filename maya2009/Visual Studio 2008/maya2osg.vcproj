@@ -266,6 +266,30 @@
 				RelativePath="..\..\src\transform.cpp"
 				>
 			</File>
+			<Filter
+				Name="GLSL"
+				>
+				<File
+					RelativePath="..\..\src\GLSL\glslcbfiletexture.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\glslcodeblock.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\glsllighting.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\lambert.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\texturingconfig.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -363,6 +387,30 @@
 				RelativePath="..\..\src\transform.h"
 				>
 			</File>
+			<Filter
+				Name="GLSL"
+				>
+				<File
+					RelativePath="..\..\src\GLSL\glslcbfiletexture.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\glslcodeblock.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\glsllighting.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\lambert.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\texturingconfig.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"

@@ -140,7 +140,7 @@ osg::ref_ptr<osg::Material> Shader::material(const MObject &surface_shader, bool
 /**
  *	@param obj ShadingEngine (ShadingGroup) object
  */
-osg::ref_ptr<osg::StateSet> Shader::exporta(const MObject &shading_engine)
+void Shader::exporta(const MObject &shading_engine, osg::StateSet &state_set)
 {
 	MFnDependencyNode dn(shading_engine);
 	/*
@@ -154,7 +154,6 @@ osg::ref_ptr<osg::StateSet> Shader::exporta(const MObject &shading_engine)
 #ifdef _DEBUG
 		std::cout << "Shading Engine : " << dn.name().asChar() << std::endl;
 #endif
-		osg::ref_ptr<osg::StateSet> st = new osg::StateSet();
 
 		// We are only interested in the surface shader (other connections are ignored)
 		MStatus status;
@@ -169,16 +168,15 @@ osg::ref_ptr<osg::StateSet> Shader::exporta(const MObject &shading_engine)
                 MObject surface_shader = connections[0].node();
 				bool mat_trans;		// transparency in the material
 				bool tex_trans;		// transparency in the texture
-				st->setAttribute( Shader::material(surface_shader, mat_trans).get() );
+				state_set.setAttribute( Shader::material(surface_shader, mat_trans).get() );
 				tex_trans = connectedChannel(surface_shader,"transparency");
-                tex_trans = setColorTexture( *st, surface_shader );
+                tex_trans = setColorTexture( state_set, surface_shader );
 				if( mat_trans || tex_trans ){
-					st->setMode(GL_BLEND, osg::StateAttribute::ON);
-					st->setAttribute( new osg::BlendFunc( Config::instance()->getBlendFuncSrc(),
+					state_set.setMode(GL_BLEND, osg::StateAttribute::ON);
+					state_set.setAttribute( new osg::BlendFunc( Config::instance()->getBlendFuncSrc(),
 														Config::instance()->getBlendFuncDst()) );
-					st->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+					state_set.setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 				}
-				return st;
 			}
 		}
 	}
@@ -186,7 +184,6 @@ osg::ref_ptr<osg::StateSet> Shader::exporta(const MObject &shading_engine)
 		std::cerr << "ERROR. Unknown shading engine (" << 
 			shading_engine.apiTypeStr() << ") : " << dn.name().asChar() << std::endl;
 	}
-	return NULL;
 }
 
 

@@ -26,7 +26,6 @@ global proc shelf_OSG () {
         -actionIsSubstitute 0
         -commandRepeatable 1
     ;
-
     shelfButton
         -enableCommandRepeat 1
         -enable 1
@@ -49,7 +48,6 @@ global proc shelf_OSG () {
         -actionIsSubstitute 0
         -commandRepeatable 1
     ;
-
     shelfButton
         -enableCommandRepeat 1
         -enable 1
@@ -72,7 +70,6 @@ global proc shelf_OSG () {
         -actionIsSubstitute 0
         -commandRepeatable 1
     ;
-
     shelfButton
         -enableCommandRepeat 1
         -enable 1
@@ -95,8 +92,7 @@ global proc shelf_OSG () {
         -actionIsSubstitute 0
         -commandRepeatable 1
     ;
-
-	shelfButton
+    shelfButton
         -enableCommandRepeat 1
         -enable 1
         -width 34
@@ -118,8 +114,7 @@ global proc shelf_OSG () {
         -actionIsSubstitute 0
         -commandRepeatable 1
     ;
-
-   	shelfButton
+    shelfButton
         -enableCommandRepeat 1
         -enable 1
         -width 34
@@ -141,8 +136,7 @@ global proc shelf_OSG () {
         -actionIsSubstitute 0
         -commandRepeatable 1
     ;
-
-   	shelfButton
+    shelfButton
         -enableCommandRepeat 1
         -enable 1
         -width 34
@@ -164,4 +158,49 @@ global proc shelf_OSG () {
         -actionIsSubstitute 0
         -commandRepeatable 1
     ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -align "center" 
+        -label "Toggle Face Normal Display" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "ToggleFaceNormalDisplay;" 
+        -sourceType "mel" 
+        -actionIsSubstitute 0
+        -commandRepeatable 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -align "center" 
+        -label "Reverse Polygon Normals" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "ReversePolygonNormals;" 
+        -sourceType "mel" 
+        -actionIsSubstitute 0
+        -commandRepeatable 1
+    ;
+
 } 

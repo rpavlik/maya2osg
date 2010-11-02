@@ -1,4 +1,6 @@
 WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+	Added the GLSL Code Block system as a framework to modularly export Maya Shading networks to GLSL code.
+	Implemented backface culling and double side illumination in the GLSL shader
 	Multiple texture coordinate sets (Maya UV sets) for use in GLSL shaders. Each texture connected to a shader channel use the corresponding TC set
 	Shading code revamp. Now OpenGL fixed function pipeline is limited to only one color texture (optionally including transparency)
 	Added two handy buttons to the shelf: toggle face normals display and reverse polygon normals. Very handy to quickly check and correct single side polygonal surfaces

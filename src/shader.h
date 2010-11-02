@@ -29,7 +29,7 @@ class Shader {
 
 public:
 	/// Create and return the StateSet of the ShadingEngine/ShadingGroup object
-	static osg::ref_ptr<osg::StateSet> exporta(const MObject &shading_engine);
+	static void exporta(const MObject &shading_engine, osg::StateSet &state_set);
 
 	/// Get the shading engine applied to the dependency node 
 	static void getShadingEngine(const MObject &dependency_node, MObject &shading_engine);
@@ -43,13 +43,13 @@ public:
 	/// Check if the material has any node connected to the specified channel
 	static bool connectedChannel(const MObject &surface_shader, std::string channel);
 
-private:
-	/// Create OSG/OpenGL material corresponding to Maya material
-	static osg::ref_ptr<osg::Material> material(const MObject &surface_shader, bool &mat_trans);
-
     /// Get the node connected to a channel of the surface shader
     static void getNodeConnectedToChannel( const MObject &surface_shader, std::string channel, MObject &node );
 
+	/// Create OSG/OpenGL material corresponding to Maya material
+	static osg::ref_ptr<osg::Material> material(const MObject &surface_shader, bool &mat_trans);
+
+private:
     /**
      *  Establish the color (and maybe transparency) texture
      *  Texture is bound to texture unit 0 unless otherwise explicited in the "texture_unit" parameter

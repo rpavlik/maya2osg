@@ -17,29 +17,38 @@
     You should have received a copy of the GNU General Public License
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef _SHADERGLSL_H_
-#define _SHADERGLSL_H_
+#ifndef _GLSLCBFILETEXTURE_H_
+#define _GLSLCBFILETEXTURE_H_
 
-#include "GLSL/texturingconfig.h"
-
-#include <maya/MObject.h>
-#include <maya/MObjectArray.h>
-
-#include <osg/StateSet>
-
+#include "glslcodeblock.h"
 
 /**
- *	ShaderGLSL class works similar to Shader class, but instead of OpenGL materials
- *	it uses GLSL shaders to emulate the visual quality of "Maya soft" renderer.
+ *
  */
-class ShaderGLSL {
+class GLSLCBFileTexture : public GLSLCodeBlock {
 
 public:
+    /// Constructor
+    GLSLCBFileTexture( const MObject &node, osg::StateSet& sset, 
+                       TexturingConfig &texturing_config );
 
-	/// Configure the shaders for the StateSet of the ShadingEngine/ShadingGroup object
-	static void exporta(const MObject &shading_engine, TexturingConfig &texturing_config,
-						osg::StateSet &state_set);
+    /// Get the GLSL declarations (constants, global variables, uniforms, etc...)
+    virtual std::string getDeclarations();
+
+    /// Get the GLSL functions needed for this implementation
+    virtual std::string getFunctions();
+
+    /// Get the GLSL inline code
+    virtual std::string getInlineCode();
+
+private:
+
+    /// Name of the texture sampler (GLSL uniform)
+    std::string _samplerName;
+
+    /// Number of texturing unit for the texture coordinates that should be used with this texture
+    int _TCSetUnit;
 
 };
 
-#endif //_SHADERGLSL_H_
+#endif //_GLSLCBFILETEXTURE_H_

@@ -20,6 +20,7 @@
 #include "mesh.h"
 #include "shader.h"
 #include "shaderglsl.h"
+#include "GLSL/texturingconfig.h"
 #include "config.h"
 #include "lights.h"
 #include "shadows.h"
@@ -244,6 +245,39 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	osg::ref_ptr<osg::Geode> geode = new osg::Geode();
     geode->addDrawable(geometry.get());
 
+    // The StateSet of the mesh
+    osg::StateSet *ss = geode->getOrCreateStateSet();
+
+	// Check whether mesh is single or double sided
+	// (attributes doubleSided and opposite in surfaceShape node)
+	MStatus status;
+	MPlug plug = dnodefn.findPlug("doubleSided", &status);
+	bool double_sided;
+	bool opposite;
+	plug.getValue(double_sided);
+	plug = dnodefn.findPlug("opposite");
+	plug.getValue(opposite);
+
+	if ( ( Config::instance()->getSurfaceMode() == Config::KEEP && double_sided ) 
+		|| Config::instance()->getSurfaceMode() == Config::DOUBLE ) 
+	{
+		ss->setMode( GL_CULL_FACE, osg::StateAttribute::OFF );
+		osg::ref_ptr<osg::LightModel> lm = Lights::getDefaultLightModel();
+		lm->setTwoSided( true );
+		ss->setAttribute( lm );
+	}
+	else {
+		ss->setMode( GL_CULL_FACE, osg::StateAttribute::ON );
+		osg::CullFace *cull = new osg::CullFace();
+		if ( opposite ) {
+			cull->setMode(osg::CullFace::FRONT);
+		}
+		else {
+			cull->setMode(osg::CullFace::BACK);
+		}
+		ss->setAttributeAndModes( cull, osg::StateAttribute::ON );
+	}
+
 	// Get the shaders connected to this mesh
 	MObjectArray shaders;
 	MIntArray indices;
@@ -263,7 +297,7 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	if(shaders.length() > 0){   // Just ONE surface shader
 
         // Map of connections between textures and UV sets
-        ShaderGLSL::Texture2UVSetMap textures_map;
+        TexturingConfig texturing_config;
         // OpenGL texture unit we bind this TC set to
         int texture_unit = 0;
         // For each TC set
@@ -277,9 +311,9 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
             // to pass this info to the GLSL shader
             // (in case of fixed function, only the first TC set will be used)
             for( unsigned int j = 0 ; j < textures.length() ; j++ ) {
-                MFnDagNode texture(textures[j]);
+                MFnDependencyNode texture(textures[j]);
                 // Store the association of each texture to the TC set (OpenGL texture unit)
-                textures_map[texture.name().asChar()] = texture_unit;
+                texturing_config.setTCSet( texture.name().asChar(), texture_unit );
             }
 
             // Set the texture coordinates (previously computed)
@@ -288,45 +322,13 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 			geometry->setTexCoordIndices(texture_unit, tc_idx_map[i->first]);
             texture_unit++;
         }
-        // Configure the StateSet for fixed function OpenGL pipeline
-		osg::ref_ptr<osg::StateSet> st = Shader::exporta(shaders[0]);
-		if(st.valid()) {
-			if ( Config::instance()->getUseGLSL() ) {
-				ShaderGLSL::exporta(shaders[0], textures_map, texture_unit, st);
-			}
-			geode->setStateSet(st.get());
-		}
-	}
-
-	// Check whether mesh is single or double sided
-	// (attributes doubleSided and opposite in surfaceShape node)
-	MStatus status;
-	MPlug plug = dnodefn.findPlug("doubleSided", &status);
-	bool double_sided;
-	bool opposite;
-	plug.getValue(double_sided);
-	plug = dnodefn.findPlug("opposite");
-	plug.getValue(opposite);
-
-	osg::StateSet *ss = geode->getOrCreateStateSet();
-	if ( ( Config::instance()->getSurfaceMode() == Config::KEEP && double_sided ) 
-		|| Config::instance()->getSurfaceMode() == Config::DOUBLE ) 
-	{
-		ss->setMode( GL_CULL_FACE, osg::StateAttribute::OFF );
-		osg::ref_ptr<osg::LightModel> lm = Lights::getDefaultLightModel();
-		lm->setTwoSided( true );
-		ss->setAttribute( lm );
-	}
-	else {
-		ss->setMode( GL_CULL_FACE, osg::StateAttribute::ON );
-		osg::CullFace *cull = new osg::CullFace();
-		if ( opposite ) {
-			cull->setMode(osg::CullFace::FRONT);
-		}
-		else {
-			cull->setMode(osg::CullFace::BACK);
-		}
-		ss->setAttributeAndModes( cull, osg::StateAttribute::ON );
+        if ( Config::instance()->getUseGLSL() ) {
+            ShaderGLSL::exporta(shaders[0], texturing_config, *ss);
+        }
+        else {
+            // Configure the StateSet for fixed function OpenGL pipeline
+		    Shader::exporta(shaders[0], *ss);
+        }
 	}
 
 	// Shadows
