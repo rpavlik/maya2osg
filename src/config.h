@@ -110,6 +110,12 @@ private:
 	/// Use GLSL shaders to emulate Maya shaders
 	bool _useGLSL;
 
+    /// Export geometry normals
+    bool _exportNormals;
+
+    /// Export texture coordinates
+    bool _exportTexCoords;
+
 	/// Constructor
 	Config();
 
@@ -223,6 +229,18 @@ public:
 
 	inline bool getUseGLSL() const
 	{ return _useGLSL; }
+
+    inline void setExportNormals( bool v )
+    { _exportNormals = v; }
+
+    inline bool getExportNormals() const
+    { return _exportNormals; }
+
+    inline void setExportTexCoords( bool v )
+    { _exportTexCoords = v; }
+
+    inline bool getExportTexCoords() const
+    { return _exportTexCoords; }
 
 };
 

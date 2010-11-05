@@ -45,4 +45,6 @@ Config::Config()
 	_globalAmbient.set(0.0, 0.0, 0.0);
 	_localViewer = true;
 	_useGLSL = false;
+    _exportNormals = true;
+    _exportTexCoords = true;
 }

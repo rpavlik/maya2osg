@@ -91,21 +91,23 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	}
 	geometry->setVertexArray(vertex_array.get());
 
-    // -- NORMAL ARRAY
-	// NOTE: Is there any way in Maya to know if normals are assigned per-vertex 
-	// or per-face? If there is, we could use other binding modes to reduce
-	// scene size and improve rendering performance.
-	// Meanwhile, we bind normals per vertex to cover every case.
-	osg::ref_ptr<osg::Vec3Array> normal_array = new osg::Vec3Array();
-	MFloatVectorArray normals;	// Per face-vertex normal list
-    meshfn.getNormals(normals);
-	for(int i=0; i< normals.length(); i++){
-		normal_array->push_back( osg::Vec3(normals[i].x,
-										   normals[i].y,
-										   normals[i].z) );
-	}
-    geometry->setNormalArray(normal_array.get());
-	geometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+    if ( Config::instance()->getExportNormals() ) {
+        // -- NORMAL ARRAY
+	    // NOTE: Is there any way in Maya to know if normals are assigned per-vertex 
+	    // or per-face? If there is, we could use other binding modes to reduce
+	    // scene size and improve rendering performance.
+	    // Meanwhile, we bind normals per vertex to cover every case.
+	    osg::ref_ptr<osg::Vec3Array> normal_array = new osg::Vec3Array();
+	    MFloatVectorArray normals;	// Per face-vertex normal list
+        meshfn.getNormals(normals);
+	    for(int i=0; i< normals.length(); i++){
+		    normal_array->push_back( osg::Vec3(normals[i].x,
+										       normals[i].y,
+										       normals[i].z) );
+	    }
+        geometry->setNormalArray(normal_array.get());
+	    geometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+    }
 
     // -- COLOR ARRAY (if present)
 	bool colors = colorPerVertex(obj);
@@ -125,31 +127,34 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 
 	// -- TEXTURE COORDINATES (if present)
 
-	int numUVSets = meshfn.numUVSets();
-	MStringArray namesUVSets;
     // Map of OSG Texture Coordinate Sets (by Maya UV set name)
     TCSetsMap tc_sets_map;
-	if(numUVSets > 0){
+
+    if ( Config::instance()->getExportTexCoords() ) {
+	    int numUVSets = meshfn.numUVSets();
+	    MStringArray namesUVSets;
+	    if(numUVSets > 0){
 #ifdef _DEBUG
-		std::cout << numUVSets << " UV sets" << std::endl;
+		    std::cout << numUVSets << " UV sets" << std::endl;
 #endif
-		meshfn.getUVSetNames(namesUVSets);
-		for(int i=0; i<numUVSets; i++){
-			if(meshfn.numUVs(namesUVSets[i]) == 0){
-                std::cerr << "WARNING: UV Set " << namesUVSets[i].asChar() << " has no coordinates. It will be ignored." << std::endl;
-				//// Ignore UV set
-                continue;
-			}
-			MFloatArray us, vs;
-			meshfn.getUVs(us, vs, &(namesUVSets[i]));
-			osg::ref_ptr<osg::Vec2Array> uv_array = new osg::Vec2Array();
-			for(int j=0; j< meshfn.numUVs(namesUVSets[i]); j++){
-				uv_array->push_back(osg::Vec2( us[j], vs[j]));
-			}
-            tc_sets_map[namesUVSets[i].asChar()] = uv_array;
-            // NOTE: UV sets are accumulated in the map as TC arrays to assign them later to OpenGL texture units
-		}
-	}
+		    meshfn.getUVSetNames(namesUVSets);
+		    for(int i=0; i<numUVSets; i++){
+			    if(meshfn.numUVs(namesUVSets[i]) == 0){
+                    std::cerr << "WARNING: UV Set " << namesUVSets[i].asChar() << " has no coordinates. It will be ignored." << std::endl;
+				    //// Ignore UV set
+                    continue;
+			    }
+			    MFloatArray us, vs;
+			    meshfn.getUVs(us, vs, &(namesUVSets[i]));
+			    osg::ref_ptr<osg::Vec2Array> uv_array = new osg::Vec2Array();
+			    for(int j=0; j< meshfn.numUVs(namesUVSets[i]); j++){
+				    uv_array->push_back(osg::Vec2( us[j], vs[j]));
+			    }
+                tc_sets_map[namesUVSets[i].asChar()] = uv_array;
+                // NOTE: UV sets are accumulated in the map as TC arrays to assign them later to OpenGL texture units
+		    }
+	    }
+    }
 
 	// 2. Build primitives (indices arrays)
 
@@ -161,8 +166,10 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	osg::ref_ptr<osg::UIntArray> normalidx = new osg::UIntArray();
     // UV indices arrays
     TCSetsIndicesMap tc_idx_map;
-    for ( TCSetsMap::iterator i = tc_sets_map.begin() ; i != tc_sets_map.end() ; i++ ) {
-        tc_idx_map[i->first] = new osg::UIntArray();
+    if ( Config::instance()->getExportTexCoords() ) {
+        for ( TCSetsMap::iterator i = tc_sets_map.begin() ; i != tc_sets_map.end() ; i++ ) {
+            tc_idx_map[i->first] = new osg::UIntArray();
+        }
     }
 
 	// Index of indices (face-vertex)
@@ -191,20 +198,24 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
             // vertex index
 			vertexidx->push_back( itmp.vertexIndex(i) );
             // normal index
-			normalidx->push_back( itmp.normalIndex(i) );
-			// UV sets indices
-            for( TCSetsMap::iterator tcsi = tc_sets_map.begin() ; tcsi != tc_sets_map.end() ; tcsi++ ) {
-                MString uv_set_name(tcsi->first.c_str());
-				if(itmp.hasUVs(uv_set_name)){
-					int iuv;
-					itmp.getUVIndex(i, iuv, &uv_set_name);
-                    tc_idx_map[tcsi->first]->push_back(iuv);
-				}
-				else {
-					std::cerr << "ERROR. There are polygons without texture coordinates in this mesh." << std::endl;
-                    tc_idx_map[tcsi->first]->push_back(0);
-				}
-			}
+            if ( Config::instance()->getExportNormals() ) {
+    			normalidx->push_back( itmp.normalIndex(i) );
+            }
+            if ( Config::instance()->getExportTexCoords() ) {
+			    // UV sets indices
+                for( TCSetsMap::iterator tcsi = tc_sets_map.begin() ; tcsi != tc_sets_map.end() ; tcsi++ ) {
+                    MString uv_set_name(tcsi->first.c_str());
+				    if(itmp.hasUVs(uv_set_name)){
+					    int iuv;
+					    itmp.getUVIndex(i, iuv, &uv_set_name);
+                        tc_idx_map[tcsi->first]->push_back(iuv);
+				    }
+				    else {
+					    std::cerr << "ERROR. There are polygons without texture coordinates in this mesh." << std::endl;
+                        tc_idx_map[tcsi->first]->push_back(0);
+				    }
+			    }
+            }
 
             ii++;
 		}
@@ -236,8 +247,10 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 
     geometry->setVertexIndices( vertexidx.get() );
 //	std::cout << vertexidx->size() << " vertex indices" << std::endl;
-	geometry->setNormalIndices( normalidx.get() );
-//	std::cout << normalidx->size() << " normal indices" << std::endl;
+    if ( Config::instance()->getExportNormals() ) {
+    	geometry->setNormalIndices( normalidx.get() );
+//	    std::cout << normalidx->size() << " normal indices" << std::endl;
+    }
 	// Indices of texture coordinates are set when exporting shaders,
 	// because UV sets can be reused for different textures (there is no one-to-one binding)
 
@@ -298,29 +311,31 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 
         // Map of connections between textures and UV sets
         TexturingConfig texturing_config;
-        // OpenGL texture unit we bind this TC set to
-        int texture_unit = 0;
-        // For each TC set
-        for ( TCSetsMap::iterator i = tc_sets_map.begin() ; i != tc_sets_map.end() ; i++ ) {
-            MString uv_set_name( i->first.c_str() );
+        if ( Config::instance()->getExportTexCoords() ) {
+            // OpenGL texture unit we bind this TC set to
+            int texture_unit = 0;
+            // For each TC set
+            for ( TCSetsMap::iterator i = tc_sets_map.begin() ; i != tc_sets_map.end() ; i++ ) {
+                MString uv_set_name( i->first.c_str() );
 
-            // Get textures bound to this UV set in this mesh
-			MObjectArray textures;
-			meshfn.getAssociatedUVSetTextures(uv_set_name, textures);
-            // Register the association between textures and UV sets in textures_map 
-            // to pass this info to the GLSL shader
-            // (in case of fixed function, only the first TC set will be used)
-            for( unsigned int j = 0 ; j < textures.length() ; j++ ) {
-                MFnDependencyNode texture(textures[j]);
-                // Store the association of each texture to the TC set (OpenGL texture unit)
-                texturing_config.setTCSet( texture.name().asChar(), texture_unit );
+                // Get textures bound to this UV set in this mesh
+			    MObjectArray textures;
+			    meshfn.getAssociatedUVSetTextures(uv_set_name, textures);
+                // Register the association between textures and UV sets in textures_map 
+                // to pass this info to the GLSL shader
+                // (in case of fixed function, only the first TC set will be used)
+                for( unsigned int j = 0 ; j < textures.length() ; j++ ) {
+                    MFnDependencyNode texture(textures[j]);
+                    // Store the association of each texture to the TC set (OpenGL texture unit)
+                    texturing_config.setTCSet( texture.name().asChar(), texture_unit );
+                }
+
+                // Set the texture coordinates (previously computed)
+			    geometry->setTexCoordArray(texture_unit, i->second);
+			    // Set texture coordinates indices (previously computed)
+			    geometry->setTexCoordIndices(texture_unit, tc_idx_map[i->first]);
+                texture_unit++;
             }
-
-            // Set the texture coordinates (previously computed)
-			geometry->setTexCoordArray(texture_unit, i->second);
-			// Set texture coordinates indices (previously computed)
-			geometry->setTexCoordIndices(texture_unit, tc_idx_map[i->first]);
-            texture_unit++;
         }
         if ( Config::instance()->getUseGLSL() ) {
             ShaderGLSL::exporta(shaders[0], texturing_config, *ss);

@@ -242,6 +242,28 @@ MStatus maya2osg::doIt( const MArgList & args )
 				Config::instance()->setUseGLSL( true );
 			}
 		}
+		else if ( args.asString(i) == "-exportNormals" ){
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "0" ){
+				Config::instance()->setExportNormals( false );
+			}
+			else {
+				Config::instance()->setExportNormals( true );
+			}
+		}
+		else if ( args.asString(i) == "-exportTexCoords" ){
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "0" ){
+				Config::instance()->setExportTexCoords( false );
+			}
+			else {
+				Config::instance()->setExportTexCoords( true );
+			}
+		}
 		else if ( args.asString(i).length() > 0 ) {
 			// We discard empty arguments
 			filename = args.asString(i);
