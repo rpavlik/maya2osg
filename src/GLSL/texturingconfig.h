@@ -24,6 +24,12 @@
 #include <set>
 #include <string>
 
+/**
+ *  This class stores the texturing configuration:
+ *
+ *  Relations between Maya texture nodes, OpenGL 
+ *  texturing units and texture coordinate sets
+ */
 class TexturingConfig {
 
 public:

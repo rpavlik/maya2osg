@@ -22,6 +22,7 @@
 
 #include <maya/MObject.h>
 #include <maya/MObjectArray.h>
+#include <maya/MPlug.h>
 #include <osg/StateSet>
 #include <osg/Material>
 
@@ -40,13 +41,16 @@ public:
 	/// Get the file texture connected to color channel (if any)
 	static void getColorTexture( const MObject &surface_shader, MObject &texture );
 
-	/// Check if the material has any node connected to the specified channel
-	static bool connectedChannel(const MObject &surface_shader, std::string channel);
+	/// Check if a Shading Node has any node connected to the specified channel
+	static bool connectedChannel(const MObject &shading_node, std::string channel);
 
-    /// Get the node connected to a channel of the surface shader
-    static void getNodeConnectedToChannel( const MObject &surface_shader, std::string channel, MObject &node );
+    /// Get the node connected to a channel of a shading node
+    static void getNodeConnectedToChannel( const MObject &shading_node, std::string channel, MObject &node );
 
-	/// Create OSG/OpenGL material corresponding to Maya material
+    /// Get the plug connected to a channel of a shading node
+    static void getPlugConnectedToChannel( const MObject &shading_node, std::string channel, MPlug &remote_plug );
+
+    /// Create OSG/OpenGL material corresponding to Maya material
 	static osg::ref_ptr<osg::Material> material(const MObject &surface_shader, bool &mat_trans);
 
 private:

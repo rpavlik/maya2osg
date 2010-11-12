@@ -20,179 +20,151 @@
 
 #include "lambert.h"
 #include "glsllighting.h"
-#include "glslcodeblock.h"
-#include "../shader.h"
-#include "../config.h"
-#include "../lights.h"
+#include "shadingnetwork.h"
 
 #include <maya/MFnDependencyNode.h>
 #include <maya/MPlug.h>
 
 #include <osg/CullFace>
 
-#include <fstream>
-#include <sstream>
-
-// Dump shaders to disk (for debugging purposes)
-#define DUMP_SHADERS
 
 /**
- *	Build the vertex shader GLSL source code for Lambert materials
- *
- *	@param num_tc_sets	Number of texture coordinate sets used by this shader
+ *  Constructor
  */
-std::string Lambert::getVertexShaderSrc( TexturingConfig & texturing_config )
+Lambert::Lambert( const MObject &shading_node, ShadingNetwork &shading_network ) :
+    SurfaceShader( shading_node, shading_network ) 
 {
-	std::string shader_src =
-"#version 120\n"
-"\n"
-"// Texture units used\n"
-"uniform int numTexCoordSets;\n"
-"\n"
-"varying vec3 ecPosition3;\n"
-"varying vec3 normal;\n"
-"\n"
-"void main() {\n"
-"	// Transform vertex from object space to clip space\n"
-"	gl_Position = ftransform();\n"
-"\n"
-"	// NOTE: Lighting computations are performed in eye coordinates\n"
-"	// because OpenGL specifies that light positions are transformed\n"
-"	// by the modelview matrix when they are provided to OpenGL\n"
-"\n"
-"	// Vertex position in eye coordinates (and projected)\n"
-"	vec4 ecPosition = gl_ModelViewMatrix * gl_Vertex;\n"
-"	ecPosition3 = (vec3(ecPosition)) / ecPosition.w;\n"
-"\n"
-"	// Normals (in eye coordinates, we will normalize them after interpolation)\n"
-"	normal = gl_NormalMatrix * gl_Normal;\n"
-"\n"
-;
-    for ( std::set<int>::const_iterator i = texturing_config.getTCSetsUnitsUsed().begin() ; 
-            i != texturing_config.getTCSetsUnitsUsed().end() ; i++ ) 
-    {
-		std::stringstream tc_set;
-		tc_set << *i;
-		shader_src += 
-"	gl_TexCoord[" + tc_set.str() + "] = gl_TextureMatrix[" + 
-				tc_set.str() + "] * gl_MultiTexCoord" + tc_set.str() + ";\n"
-"}\n"
-;
-	}
-#ifdef DUMP_SHADERS
-    std::ofstream fout("lambert_vertex.glsl");
-    fout << shader_src;
-    fout.close();
-#endif
-	return shader_src;
 }
 
 
 /**
- *  Build the fragment shader GLSL source code for Lambert materials
+ *  Get the GLSL Codeblock for a plug
  */
-std::string Lambert::getFragmentShaderSrc( osg::StateSet &state_set,
-                                           TexturingConfig &texturing_config,
-                                           GLSLCodeBlock *color_cb,
-                                           GLSLCodeBlock *ambient_cb,
-                                           GLSLCodeBlock *emissive_cb )
+ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
 {
-	std::string shader_src =
-"#version 120\n"
-"\n"
-"// Uniforms set from Maya2OSG exporter\n"
-"uniform bool LocalViewer;\n"
-"uniform int NumEnabledLights;\n"
-"\n"
-"// From vertex shader\n"
-"varying vec3 ecPosition3;\n"
-"varying vec3 normal;\n"
-"\n";
+    // Build the GLSL code ...
+    CodeBlock code_block;
 
-    // GLSL Code Blocks declarations for each channel
-    // (include uniforms for texture samplers)
+    // WARNING. It is important to differentiate between the 
+    // GLSL variable name and the return value
+    // E.g. 
+    //  The GLSL variable name 
+    //
+    //      vec4 sn_lambert_lambert1_color = ...
+    //
+    //  will serve to at least two output plugs with different GLSL code.
+    //  WARNING! This code is what is called variableName in the CodeBlock structure
+    //
+    //      sn_lambert1_lambert1_color.rgb  -> plug "outColor"
+    //      1.0 - sn_lambert1_lambert1_color.a    -> plug "outTransparency"
+    //
+    //  The variable name is stored in the map for the shading node plug
+    //  The same variable name can be shared between plugs
+    //  The access code for each plug is what is exported in the CodeBlock
 
-    // Channel: Diffuse color
-    if ( color_cb ) {
-        shader_src += 
-"uniform float diffuseCoeff;\n" +
-            color_cb->getDeclarations() +
-            "\n" + color_cb->getFunctions() + "\n";
-    }
-    // Channel: Ambient color
-    if ( ambient_cb ) {
-        shader_src += ambient_cb->getDeclarations() +
-            "\n" + ambient_cb->getFunctions() + "\n";
-    }
-    // Channel: Emissive color
-    if ( emissive_cb ) {
-        shader_src += emissive_cb->getDeclarations() +
-            "\n" + emissive_cb->getFunctions() + "\n";
-    }
+    std::string variable_name;
+    MFnDependencyNode dn(_mayaShadingNode);
 
-    shader_src += 
-GLSLLighting::getDirectionalLightFunctionWithoutSpecular() +
+    // Check plug name and avoid duplicating code
+
+    if ( plug_name == "fragmentOutput" ||
+         plug_name == "outColor" || 
+         plug_name == "outTransparency" ) 
+    {
+        variable_name = "sn_lambert_" + std::string(dn.name().asChar()) + "_output";
+        // Both color and transparency are stored in "color" variable.
+        // if it is already declared, we omit all the GLSL code
+        if ( !variableIsAvailable(variable_name) ) {
+
+            // Supported Lambert input channels
+
+            // Color (diffuse)
+            Plug plug_color = getPlug("color");
+            // Transparency
+            Plug plug_transparency = getPlug("transparency");
+            // Ambient Color
+            Plug plug_ambient = getPlug("ambientColor");
+            // Incandescence
+            Plug plug_incandescence = getPlug("incandescence");
+            // Bump map (coming soon...)
+            // ...
+            // Diffuse (scalar)
+            Plug plug_diffuse = getPlug("diffuse");
+
+            code_block.declarations = plug_color.codeBlock.declarations +
+                                      plug_transparency.codeBlock.declarations +
+                                      plug_ambient.codeBlock.declarations +
+                                      plug_incandescence.codeBlock.declarations +
+                                      plug_diffuse.codeBlock.declarations;
+
+            code_block.functions = plug_color.codeBlock.functions +
+                                   plug_transparency.codeBlock.functions +
+                                   plug_ambient.codeBlock.functions +
+                                   plug_incandescence.codeBlock.functions +
+                                   plug_diffuse.codeBlock.functions +
+                                   GLSLLighting::getDirectionalLightFunctionWithoutSpecular() +
+                                   GLSLLighting::getPointLightFunctionWithoutSpecular() +
+                                   GLSLLighting::getSpotLightFunctionWithoutSpecular();
+
+            code_block.computeCode = plug_color.codeBlock.computeCode +
+                                     plug_transparency.codeBlock.computeCode +
+                                     plug_ambient.codeBlock.computeCode +
+                                     plug_incandescence.codeBlock.computeCode +
+                                     plug_diffuse.codeBlock.computeCode +
 "\n" +
-GLSLLighting::getPointLightFunctionWithoutSpecular() +
-"\n" +
-GLSLLighting::getSpotLightFunctionWithoutSpecular() +
-"\n"
-"\n"
-"void main() {\n"
-"\n"
 "    vec3 nnormal;\n";
 
-	// TO-DO : **** FIXME!!!
-	// Adjust normal by bump map
-	// ...
+	        // TO-DO : **** FIXME!!!
+	        // Adjust normal by bump map
+	        // ...
 
-    bool opposite = false;
-    osg::StateAttribute *sa = state_set.getAttribute( osg::StateAttribute::CULLFACE );
-    if ( sa ) {
-        osg::CullFace *cf = dynamic_cast<osg::CullFace*>(sa);
-        if ( cf ) {
-            // If culling front facing polygons, we consider it the opposite direction
-            opposite = cf->getMode() == osg::CullFace::FRONT;
-        }
-    }
+            bool opposite = false;
+            osg::StateAttribute *sa = _shadingNetwork.getStateSet().getAttribute( osg::StateAttribute::CULLFACE );
+            if ( sa ) {
+                osg::CullFace *cf = dynamic_cast<osg::CullFace*>(sa);
+                if ( cf ) {
+                    // If culling front facing polygons, we consider it the opposite direction
+                    opposite = cf->getMode() == osg::CullFace::FRONT;
+                }
+            }
 
-    // Check if the StateSet has backface culling enabled 
-    // and add code to the shader to perform it 
-    if ( state_set.getMode(GL_CULL_FACE) == osg::StateAttribute::ON ) {
-        if ( opposite ) {
-            shader_src += 
+            // Check if the StateSet has backface culling enabled 
+            // and add code to the shader to perform it 
+            if ( _shadingNetwork.getStateSet().getMode(GL_CULL_FACE) == osg::StateAttribute::ON ) {
+                if ( opposite ) {
+                    code_block.computeCode += 
 "    if ( gl_FrontFacing )\n"
 "        discard;\n"
 "    else\n"
 "        nnormal = normalize(-normal);\n";
-        }
-        else {
-            shader_src += 
+                }
+                else {
+                    code_block.computeCode += 
 "    if ( !gl_FrontFacing )\n"
 "        discard;\n"
 "    else\n"
 "        nnormal = normalize(normal);\n";
-        }
-        shader_src += 
+                }
+                code_block.computeCode += 
 "\n";
-    }
-    else {
-        if ( opposite ) {
-            shader_src += 
+            }
+            else {
+                if ( opposite ) {
+                    code_block.computeCode += 
 "    if ( !gl_FrontFacing )\n";
-        }
-        else {
-            shader_src += 
+                }
+                else {
+                    code_block.computeCode += 
 "    if ( gl_FrontFacing )\n";
-        }
-        shader_src += 
+                }
+                code_block.computeCode += 
 "        nnormal = normalize(normal);\n"
 "    else\n"
 "        nnormal = normalize(-normal);\n"
 "\n";
-    }
+            }
 
-    shader_src +=
+            code_block.computeCode +=
 "	vec3 eye;\n"
 "	if (LocalViewer)\n"
 "	    eye = -normalize(ecPosition3);\n"
@@ -215,144 +187,36 @@ GLSLLighting::getSpotLightFunctionWithoutSpecular() +
 "	        SpotLight(i, eye, ecPosition3, nnormal, amb, diff);\n"
 "	}\n"
 "\n"
-#if 0
-"	// NOTE: gl_FrontLightModelProduct.sceneColor = gl_FrontMaterial.emission + gl_FrontMaterial.ambient * gl_LightModel.ambient\n"
-"	vec4 color = gl_FrontLightModelProduct.sceneColor +\n"
-"	            amb * gl_FrontMaterial.ambient +\n"
-"	            diff * gl_FrontMaterial.diffuse;\n"
-#else
+            // Channel : Diffuse color
+"    vec3 diffuse_color = " + getPlugValue(plug_color) + " * " + getPlugValue(plug_diffuse) + ";\n"
+            // Channel : Ambient color
+"    vec3 ambient_color = " + getPlugValue(plug_ambient) + ";\n"
+            // Channel : Emissive color
+"    vec3 emissive_color = " + getPlugValue(plug_incandescence) + ";\n"
 "\n";
 
-    // Channel : Diffuse color
-    if ( color_cb ) {
-        shader_src +=
-"    vec4 diffuse_color = " + color_cb->getInlineCode() + " * diffuseCoeff;\n";
+    code_block.computeCode +=
+"    vec4 " + variable_name + " = vec4( emissive_color +\n"
+"                (amb.rgb + gl_LightModel.ambient.rgb) * ambient_color +\n"
+"                diff.rgb * diffuse_color, 1.0 - " + getPlugValue(plug_transparency) + " );\n";
+
+            _computedVariables.insert(variable_name);
+        }
+        // Access code
+        if ( plug_name == "fragmentOutput" ) {  // special code for fragment output (RGBA)
+            code_block.accessCode = variable_name;
+        }
+        else if ( plug_name == "outColor" ) {
+            code_block.accessCode = variable_name + ".rgb";
+        }
+        else if ( plug_name == "outTransparency" ) {
+            code_block.accessCode = "(1.0 - " + variable_name + ".a)";
+        }
     }
     else {
-        shader_src +=
-"    vec4 diffuse_color = gl_FrontMaterial.diffuse;\n";
+        std::cerr << "WARNING: Unsupported plug " << plug_name << " in Lambert shader " << dn.name().asChar() << std::endl;
+        // throw exception ??? !!! FIXME!!!
     }
 
-    // Channel : Ambient color
-    if ( ambient_cb ) {
-        shader_src +=
-"    vec4 ambient_color = " + ambient_cb->getInlineCode() + ";\n";
-    }
-    else {
-        shader_src +=
-"    vec4 ambient_color = gl_FrontMaterial.ambient;\n";
-    }
-
-    // Channel : Emissive color
-    if ( emissive_cb ) {
-        shader_src +=
-"    vec4 emissive_color = " + emissive_cb->getInlineCode() + ";\n";
-    }
-    else {
-        shader_src +=
-"    vec4 emissive_color = gl_FrontMaterial.emission;\n";
-    }
-
-    shader_src +=
-"\n"
-"	vec4 color = emissive_color +\n"
-"	            (amb + gl_LightModel.ambient) * ambient_color +\n"
-"	            diff * diffuse_color;\n";
-#endif
-
-    shader_src +=
-"\n"
-"	gl_FragColor = color;\n"
-"}\n";
-#ifdef DUMP_SHADERS
-    std::ofstream fout("lambert_fragment.glsl");
-    fout << shader_src;
-    fout.close();
-#endif
-    return shader_src;
-}
-
-
-/**
- *	Configure the StateSet with a GLSL program implementing the Lambert shader
- */
-void Lambert::configureGLSLProgram(const MObject &surface_shader,
-                                   TexturingConfig &texturing_config,
-                                   osg::StateSet &state_set)
-{
-	MFnDependencyNode dn(surface_shader);
-    bool transparent;
-
-    // Set the OpenGL material (will be accessed by the shader)
-	state_set.setAttribute( Shader::material(surface_shader, transparent).get() );
-
-    // Check connections to supported channels and build GLSL Code Blocks needed to build the Fragment Shader
-
-    // Channel: color (diffuse)
-    osg::ref_ptr<GLSLCodeBlock> color_cb = GLSLCodeBlock::configure(surface_shader, "color", state_set, texturing_config);
-    // opacity (only alpha channel of color)
-    // ambient color
-    osg::ref_ptr<GLSLCodeBlock> ambient_cb = GLSLCodeBlock::configure(surface_shader, "ambientColor", state_set, texturing_config);
-    // incandescence (emissive)
-    osg::ref_ptr<GLSLCodeBlock> emissive_cb = GLSLCodeBlock::configure(surface_shader, "incandescence", state_set, texturing_config);
-    // bump map
-    // *** TO-DO ...
-
-	// GLSL Program
-	osg::Program *program = new osg::Program();
-
-    // Vertex shader
-#if 0
-	osg::Shader *vertex_shader = new osg::Shader(osg::Shader::VERTEX);
-	vertex_shader->loadShaderSourceFromFile( "lambert_vertex.glsl" );
-	program->addShader( vertex_shader );
-#else
-    program->addShader( new osg::Shader(osg::Shader::VERTEX, getVertexShaderSrc(texturing_config)) );
-#endif
-
-    // Fragment shader
-#if 0
-	osg::Shader *fragment_shader = new osg::Shader(osg::Shader::FRAGMENT);
-	fragment_shader->loadShaderSourceFromFile( "lambert_fragment.glsl" );
-	program->addShader( fragment_shader );
-#else
-    program->addShader( new osg::Shader(osg::Shader::FRAGMENT, 
-                        getFragmentShaderSrc( state_set, texturing_config,
-                                              color_cb.get(),
-                                              ambient_cb.get(),
-                                              emissive_cb.get()
-                                              )));
-#endif
-
-    state_set.setAttribute( program );
-
-    // If there is a network connected to color, its value must be multiplied 
-    // with the diffuse coefficient. If there is not, it will be already multplied
-    // in the exported Material (see shader.cpp)
-    if ( color_cb.valid() ) {
-        float dc;
-        dn.findPlug("diffuse").getValue(dc);
-        state_set.addUniform( new osg::Uniform("diffuseCoeff", dc) );
-    }
-
-	// Uniform: LocalViewer
-	state_set.addUniform( new osg::Uniform("LocalViewer", Config::instance()->getLocalViewer()) );
-
-	// Uniform: NumEnabledLights
-	state_set.addUniform( Lights::getUniformNumEnabledLights() );
-
-    // Uniform: numTexCoordSets
-    state_set.addUniform( new osg::Uniform("numTexCoordSets", texturing_config.getTCSetsUnitsUsed().size()) );
-
-	// Check if there is transparency to activate the blending in the StateSet
-	transparent = Shader::connectedChannel(surface_shader, "transparency")
-		|| dn.findPlug("transparencyR").asFloat() > 0.0
-		|| dn.findPlug("transparencyG").asFloat() > 0.0
-		|| dn.findPlug("transparencyB").asFloat() > 0.0;
-	if( transparent ){
-		state_set.setMode(GL_BLEND, osg::StateAttribute::ON);
-		state_set.setAttribute( new osg::BlendFunc( Config::instance()->getBlendFuncSrc(),
-											Config::instance()->getBlendFuncDst()) );
-		state_set.setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
-	}
+    return code_block;
 }

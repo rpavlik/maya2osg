@@ -17,19 +17,40 @@
     You should have received a copy of the GNU General Public License
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#include "surfaceshader.h"
+#include "shadingnetwork.h"
 
-#define VENDOR "Maya2OSG"
-#define VERSION "0.4.2c-SVN"
+#include "../shader.h"
 
-#include <string>
-#include <maya/MStatus.h>
+#include <maya/MFnDependencyNode.h>
+
 
 /**
- *	Check the status, return if there is an error
- *	and print an informative error message if there is.
+ *
  */
-bool MCheckStatus(MStatus &st, const std::string &msg);
+SurfaceShader::SurfaceShader( const MObject &shading_node, ShadingNetwork &shading_network ) :
+    ShadingNode(shading_node, shading_network )
+{
+}
 
-#endif // _COMMON_H_	
+
+/**
+ * Check whether this shader uses transparency
+ */
+bool SurfaceShader::hasTransparency()
+{
+    MFnDependencyNode dn(_mayaShadingNode);
+    return Shader::connectedChannel(_mayaShadingNode, "transparency")
+		|| dn.findPlug("transparencyR").asFloat() > 0.0
+		|| dn.findPlug("transparencyG").asFloat() > 0.0
+		|| dn.findPlug("transparencyB").asFloat() > 0.0;
+}
+
+
+/**
+ *  Check whether this shader has a bump map connected
+ */
+bool SurfaceShader::hasBumpMap()
+{
+    return Shader::connectedChannel(_mayaShadingNode, "normalCamera");
+}

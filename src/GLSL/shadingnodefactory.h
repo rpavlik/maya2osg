@@ -17,19 +17,25 @@
     You should have received a copy of the GNU General Public License
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#ifndef _SHADINGNODEFACTORY_H_
+#define _SHADINGNODEFACTORY_H_
 
-#define VENDOR "Maya2OSG"
-#define VERSION "0.4.2c-SVN"
+#include "shadingnode.h"
 
-#include <string>
-#include <maya/MStatus.h>
+#include <maya/MObject.h>
+
+class ShadingNetwork;
 
 /**
- *	Check the status, return if there is an error
- *	and print an informative error message if there is.
+ *
  */
-bool MCheckStatus(MStatus &st, const std::string &msg);
+class ShadingNodeFactory {
 
-#endif // _COMMON_H_	
+public:
+
+    /// Build a shading node
+    static ShadingNode *build( const MObject &node, ShadingNetwork &shading_network );
+
+};
+
+#endif //_SHADINGNODEFACTORY_H_

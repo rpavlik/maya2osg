@@ -20,37 +20,20 @@
 #ifndef _LAMBERT_H_
 #define _LAMBERT_H_
 
-#include <maya/MObject.h>
-
-#include "glslcodeblock.h"
-#include "../shaderglsl.h"
+#include "surfaceshader.h"
 
 #include <string>
 
-class Lambert {
+
+class Lambert : public SurfaceShader {
 
 public:
 
-    /// Configure the StateSet with a GLSL program implementing the Lambert shader
-    static void Lambert::configureGLSLProgram(const MObject &surface_shader, 
-                                              TexturingConfig &texturing_config,
-                                              osg::StateSet &state_set);
+    /// Constructor
+    Lambert( const MObject &shading_node, ShadingNetwork &shading_network );
 
-private:
-
-    /**
-     *	Build the vertex shader GLSL source code for Lambert materials
-     *
-     *	@param num_tc_sets	Number of texture coordinate sets used by this shader
-     */
-    static std::string getVertexShaderSrc( TexturingConfig &texturing_config );
-
-    /// Build the fragment shader GLSL source code for Lambert materials
-    static std::string getFragmentShaderSrc( osg::StateSet &state_set, 
-                                             TexturingConfig &texturing_config,
-                                             GLSLCodeBlock *color_cb,
-                                             GLSLCodeBlock *ambient_cb,
-                                             GLSLCodeBlock *emissive_cb );
+    /// Get the GLSL Codeblock for a plug
+    virtual CodeBlock getCodeBlock( const std::string &plug_name );
 
 };
 

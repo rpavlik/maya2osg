@@ -247,10 +247,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shaderglsl.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\shadows.cpp"
 				>
 			</File>
@@ -270,11 +266,7 @@
 				Name="GLSL"
 				>
 				<File
-					RelativePath="..\..\src\GLSL\glslcbfiletexture.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\GLSL\glslcodeblock.cpp"
+					RelativePath="..\..\src\GLSL\filetexture.cpp"
 					>
 				</File>
 				<File
@@ -283,6 +275,22 @@
 				</File>
 				<File
 					RelativePath="..\..\src\GLSL\lambert.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\shadingnetwork.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\shadingnode.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\shadingnodefactory.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\surfaceshader.cpp"
 					>
 				</File>
 				<File
@@ -391,11 +399,7 @@
 				Name="GLSL"
 				>
 				<File
-					RelativePath="..\..\src\GLSL\glslcbfiletexture.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\GLSL\glslcodeblock.h"
+					RelativePath="..\..\src\GLSL\filetexture.h"
 					>
 				</File>
 				<File
@@ -404,6 +408,22 @@
 				</File>
 				<File
 					RelativePath="..\..\src\GLSL\lambert.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\shadingnetwork.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\shadingnode.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\shadingnodefactory.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\surfaceshader.h"
 					>
 				</File>
 				<File

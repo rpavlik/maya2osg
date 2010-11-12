@@ -19,8 +19,8 @@
 */
 #include "mesh.h"
 #include "shader.h"
-#include "shaderglsl.h"
 #include "GLSL/texturingconfig.h"
+#include "GLSL/shadingnetwork.h"
 #include "config.h"
 #include "lights.h"
 #include "shadows.h"
@@ -91,6 +91,11 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	}
 	geometry->setVertexArray(vertex_array.get());
 
+    // Tangents will be stored here to add them to geometry
+    // later when analyzing the shaders, in case bump map
+    // is used
+    osg::ref_ptr<osg::Vec3Array> tangent_array;
+
     if ( Config::instance()->getExportNormals() ) {
         // -- NORMAL ARRAY
 	    // NOTE: Is there any way in Maya to know if normals are assigned per-vertex 
@@ -107,6 +112,24 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	    }
         geometry->setNormalArray(normal_array.get());
 	    geometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+
+        // -- TANGENT ARRAY
+        // Tangents (for bump mapping) are included inside this conditional
+        // because there is no reason for exporting tangents when normals
+        // are not exported
+        tangent_array = new osg::Vec3Array();
+        MFloatVectorArray tangents;
+        meshfn.getTangents(tangents);
+	    for(int i=0; i< tangents.length(); i++){
+		    tangent_array->push_back( osg::Vec3(tangents[i].x,
+										        tangents[i].y,
+										        tangents[i].z) );
+	    }
+        // IMPORTANT: We don't include tangents here because they will only
+        // be included in case the mesh has a bump map applied
+        // *** WARNING -> Using just attrib index 0, be careful when using more attributes
+//        geometry->setVertexAttribArray(0, tangent_array.get());
+//	    geometry->setVertexAttribBinding(0, osg::Geometry::BIND_PER_VERTEX);
     }
 
     // -- COLOR ARRAY (if present)
@@ -164,6 +187,8 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	osg::ref_ptr<osg::UIntArray> vertexidx = new osg::UIntArray();
     // Normals indices array
 	osg::ref_ptr<osg::UIntArray> normalidx = new osg::UIntArray();
+    // Tangents indices array
+	osg::ref_ptr<osg::UIntArray> tangentidx = new osg::UIntArray();
     // UV indices arrays
     TCSetsIndicesMap tc_idx_map;
     if ( Config::instance()->getExportTexCoords() ) {
@@ -200,6 +225,7 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
             // normal index
             if ( Config::instance()->getExportNormals() ) {
     			normalidx->push_back( itmp.normalIndex(i) );
+    			tangentidx->push_back( itmp.tangentIndex(i) );
             }
             if ( Config::instance()->getExportTexCoords() ) {
 			    // UV sets indices
@@ -250,6 +276,10 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
     if ( Config::instance()->getExportNormals() ) {
     	geometry->setNormalIndices( normalidx.get() );
 //	    std::cout << normalidx->size() << " normal indices" << std::endl;
+
+        // We don't include tangents here. They will be included later
+        // after analyzing the shader if it has a bump map
+//        geometry->setVertexAttribIndices( 0, tangentidx.get() );    // *** WARNING! Using attrib 0
     }
 	// Indices of texture coordinates are set when exporting shaders,
 	// because UV sets can be reused for different textures (there is no one-to-one binding)
@@ -309,6 +339,15 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	}
 	if(shaders.length() > 0){   // Just ONE surface shader
 
+        // If there is bump map connected to the shader, include the tangents
+        bool connected_bump_map = false;    // *****
+        if ( connected_bump_map ) {
+            // *** WARNING -> Using just attrib index 0, be careful when using more attributes
+            geometry->setVertexAttribArray(0, tangent_array.get());
+	        geometry->setVertexAttribBinding(0, osg::Geometry::BIND_PER_VERTEX);
+            geometry->setVertexAttribIndices( 0, tangentidx.get() );    // *** WARNING! Using attrib 0
+        }
+
         // Map of connections between textures and UV sets
         TexturingConfig texturing_config;
         if ( Config::instance()->getExportTexCoords() ) {
@@ -338,7 +377,11 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
             }
         }
         if ( Config::instance()->getUseGLSL() ) {
-            ShaderGLSL::exporta(shaders[0], texturing_config, *ss);
+//            ShaderGLSL::exporta(shaders[0], texturing_config, *ss);
+	        MObject surface_shader;
+	        Shader::getSurfaceShader( shaders[0], surface_shader );
+            // Create the shading network and configure the StateSet
+            ShadingNetwork sn(surface_shader, texturing_config, *ss );
         }
         else {
             // Configure the StateSet for fixed function OpenGL pipeline

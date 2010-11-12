@@ -1,10 +1,15 @@
 WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
-	Added the GLSL Code Block system as a framework to modularly export Maya Shading networks to GLSL code.
+	Meshes export tangent arrays to be used in shading effects like bump mapping
+	Support for Maya shading nodes: Lambert, FileTexture
+	Added framework to export Maya shading networks to GLSL code (see documentation in the wiki page)
 	Implemented backface culling and double side illumination in the GLSL shader
 	Multiple texture coordinate sets (Maya UV sets) for use in GLSL shaders. Each texture connected to a shader channel use the corresponding TC set
 	Shading code revamp. Now OpenGL fixed function pipeline is limited to only one color texture (optionally including transparency)
 	Added two handy buttons to the shelf: toggle face normals display and reverse polygon normals. Very handy to quickly check and correct single side polygonal surfaces
 
+0.4.2c	2010/11/04	Javier Taibo <javier.taibo@gmail.com>
+	BUG FIX. Corrected Linux Makefiles and compilation bugs in Linux
+	
 0.4.2b	2010/10/28	Javier Taibo <javier.taibo@gmail.com>
 	BUG FIX. Corrected Linux Makefiles and compilation bugs in Linux
 	BUG FIX. Corrected typo in common.h that broke compilation under Linux

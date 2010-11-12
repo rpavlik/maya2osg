@@ -38,11 +38,11 @@
 /**
  *	Check whether there is any node connected to any channel of this material (color, transparency, ...)
  */
-bool Shader::connectedChannel(const MObject &surface_shader, std::string channel)
+bool Shader::connectedChannel(const MObject &shading_node, std::string channel)
 {
-	MFnDependencyNode dn(surface_shader);
+	MFnDependencyNode dn(shading_node);
 	MStatus status;
-	MPlug plug = dn.findPlug(channel.c_str(), &status);
+	MPlug plug = dn.findPlug(channel.c_str(), true, &status);
     if ( MCheckStatus(status, "ERROR: Could not find plug " + channel ) ) {
         return false;
     }
@@ -240,18 +240,30 @@ void Shader::getSurfaceShader(const MObject &shading_engine, MObject &surface_sh
 
 
 /**
- *  Get the node connected to a channel of the surface shader
+ *  Get the plug connected to a channel of a shading node
  */
-void Shader::getNodeConnectedToChannel( const MObject &surface_shader, std::string channel, MObject &node )
+void Shader::getPlugConnectedToChannel( const MObject &shading_node, std::string channel, MPlug &remote_plug )
 {
-	MFnDependencyNode dn(surface_shader);
+	MFnDependencyNode dn(shading_node);
 	MPlug plug = dn.findPlug(channel.c_str(), true);
 	MPlugArray connectedTo;
 	// Get the connections having this node as destination
 	plug.connectedTo(connectedTo, true, false);
     // We consider only the first (should be the only one) connection
-    if ( connectedTo.length() > 0 )
-        node = connectedTo[0].node();
+    if ( connectedTo.length() > 0 ) {
+        remote_plug = connectedTo[0];
+    }
+}
+
+
+/**
+ *  Get the node connected to a channel of the surface shader
+ */
+void Shader::getNodeConnectedToChannel( const MObject &shading_node, std::string channel, MObject &node )
+{
+    MPlug remote_plug;
+    getPlugConnectedToChannel( shading_node, channel, remote_plug );
+    node = remote_plug.node();
 }
 
 

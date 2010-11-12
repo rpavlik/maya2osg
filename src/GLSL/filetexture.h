@@ -17,19 +17,24 @@
     You should have received a copy of the GNU General Public License
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#ifndef _FILETEXTURE_H_
+#define _FILETEXTURE_H_
 
-#define VENDOR "Maya2OSG"
-#define VERSION "0.4.2c-SVN"
-
-#include <string>
-#include <maya/MStatus.h>
+#include "shadingnode.h"
 
 /**
- *	Check the status, return if there is an error
- *	and print an informative error message if there is.
+ *
  */
-bool MCheckStatus(MStatus &st, const std::string &msg);
+class FileTexture : public ShadingNode {
 
-#endif // _COMMON_H_	
+public:
+
+    /// Constructor
+    FileTexture( const MObject &shading_node, ShadingNetwork &shading_network );
+
+    /// Get the GLSL Codeblock for a plug
+    virtual CodeBlock getCodeBlock( const std::string &plug_name );
+
+};
+
+#endif //_FILETEXTURE_H_

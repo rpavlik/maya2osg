@@ -17,38 +17,36 @@
     You should have received a copy of the GNU General Public License
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef _GLSLCBFILETEXTURE_H_
-#define _GLSLCBFILETEXTURE_H_
+#ifndef _SURFACESHADER_H_
+#define _SURFACESHADER_H_
 
-#include "glslcodeblock.h"
+#include "shadingnode.h"
+
+#include <maya/MObject.h>
 
 /**
+ *  Surface Shader is an specialization of Shading Node
+ *  that can feed a fragment shader
  *
+ *  @note Every Surface Shader must offer the "fragmentOutput"
+ *  special plug, not present in Maya, to use it in the fragment
+ *  shader without having to access separately color and alpha
+ *
+ *  @note The root of a Shading Network is always a Surface Shader
  */
-class GLSLCBFileTexture : public GLSLCodeBlock {
+class SurfaceShader : public ShadingNode {
 
 public:
+
     /// Constructor
-    GLSLCBFileTexture( const MObject &node, osg::StateSet& sset, 
-                       TexturingConfig &texturing_config );
+    SurfaceShader( const MObject &node, ShadingNetwork &shading_network );
 
-    /// Get the GLSL declarations (constants, global variables, uniforms, etc...)
-    virtual std::string getDeclarations();
+    /// Check whether this shader uses transparency
+    virtual bool hasTransparency();
 
-    /// Get the GLSL functions needed for this implementation
-    virtual std::string getFunctions();
-
-    /// Get the GLSL inline code
-    virtual std::string getInlineCode();
-
-private:
-
-    /// Name of the texture sampler (GLSL uniform)
-    std::string _samplerName;
-
-    /// Number of texturing unit for the texture coordinates that should be used with this texture
-    int _TCSetUnit;
+    /// Check whether this shader has a bump map connected
+    virtual bool hasBumpMap();
 
 };
 
-#endif //_GLSLCBFILETEXTURE_H_
+#endif //_SURFACESHADER_H_
