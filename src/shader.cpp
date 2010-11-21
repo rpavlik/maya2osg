@@ -166,11 +166,11 @@ void Shader::exporta(const MObject &shading_engine, osg::StateSet &state_set)
 			}
 			if(connections.length() == 1){
                 MObject surface_shader = connections[0].node();
-				bool mat_trans;		// transparency in the material
-				bool tex_trans;		// transparency in the texture
+				bool mat_trans = false;		// transparency in the material
+				bool tex_trans = false;		// transparency in the texture
 				state_set.setAttribute( Shader::material(surface_shader, mat_trans).get() );
 				tex_trans = connectedChannel(surface_shader,"transparency");
-                tex_trans = setColorTexture( state_set, surface_shader );
+                setColorTexture( state_set, surface_shader );
 				if( mat_trans || tex_trans ){
 					state_set.setMode(GL_BLEND, osg::StateAttribute::ON);
 					state_set.setAttribute( new osg::BlendFunc( Config::instance()->getBlendFuncSrc(),
@@ -257,6 +257,18 @@ void Shader::getPlugConnectedToChannel( const MObject &shading_node, std::string
 
 
 /**
+ *  Get the plug connected from a channel of a shading node
+ */
+void Shader::getPlugConnectedFromChannel( const MObject &shading_node, std::string channel, MPlugArray &remote_plugs )
+{
+	MFnDependencyNode dn(shading_node);
+	MPlug plug = dn.findPlug(channel.c_str(), true);
+	// Get the connections having this node as destination
+	plug.connectedTo(remote_plugs, false, true);
+}
+
+
+/**
  *  Get the node connected to a channel of the surface shader
  */
 void Shader::getNodeConnectedToChannel( const MObject &shading_node, std::string channel, MObject &node )
@@ -316,7 +328,7 @@ bool Shader::setColorTexture(osg::StateSet &st, const MObject &surface_shader, i
 		}
     }
     MPlug plug_transparency = dn.findPlug("transparency");
-    if ( plug_transparency.isConnected() ) {
+    if ( plug_transparency.isNetworked() ) {
 #if 1
         // Get the transparency texture
         MPlugArray connected_to_transparency;

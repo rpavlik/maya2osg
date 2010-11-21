@@ -50,6 +50,9 @@ public:
     /// Get the plug connected to a channel of a shading node
     static void getPlugConnectedToChannel( const MObject &shading_node, std::string channel, MPlug &remote_plug );
 
+    /// Get the plug connected from a channel of a shading node
+    static void getPlugConnectedFromChannel( const MObject &shading_node, std::string channel, MPlugArray &remote_plugs );
+
     /// Create OSG/OpenGL material corresponding to Maya material
 	static osg::ref_ptr<osg::Material> material(const MObject &surface_shader, bool &mat_trans);
 
