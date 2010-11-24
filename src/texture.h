@@ -34,7 +34,7 @@ class Texture {
 
 public:
 	/// Export textures in this Maya Object
-	static osg::ref_ptr<osg::Texture2D> exporta(const MObject &obj);
+    static osg::ref_ptr<osg::Texture2D> exporta(const MObject &obj, const std::string filename="");
 
 	/// Export texture matrix of this object
 	static osg::ref_ptr<osg::TexMat> exportTexMat(const MObject &obj);

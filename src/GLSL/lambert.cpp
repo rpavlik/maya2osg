@@ -86,8 +86,8 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
             Plug plug_ambient = getPlug("ambientColor");
             // Incandescence
             Plug plug_incandescence = getPlug("incandescence");
-            // Bump map (coming soon...)
-            // ...
+            // Bump map
+            Plug plug_normal_camera = getPlug("normalCamera");
             // Diffuse (scalar)
             Plug plug_diffuse = getPlug("diffuse");
 
@@ -95,12 +95,14 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
                                       plug_transparency.codeBlock.declarations +
                                       plug_ambient.codeBlock.declarations +
                                       plug_incandescence.codeBlock.declarations +
+                                      plug_normal_camera.codeBlock.declarations +
                                       plug_diffuse.codeBlock.declarations;
 
             code_block.functions = plug_color.codeBlock.functions +
                                    plug_transparency.codeBlock.functions +
                                    plug_ambient.codeBlock.functions +
                                    plug_incandescence.codeBlock.functions +
+                                   plug_normal_camera.codeBlock.functions +
                                    plug_diffuse.codeBlock.functions +
                                    GLSLLighting::getDirectionalLightFunctionWithoutSpecular() +
                                    GLSLLighting::getPointLightFunctionWithoutSpecular() +
@@ -110,13 +112,10 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
                                      plug_transparency.codeBlock.computeCode +
                                      plug_ambient.codeBlock.computeCode +
                                      plug_incandescence.codeBlock.computeCode +
+                                     plug_normal_camera.codeBlock.computeCode +
                                      plug_diffuse.codeBlock.computeCode +
 "\n" +
 "    vec3 nnormal;\n";
-
-	        // TO-DO : **** FIXME!!!
-	        // Adjust normal by bump map
-	        // ...
 
             bool opposite = false;
             osg::StateAttribute *sa = _shadingNetwork.getStateSet().getAttribute( osg::StateAttribute::CULLFACE );
@@ -162,6 +161,13 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
 "    else\n"
 "        nnormal = normalize(-normal);\n"
 "\n";
+            }
+
+	        // Bump mapping
+            if ( hasBumpMap() ) {
+                code_block.computeCode +=
+"    nnormal = " + plug_normal_camera.codeBlock.accessCode + ";\n"
+;
             }
 
             code_block.computeCode +=

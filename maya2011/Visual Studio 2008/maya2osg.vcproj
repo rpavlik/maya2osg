@@ -266,6 +266,14 @@
 				Name="GLSL"
 				>
 				<File
+					RelativePath="..\..\src\GLSL\bump2d.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\bump2normal.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\GLSL\filetexture.cpp"
 					>
 				</File>
@@ -398,6 +406,14 @@
 			<Filter
 				Name="GLSL"
 				>
+				<File
+					RelativePath="..\..\src\GLSL\bump2d.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\bump2normal.h"
+					>
+				</File>
 				<File
 					RelativePath="..\..\src\GLSL\filetexture.h"
 					>

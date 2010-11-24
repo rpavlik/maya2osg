@@ -25,6 +25,7 @@
 // This should use clonation and autoregistering of shading nodes to the factory
 #include "lambert.h"
 #include "filetexture.h"
+#include "bump2d.h"
 
 /**
  *  Build a shading node
@@ -45,6 +46,9 @@ ShadingNode *ShadingNodeFactory::build( const MObject &node, ShadingNetwork &sha
     }
     else if ( node.hasFn( MFn::kFileTexture ) ) {
         sn = new FileTexture( node, shading_network );
+    }
+    else if ( node.hasFn( MFn::kBump ) ) {
+        sn = new Bump2D( node, shading_network );
     }
     // *** ... TO-DO: CHECK FOR OTHER SHADING NODES...
     else {

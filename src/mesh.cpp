@@ -127,9 +127,6 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	    }
         // IMPORTANT: We don't include tangents here because they will only
         // be included in case the mesh has a bump map applied
-        // *** WARNING -> Using just attrib index 0, be careful when using more attributes
-//        geometry->setVertexAttribArray(0, tangent_array.get());
-//	    geometry->setVertexAttribBinding(0, osg::Geometry::BIND_PER_VERTEX);
     }
 
     // -- COLOR ARRAY (if present)
@@ -278,8 +275,7 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 //	    std::cout << normalidx->size() << " normal indices" << std::endl;
 
         // We don't include tangents here. They will be included later
-        // after analyzing the shader if it has a bump map
-//        geometry->setVertexAttribIndices( 0, tangentidx.get() );    // *** WARNING! Using attrib 0
+        // after analyzing the shader and checking whether it has a bump map
     }
 	// Indices of texture coordinates are set when exporting shaders,
 	// because UV sets can be reused for different textures (there is no one-to-one binding)
@@ -339,13 +335,15 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
 	}
 	if(shaders.length() > 0){   // Just ONE surface shader
 
+        MObject surface_shader;
+        Shader::getSurfaceShader( shaders[0], surface_shader );
+
         // If there is bump map connected to the shader, include the tangents
-        bool connected_bump_map = false;    // *****
+        bool connected_bump_map = Shader::connectedChannel( surface_shader, "normalCamera" );
         if ( connected_bump_map ) {
-            // *** WARNING -> Using just attrib index 0, be careful when using more attributes
-            geometry->setVertexAttribArray(0, tangent_array.get());
-	        geometry->setVertexAttribBinding(0, osg::Geometry::BIND_PER_VERTEX);
-            geometry->setVertexAttribIndices( 0, tangentidx.get() );    // *** WARNING! Using attrib 0
+            geometry->setVertexAttribArray(TANGENT_ATTRIB_LOCATION, tangent_array.get());
+	        geometry->setVertexAttribBinding(TANGENT_ATTRIB_LOCATION, osg::Geometry::BIND_PER_VERTEX);
+            geometry->setVertexAttribIndices(TANGENT_ATTRIB_LOCATION, tangentidx.get());
         }
 
         // Map of connections between textures and UV sets
@@ -377,9 +375,6 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
             }
         }
         if ( Config::instance()->getUseGLSL() ) {
-//            ShaderGLSL::exporta(shaders[0], texturing_config, *ss);
-	        MObject surface_shader;
-	        Shader::getSurfaceShader( shaders[0], surface_shader );
             // Create the shading network and configure the StateSet
             ShadingNetwork sn(surface_shader, texturing_config, *ss );
         }

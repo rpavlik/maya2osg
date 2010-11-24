@@ -24,6 +24,9 @@
 #include <maya/MFnStringData.h>
 #include <maya/MPlug.h>
 
+#include <osgDB/FileNameUtils>
+#include <osgDB/ReadFile>
+
 // Static maps (texture cache)
 Texture::TTexturesMap Texture::texMap;
 Texture::TImagesMap Texture::imagesMap;
@@ -42,14 +45,19 @@ void Texture::deleteCaches()
 /**
  *	Export the texture
  */
-osg::ref_ptr<osg::Texture2D> Texture::exporta(const MObject &obj)
+osg::ref_ptr<osg::Texture2D> Texture::exporta(const MObject &obj, const std::string filename)
 {
 	MPlug plug;
 	MString texname;
 
 	MFnDependencyNode dn(obj);
-	plug = dn.findPlug("fileTextureName");
-	plug.getValue(texname);
+    if ( filename.empty() ) {
+	    plug = dn.findPlug("fileTextureName");
+	    plug.getValue(texname);
+    }
+    else {
+        texname = filename.c_str();
+    }
 
 	// *************************************************************
 	// ******* TODO: Extract the path before "sourceimages" ********
@@ -90,6 +98,7 @@ osg::ref_ptr<osg::Texture2D> Texture::exporta(const MObject &obj)
 		case 5:	// Gaussian
 			tex->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR );
 			tex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
+            tex->setUseHardwareMipMapGeneration( true );
 			break;
 	}
 

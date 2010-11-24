@@ -26,6 +26,9 @@
 #include "surfaceshader.h"
 #include "shadingnode.h"
 
+// Vertex attribute locations (see http://forum.openscenegraph.org/viewtopic.php?t=4653 and osgvertexattribute example)
+#define TANGENT_ATTRIB_LOCATION 6
+
 /**
  *  TO-DO: check what uniforms are used, to create 
  *  all the needed ones and only them

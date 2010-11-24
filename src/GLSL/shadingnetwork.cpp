@@ -30,7 +30,7 @@
 #include <fstream>
 
 // Dump shaders to disk (for debugging purposes)
-//#define DUMP_SHADERS
+#define DUMP_SHADERS
 
 /**
  *  Constructor
@@ -60,6 +60,10 @@ ShadingNetwork::ShadingNetwork( const MObject &shading_network, TexturingConfig 
 
 	// GLSL Program
 	osg::Program *program = new osg::Program();
+
+    if ( _surfaceShader->hasBumpMap() ) {
+        program->addBindAttribLocation( "inTangent", TANGENT_ATTRIB_LOCATION );
+    }
 
     // NOTE: We build FIRST the fragment shader to know what textures are used
     // and then in the vertex shader generate the texture coordinates for them
@@ -139,23 +143,24 @@ ShadingNetwork::ShadingNetwork( const MObject &shading_network, TexturingConfig 
  */
 std::string ShadingNetwork::getVertexShaderSrc()
 {
-#ifdef BUMP_MAP
-    bool bump_map = _surfaceShader->isBump();
-#endif
-	std::string shader_src =
+    bool bump_map = _surfaceShader->hasBumpMap();
+
+    std::string shader_src =
 "// Exported with Maya2OSG " VERSION "\n"
 "// http://maya2osg.sourceforge.net\n"
 "#version 120\n"
 "\n"
 "varying vec3 ecPosition3;\n"
 "varying vec3 normal;\n";
-#ifdef BUMP_MAP
+
     if ( bump_map ) {
         shader_src += 
-            // Missing: object space tangents (input vertex attribute)
-"varying vec3 tangent;\n";
+"attribute vec3 inTangent;\n"
+"varying vec3 tangent;\n"
+"varying vec3 binormal;\n"
+;
     }
-#endif
+
     shader_src +=
 "\n"
 "void main() {\n"
@@ -171,14 +176,16 @@ std::string ShadingNetwork::getVertexShaderSrc()
 "	ecPosition3 = (vec3(ecPosition)) / ecPosition.w;\n"
 "\n"
 "	// Normals (in eye coordinates, we will normalize them after interpolation)\n"
-"	normal = gl_NormalMatrix * gl_Normal;\n";
-#ifdef BUMP_MAP
+"	normal = normalize(gl_NormalMatrix * gl_Normal);\n";
+
     if ( bump_map ) {
         shader_src +=
-            // Missing: object space tangents (input vertex attribute)
-"   tangent = gl_NormalMatrix * gl_VertexAttrib\n"
+"    normal = normalize(normal);\n"
+"    tangent = normalize(gl_NormalMatrix * inTangent);\n"
+"    binormal = cross(normal, tangent);\n"
+;
     }
-#endif
+
     shader_src +=
 "\n"
 ;
@@ -205,6 +212,7 @@ std::string ShadingNetwork::getVertexShaderSrc()
 std::string ShadingNetwork::getFragmentShaderSrc()
 {
     SurfaceShader::CodeBlock cb_fragment_output = _surfaceShader->getCodeBlock("fragmentOutput");
+    bool bump_map = _surfaceShader->hasBumpMap();
 
     std::string shader_src;
     shader_src =
@@ -219,12 +227,14 @@ std::string ShadingNetwork::getFragmentShaderSrc()
 "// From vertex shader\n"
 "varying vec3 ecPosition3;\n"
 "varying vec3 normal;\n";
-#ifdef BUMP_MAP
-    if ( _surfaceShader->isBump() ) {
+
+    if ( bump_map ) {
         shader_src += 
-"varying vec3 tangent;\n";
+"varying vec3 tangent;\n"
+"varying vec3 binormal;\n"
+;
     }
-#endif
+
     shader_src +=
 "\n"
 ;

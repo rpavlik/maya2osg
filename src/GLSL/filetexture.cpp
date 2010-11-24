@@ -19,11 +19,17 @@
 */
 #include "filetexture.h"
 #include "shadingnetwork.h"
+#include "bump2normal.h"
 #include "../texture.h"
+#include "../shader.h"
 
 #include <maya/MFnDependencyNode.h>
+#include <maya/MPlugArray.h>
+
+#include <osgDB/FileNameUtils>
 
 #include <sstream>
+
 
 /**
  *  Constructor
@@ -53,6 +59,31 @@ ShadingNode::CodeBlock FileTexture::getCodeBlock( const std::string &plug_name )
     {
         variable_name = "sn_filetexture_" + maya_tex_name + "_output";
 
+        MPlugArray remote_plugs;
+        Shader::getPlugConnectedFromChannel(_mayaShadingNode, plug_name, remote_plugs);
+        bool is_bump = false;
+        for ( int i=0 ; !is_bump && i < remote_plugs.length() ; i++ ) {
+            std::string remote_plug_name = remote_plugs[i].partialName(false, false, false, false, false, true).asChar();
+            bool has_Fn_kBump = remote_plugs[i].node().hasFn(MFn::kBump);
+            if ( remote_plug_name == "bumpValue" && has_Fn_kBump )
+            {
+                is_bump = true;
+                break;
+            }
+        }
+        std::string filename_nm;
+        if ( is_bump ) {
+	        MPlug plug_filename;
+	        MString texname;
+	        plug_filename = dn.findPlug("fileTextureName");
+	        plug_filename.getValue(texname);
+            // This texture is used as a bump (height) map, we should convert it to a normal map
+            std::string filename_orig = texname.asChar();
+
+            // Convert bump map (height map) to normal map
+            filename_nm = bump2Normal( filename_orig );
+        }
+
         // If variable not available, we compute them
         if ( ! variableIsAvailable(variable_name) ) {
 
@@ -64,15 +95,20 @@ ShadingNode::CodeBlock FileTexture::getCodeBlock( const std::string &plug_name )
             std::string sampler_name = ss_sampler_name.str();
 
             // Set the texture in the stateset
-	        osg::ref_ptr<osg::Texture2D> tex = Texture::exporta(_mayaShadingNode);
-	        if(tex.valid()){
+	        osg::ref_ptr<osg::Texture2D> tex;
+            if ( is_bump )
+                tex = Texture::exporta(_mayaShadingNode, filename_nm);
+            else
+                tex = Texture::exporta(_mayaShadingNode);
+
+            if(tex.valid()){
 		        _shadingNetwork.getStateSet().setTextureAttribute(texture_unit, tex.get());
 		        // Texture matrix
 		        osg::ref_ptr<osg::TexMat> texmat = Texture::exportTexMat(_mayaShadingNode);
 		        if(texmat.valid())
 			        _shadingNetwork.getStateSet().setTextureAttribute(texture_unit, texmat.get());
 
-    //    		st.setTextureMode(texture_unit, GL_TEXTURE_2D, osg::StateAttribute::ON);
+//        		st.setTextureMode(texture_unit, GL_TEXTURE_2D, osg::StateAttribute::ON);
 	        }
 
             // Set the uniform with the texture name
@@ -92,7 +128,11 @@ ShadingNode::CodeBlock FileTexture::getCodeBlock( const std::string &plug_name )
         }
 
         // Access code
-        if ( plug_name == "outColor" ) {
+        if ( is_bump ) {
+            // If it is a bump map, it has been converted to an RGB normal map, so the output is .rgb
+            code_block.accessCode = variable_name + ".rgb";
+        }
+        else if ( plug_name == "outColor" ) {
             code_block.accessCode = variable_name + ".rgb";
         }
         else if ( plug_name == "outAlpha" ) {
