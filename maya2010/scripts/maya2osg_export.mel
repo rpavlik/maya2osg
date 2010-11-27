@@ -85,6 +85,9 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 	global string $maya2osg_global_ambient;
 	global string $maya2osg_local_viewer;
 	global string $maya2osg_use_glsl;
+	global string $maya2osg_export_normals;
+	global string $maya2osg_export_texcoords;
+	global string $maya2osg_max_aniso;
 
 	string $command = "maya2osg";
 		
@@ -144,6 +147,15 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 
 	// GLSL shaders
 	$command += " -useGLSL " + `checkBox -q -value $maya2osg_use_glsl`;
+	
+	// Export normals
+	$command += " -exportNormals " + `checkBox -q -value $maya2osg_export_normals`;
+	
+	// Export texture coordinates
+	$command += " -exportTexCoords " + `checkBox -q -value $maya2osg_export_texcoords`;
+	
+	// Max anisotropy
+	$command += " -maxAnisotropy " + `intField -q -value $maya2osg_max_aniso`;
 		
 	$command += " \"" + $file + "\";";
 //	print($command + "\n");
@@ -171,6 +183,9 @@ proc maya2osg_options(){
 	global string $maya2osg_global_ambient;
 	global string $maya2osg_local_viewer;
 	global string $maya2osg_use_glsl;
+	global string $maya2osg_export_normals;
+	global string $maya2osg_export_texcoords;
+	global string $maya2osg_max_aniso;
 
 	// Open a dialog for the selection of export options
 	int $marginW = 15;
@@ -187,32 +202,42 @@ proc maya2osg_options(){
 						if ( `upAxis -q -axis` == "y" ) {
 							$maya2osg_yup2zup = `checkBox -label "Convert from Y-Up to Z-Up" -value true -height $line_height`;
 						}
+						rowLayout -nc 2;
+							$maya2osg_export_normals = `checkBox -annotation "Export normals" -label "Normals" -value true -height $line_height`;
+							$maya2osg_export_texcoords = `checkBox -annotation "Export texture coordinates" -label "Texture coordinates" -value true -height $line_height`;
+							setParent ..;
 						setParent ..;
 					setParent ..;
 				$frame_textures = `frameLayout -label "Texturing" -collapsable true -marginWidth $marginW -marginHeight $marginH`;
-					rowLayout -nc 2;
-// 						rowLayout -nc 2;
-// 							text -label "Image path" -enable false;
-// 							textField -editable true -width 300 -enable false;
-// 							setParent ..;
-						columnLayout;
-							text -label "Default mode: ";
-							$maya2osg_texenv = `textScrollList -numberOfRows 3
-								-allowMultiSelection false
-								-append "DECAL"
-								-append "MODULATE"
-								-append "BLEND"
-								-append "REPLACE"
-								-append "ADD"
-								-selectItem "MODULATE"`;
+					columnLayout;
+						rowLayout -nc 2;
+// 							rowLayout -nc 2;
+// 								text -label "Image path" -enable false;
+// 								textField -editable true -width 300 -enable false;
+// 								setParent ..;
+							columnLayout;
+								text -label "Default mode: ";
+								$maya2osg_texenv = `textScrollList -numberOfRows 3
+									-allowMultiSelection false
+									-append "DECAL"
+									-append "MODULATE"
+									-append "BLEND"
+									-append "REPLACE"
+									-append "ADD"
+									-selectItem "MODULATE"`;
+								setParent ..;
+							columnLayout;
+								text -label "Clamping: ";
+								$maya2osg_texclamp = `textScrollList -numberOfRows 2
+									-allowMultiSelection false
+									-append "EDGE"
+									-append "COLOR"
+									-selectItem "COLOR"`;
+								setParent ..;
 							setParent ..;
-						columnLayout;
-							text -label "Clamping: ";
-							$maya2osg_texclamp = `textScrollList -numberOfRows 2
-								-allowMultiSelection false
-								-append "EDGE"
-								-append "COLOR"
-								-selectItem "COLOR"`;
+						rowLayout -nc 2;
+							text -label "Max anisotropy";
+							$maya2osg_max_aniso = `intField -annotation "Max Anisotropy" -minValue 1 -maxValue 16 -value 4 -step 1`;
 							setParent ..;
 						setParent ..;
 					setParent ..;

@@ -158,6 +158,12 @@ osg::ref_ptr<osg::Texture2D> Texture::exporta(const MObject &obj, const std::str
 		}
 	}
 
+	// Anisotropic filtering
+	int max_aniso = Config::instance()->getMaxAnisotropy();
+	if ( max_aniso > 0 ) {
+		tex->setMaxAnisotropy( max_aniso );
+	}
+
 	// Se almacena en el mapa de texturas para las siguientes búsquedas
 	texMap[dn.name().asChar()] = tex;
 

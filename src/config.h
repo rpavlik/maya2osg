@@ -116,6 +116,9 @@ private:
     /// Export texture coordinates
     bool _exportTexCoords;
 
+	/// Maximum number of samples for anisotropic filtering
+	int _maxAnisotropy;
+
 	/// Constructor
 	Config();
 
@@ -241,6 +244,12 @@ public:
 
     inline bool getExportTexCoords() const
     { return _exportTexCoords; }
+
+	inline void setMaxAnisotropy( int v )
+	{ _maxAnisotropy = v; }
+
+	inline int getMaxAnisotropy() const
+	{ return _maxAnisotropy; }
 
 };
 

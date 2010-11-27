@@ -47,4 +47,5 @@ Config::Config()
 	_useGLSL = false;
     _exportNormals = true;
     _exportTexCoords = true;
+	_maxAnisotropy = 0;
 }

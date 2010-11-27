@@ -264,6 +264,12 @@ MStatus maya2osg::doIt( const MArgList & args )
 				Config::instance()->setExportTexCoords( true );
 			}
 		}
+		else if ( args.asString(i) == "-maxAnisotropy" ){
+			i++;
+			if(i==args.length())
+				break;
+			Config::instance()->setMaxAnisotropy(args.asInt(i));
+		}
 		else if ( args.asString(i).length() > 0 ) {
 			// We discard empty arguments
 			filename = args.asString(i);
