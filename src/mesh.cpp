@@ -113,20 +113,22 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
         geometry->setNormalArray(normal_array.get());
 	    geometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
 
-        // -- TANGENT ARRAY
-        // Tangents (for bump mapping) are included inside this conditional
-        // because there is no reason for exporting tangents when normals
-        // are not exported
-        tangent_array = new osg::Vec3Array();
-        MFloatVectorArray tangents;
-        meshfn.getTangents(tangents);
-	    for(int i=0; i< tangents.length(); i++){
-		    tangent_array->push_back( osg::Vec3(tangents[i].x,
-										        tangents[i].y,
-										        tangents[i].z) );
-	    }
-        // IMPORTANT: We don't include tangents here because they will only
-        // be included in case the mesh has a bump map applied
+		if ( Config::instance()->getUseGLSL() && Config::instance()->getEnableBumpMapping() ) {
+			// -- TANGENT ARRAY
+			// Tangents (for bump mapping) are included inside this conditional
+			// because there is no reason for exporting tangents when normals
+			// are not exported
+			tangent_array = new osg::Vec3Array();
+			MFloatVectorArray tangents;
+			meshfn.getTangents(tangents);
+			for(int i=0; i< tangents.length(); i++){
+				tangent_array->push_back( osg::Vec3(tangents[i].x,
+													tangents[i].y,
+													tangents[i].z) );
+			}
+			// IMPORTANT: We don't include tangents here because they will only
+			// be included in case the mesh has a bump map applied
+		}
     }
 
     // -- COLOR ARRAY (if present)
@@ -222,7 +224,9 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
             // normal index
             if ( Config::instance()->getExportNormals() ) {
     			normalidx->push_back( itmp.normalIndex(i) );
-    			tangentidx->push_back( itmp.tangentIndex(i) );
+				if ( Config::instance()->getUseGLSL() && Config::instance()->getEnableBumpMapping() ) {
+	    			tangentidx->push_back( itmp.tangentIndex(i) );
+				}
             }
             if ( Config::instance()->getExportTexCoords() ) {
 			    // UV sets indices
@@ -338,13 +342,15 @@ osg::ref_ptr<osg::Node> Mesh::exporta(MObject &obj)
         MObject surface_shader;
         Shader::getSurfaceShader( shaders[0], surface_shader );
 
-        // If there is bump map connected to the shader, include the tangents
-        bool connected_bump_map = Shader::connectedChannel( surface_shader, "normalCamera" );
-        if ( connected_bump_map ) {
-            geometry->setVertexAttribArray(TANGENT_ATTRIB_LOCATION, tangent_array.get());
-	        geometry->setVertexAttribBinding(TANGENT_ATTRIB_LOCATION, osg::Geometry::BIND_PER_VERTEX);
-            geometry->setVertexAttribIndices(TANGENT_ATTRIB_LOCATION, tangentidx.get());
-        }
+		if ( Config::instance()->getUseGLSL() && Config::instance()->getEnableBumpMapping() ) {
+			// If there is bump map connected to the shader, include the tangents
+			bool connected_bump_map = Shader::connectedChannel( surface_shader, "normalCamera" );
+			if ( connected_bump_map ) {
+				geometry->setVertexAttribArray(TANGENT_ATTRIB_LOCATION, tangent_array.get());
+				geometry->setVertexAttribBinding(TANGENT_ATTRIB_LOCATION, osg::Geometry::BIND_PER_VERTEX);
+				geometry->setVertexAttribIndices(TANGENT_ATTRIB_LOCATION, tangentidx.get());
+			}
+		}
 
         // Map of connections between textures and UV sets
         TexturingConfig texturing_config;

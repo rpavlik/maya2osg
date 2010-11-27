@@ -22,6 +22,7 @@
 #include "bump2normal.h"
 #include "../texture.h"
 #include "../shader.h"
+#include "../config.h"
 
 #include <maya/MFnDependencyNode.h>
 #include <maya/MPlugArray.h>
@@ -62,15 +63,17 @@ ShadingNode::CodeBlock FileTexture::getCodeBlock( const std::string &plug_name )
         MPlugArray remote_plugs;
         Shader::getPlugConnectedFromChannel(_mayaShadingNode, plug_name, remote_plugs);
         bool is_bump = false;
-        for ( int i=0 ; !is_bump && i < remote_plugs.length() ; i++ ) {
-            std::string remote_plug_name = remote_plugs[i].partialName(false, false, false, false, false, true).asChar();
-            bool has_Fn_kBump = remote_plugs[i].node().hasFn(MFn::kBump);
-            if ( remote_plug_name == "bumpValue" && has_Fn_kBump )
-            {
-                is_bump = true;
-                break;
-            }
-        }
+		if ( Config::instance()->getEnableBumpMapping() ) {
+			for ( int i=0 ; !is_bump && i < remote_plugs.length() ; i++ ) {
+				std::string remote_plug_name = remote_plugs[i].partialName(false, false, false, false, false, true).asChar();
+				bool has_Fn_kBump = remote_plugs[i].node().hasFn(MFn::kBump);
+				if ( remote_plug_name == "bumpValue" && has_Fn_kBump )
+				{
+					is_bump = true;
+					break;
+				}
+			}
+		}
         std::string filename_nm;
         if ( is_bump ) {
 	        MPlug plug_filename;

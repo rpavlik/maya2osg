@@ -87,7 +87,10 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
             // Incandescence
             Plug plug_incandescence = getPlug("incandescence");
             // Bump map
-            Plug plug_normal_camera = getPlug("normalCamera");
+            Plug plug_normal_camera;
+			if ( hasBumpMap() ) {
+				plug_normal_camera = getPlug("normalCamera");
+			}
             // Diffuse (scalar)
             Plug plug_diffuse = getPlug("diffuse");
 

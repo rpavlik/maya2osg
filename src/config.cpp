@@ -48,4 +48,5 @@ Config::Config()
     _exportNormals = true;
     _exportTexCoords = true;
 	_maxAnisotropy = 0;
+	_enableBumpMapping = true;
 }

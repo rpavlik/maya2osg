@@ -119,6 +119,9 @@ private:
 	/// Maximum number of samples for anisotropic filtering
 	int _maxAnisotropy;
 
+	/// Enable the bump mapping in the exported GLSL shaders
+	bool _enableBumpMapping;
+
 	/// Constructor
 	Config();
 
@@ -250,6 +253,12 @@ public:
 
 	inline int getMaxAnisotropy() const
 	{ return _maxAnisotropy; }
+
+	inline void setEnableBumpMapping( bool v )
+	{ _enableBumpMapping= v; }
+
+	inline bool getEnableBumpMapping() const
+	{ return _enableBumpMapping; }
 
 };
 

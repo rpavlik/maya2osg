@@ -270,6 +270,17 @@ MStatus maya2osg::doIt( const MArgList & args )
 				break;
 			Config::instance()->setMaxAnisotropy(args.asInt(i));
 		}
+		else if ( args.asString(i) == "-enableBumpMapping" ){
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "0" ){
+				Config::instance()->setEnableBumpMapping( false );
+			}
+			else {
+				Config::instance()->setEnableBumpMapping( true );
+			}
+		}
 		else if ( args.asString(i).length() > 0 ) {
 			// We discard empty arguments
 			filename = args.asString(i);

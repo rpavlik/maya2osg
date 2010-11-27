@@ -20,6 +20,7 @@
 #include "surfaceshader.h"
 #include "shadingnetwork.h"
 
+#include "../config.h"
 #include "../shader.h"
 
 #include <maya/MFnDependencyNode.h>
@@ -52,5 +53,8 @@ bool SurfaceShader::hasTransparency()
  */
 bool SurfaceShader::hasBumpMap()
 {
-    return Shader::connectedChannel(_mayaShadingNode, "normalCamera");
+	if ( Config::instance()->getEnableBumpMapping() )
+	    return Shader::connectedChannel(_mayaShadingNode, "normalCamera");
+	else
+		return false;
 }

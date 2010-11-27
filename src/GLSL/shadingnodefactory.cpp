@@ -26,6 +26,7 @@
 #include "lambert.h"
 #include "filetexture.h"
 #include "bump2d.h"
+#include "../config.h"
 
 /**
  *  Build a shading node
@@ -48,7 +49,12 @@ ShadingNode *ShadingNodeFactory::build( const MObject &node, ShadingNetwork &sha
         sn = new FileTexture( node, shading_network );
     }
     else if ( node.hasFn( MFn::kBump ) ) {
-        sn = new Bump2D( node, shading_network );
+		if ( Config::instance()->getEnableBumpMapping() ) {
+	        sn = new Bump2D( node, shading_network );
+		}
+		else {
+			std::cerr << "Bump mapping disabled in the exporter configuration" << std::endl;
+		}
     }
     // *** ... TO-DO: CHECK FOR OTHER SHADING NODES...
     else {
