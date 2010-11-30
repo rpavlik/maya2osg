@@ -282,6 +282,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\GLSL\glslutils.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\GLSL\lambert.cpp"
 					>
 				</File>
@@ -420,6 +424,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\GLSL\glsllighting.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\glslutils.h"
 					>
 				</File>
 				<File

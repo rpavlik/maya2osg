@@ -20,12 +20,11 @@
 
 #include "lambert.h"
 #include "glsllighting.h"
+#include "glslutils.h"
 #include "shadingnetwork.h"
 
 #include <maya/MFnDependencyNode.h>
 #include <maya/MPlug.h>
-
-#include <osg/CullFace>
 
 
 /**
@@ -118,53 +117,7 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
                                      plug_normal_camera.codeBlock.computeCode +
                                      plug_diffuse.codeBlock.computeCode +
 "\n" +
-"    vec3 nnormal;\n";
-
-            bool opposite = false;
-            osg::StateAttribute *sa = _shadingNetwork.getStateSet().getAttribute( osg::StateAttribute::CULLFACE );
-            if ( sa ) {
-                osg::CullFace *cf = dynamic_cast<osg::CullFace*>(sa);
-                if ( cf ) {
-                    // If culling front facing polygons, we consider it the opposite direction
-                    opposite = cf->getMode() == osg::CullFace::FRONT;
-                }
-            }
-
-            // Check if the StateSet has backface culling enabled 
-            // and add code to the shader to perform it 
-            if ( _shadingNetwork.getStateSet().getMode(GL_CULL_FACE) == osg::StateAttribute::ON ) {
-                if ( opposite ) {
-                    code_block.computeCode += 
-"    if ( gl_FrontFacing )\n"
-"        discard;\n"
-"    else\n"
-"        nnormal = normalize(-normal);\n";
-                }
-                else {
-                    code_block.computeCode += 
-"    if ( !gl_FrontFacing )\n"
-"        discard;\n"
-"    else\n"
-"        nnormal = normalize(normal);\n";
-                }
-                code_block.computeCode += 
-"\n";
-            }
-            else {
-                if ( opposite ) {
-                    code_block.computeCode += 
-"    if ( !gl_FrontFacing )\n";
-                }
-                else {
-                    code_block.computeCode += 
-"    if ( gl_FrontFacing )\n";
-                }
-                code_block.computeCode += 
-"        nnormal = normalize(normal);\n"
-"    else\n"
-"        nnormal = normalize(-normal);\n"
-"\n";
-            }
+			GLSLUtils::backFaceCulling(_shadingNetwork.getStateSet());
 
 	        // Bump mapping
             if ( hasBumpMap() ) {
