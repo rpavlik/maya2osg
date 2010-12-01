@@ -22,6 +22,11 @@
 
 #include <osg/StateSet>
 
+/**
+ *  Utility functions shared across different surface shaders
+ *
+ *  @todo Define light structures similar to Maya lights to use in the shaders  ****
+ */
 namespace GLSLUtils {
 
 	/**

@@ -19,7 +19,6 @@
 */
 
 #include "lambert.h"
-#include "glsllighting.h"
 #include "glslutils.h"
 #include "shadingnetwork.h"
 
@@ -106,9 +105,9 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
                                    plug_incandescence.codeBlock.functions +
                                    plug_normal_camera.codeBlock.functions +
                                    plug_diffuse.codeBlock.functions +
-                                   GLSLLighting::getDirectionalLightFunctionWithoutSpecular() +
-                                   GLSLLighting::getPointLightFunctionWithoutSpecular() +
-                                   GLSLLighting::getSpotLightFunctionWithoutSpecular();
+                                   getDirectionalLightFunction() +
+                                   getPointLightFunction() +
+                                   getSpotLightFunction();
 
             code_block.computeCode = plug_color.codeBlock.computeCode +
                                      plug_transparency.codeBlock.computeCode +
@@ -141,12 +140,43 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
 "	int i;\n"
 "	for (i = 0; i < NumEnabledLights; i++)\n"
 "	{\n"
-"	    if (gl_LightSource[i].position.w == 0.0)\n"
-"	        DirectionalLight(i, nnormal, amb, diff);\n"
-"	    else if (gl_LightSource[i].spotCutoff == 180.0)\n"
-"	        PointLight(i, eye, ecPosition3, nnormal, amb, diff);\n"
-"	    else\n"
-"	        SpotLight(i, eye, ecPosition3, nnormal, amb, diff);\n"
+"	    if (gl_LightSource[i].position.w == 0.0) {\n"
+"           vec3 lightDir = normalize(vec3(gl_LightSource[i].position));\n"
+"	        DirectionalLight(nnormal, \n"
+"                            lightDir, \n"
+"                            gl_LightSource[i].ambient, \n"
+"                            gl_LightSource[i].diffuse, \n"
+"                            amb, diff);\n"
+"       }\n"
+"	    else if (gl_LightSource[i].spotCutoff == 180.0) {\n"
+"	        PointLight(ecPosition3, \n"
+"                      nnormal, \n"
+"                      eye, \n"
+"                      gl_LightSource[i].position.xyz, \n"
+"                      vec3( gl_LightSource[i].constantAttenuation, \n"
+"                            gl_LightSource[i].linearAttenuation, \n"
+"                            gl_LightSource[i].quadraticAttenuation ), \n"
+"                      gl_LightSource[i].ambient, \n"
+"                      gl_LightSource[i].diffuse, \n"
+"                      amb, \n"
+"                      diff);\n"
+"       }\n"
+"	    else {\n"
+"	        SpotLight(ecPosition3, \n"
+"                     nnormal, \n"
+"                     eye, \n"
+"                     gl_LightSource[i].position.xyz, \n"
+"                     vec3( gl_LightSource[i].constantAttenuation, \n"
+"                           gl_LightSource[i].linearAttenuation, \n"
+"                           gl_LightSource[i].quadraticAttenuation ), \n"
+"                     gl_LightSource[i].spotDirection, \n"
+"                     gl_LightSource[i].spotCosCutoff, \n"
+"                     gl_LightSource[i].spotExponent, \n"
+"                     gl_LightSource[i].ambient, \n"
+"                     gl_LightSource[i].diffuse, \n"
+"                     amb, \n"
+"                     diff);\n"
+"       }\n"
 "	}\n"
 "\n"
             // Channel : Diffuse color
@@ -181,4 +211,135 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
     }
 
     return code_block;
+}
+
+
+/**
+ *	GLSL function for computing the contribution of a directional light
+ */
+std::string Lambert::getDirectionalLightFunction()
+{
+	std::string shader_src =
+"void DirectionalLight(in vec3 normal,\n"
+"                      in vec3 lightDir,\n"
+"                      in vec4 lightAmbient,\n"
+"                      in vec4 lightDiffuse,\n"
+"                      inout vec4 ambient,\n"
+"                      inout vec4 diffuse)\n"
+"{\n"
+"    float NdotL;         // normal . light direction\n"
+"\n"
+"    NdotL = max(0.0, dot(normal,\n"
+"                 lightDir));\n"
+"\n"
+"    ambient  += lightAmbient;\n"
+"    diffuse  += lightDiffuse * NdotL;\n"
+"}\n"
+;
+	return shader_src;
+}
+
+
+/**
+ *	GLSL function for computing the contribution of a point light
+ */
+std::string Lambert::getPointLightFunction()
+{
+    std::string shader_src = 
+"void PointLight(in vec3 surfacePos,\n"
+"                in vec3 normal,\n"
+"                in vec3 eyePos,\n"
+"                in vec3 lightPos,\n"
+"                in vec3 lightAttenuation,\n"
+"                in vec4 lightAmbient,\n"
+"                in vec4 lightDiffuse,\n"
+"                inout vec4 ambient,\n"
+"                inout vec4 diffuse)\n"
+"{\n"
+"    float NdotL;          // normal . light direction\n"
+"    float attenuation;    // computed attenuation factor\n"
+"    float d;              // distance from surface to light source\n"
+"    vec3 lightDir;        // direction from surface to light position\n"
+"\n"
+"    // Compute vector from surface to light position\n"
+"    lightDir = vec3(lightPos) - surfacePos;\n"
+"\n"
+"    // Compute distance between surface and light position\n"
+"    d = length(lightDir);\n"
+"\n"
+"    // Normalize the vector from surface to light position\n"
+"    lightDir = normalize(lightDir);\n"
+"\n"
+"    // Compute attenuation\n"
+"    attenuation = 1.0 / (lightAttenuation.x +\n"
+"                         lightAttenuation.y * d +\n"
+"                         lightAttenuation.z * d * d);\n"
+"\n"
+"    NdotL = max(0.0, dot(normal, lightDir));\n"
+"\n"
+"    ambient += lightAmbient * attenuation;\n"
+"    diffuse += lightDiffuse * NdotL * attenuation;\n"
+"}\n";
+    return shader_src;
+}
+
+
+/**
+ *	GLSL function for computing the contribution of a spot light
+ */
+std::string Lambert::getSpotLightFunction()
+{
+    std::string shader_src = 
+"void SpotLight(in vec3 surfacePos,\n"
+"               in vec3 normal,\n"
+"               in vec3 eyePos,\n"
+"               in vec3 lightPos,\n"
+"               in vec3 lightAttenuation,\n"
+"               in vec3 spotDirection,\n"
+"               in float spotCosCutoff,\n"
+"               in float spotExponent,\n"
+"               in vec4 lightAmbient,\n"
+"               in vec4 lightDiffuse,\n"
+"               inout vec4 ambient,\n"
+"               inout vec4 diffuse)\n"
+"{\n"
+"    float NdotL;            // normal . light direction\n"
+"    float spotDot;          // cosine of angle between spotlight\n"
+"    float spotAttenuation;  // spotlight attenuation factor\n"
+"    float attenuation;      // computed attenuation factor\n"
+"    float d;                // distance from surface to light source\n"
+"    vec3 lightDir;          // direction from surface to light position\n"
+"\n"
+"    // Compute vector from surface to light position\n"
+"    lightDir = lightPos - surfacePos;\n"
+"\n"
+"    // Compute distance between surface and light position\n"
+"    d = length(lightDir);\n"
+"\n"
+"    // Normalize the vector from surface to light position\n"
+"    lightDir = normalize(lightDir);\n"
+"\n"
+"    // Compute attenuation\n"
+"    attenuation = 1.0 / (lightAttenuation.x +\n"
+"                         lightAttenuation.y * d +\n"
+"                         lightAttenuation.z * d * d);\n"
+"\n"
+"    // See if point on surface is inside cone of illumination\n"
+"    spotDot = dot(-lightDir, normalize(spotDirection));\n"
+"\n"
+"    if (spotDot < spotCosCutoff)\n"
+"        spotAttenuation = 0.0; // light adds no contribution\n"
+"    else\n"
+"        spotAttenuation = pow(spotDot, spotExponent);\n"
+"\n"
+"    // Combine the spotlight and distance attenuation.\n"
+"    attenuation *= spotAttenuation;\n"
+"\n"
+"    NdotL = max(0.0, dot(normal, lightDir));\n"
+"\n"
+"    ambient  += lightAmbient * attenuation;\n"
+"    diffuse  += lightDiffuse * NdotL * attenuation;\n"
+"}\n"
+;
+    return shader_src;
 }

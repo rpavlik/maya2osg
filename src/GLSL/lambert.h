@@ -35,6 +35,12 @@ public:
     /// Get the GLSL Codeblock for a plug
     virtual CodeBlock getCodeBlock( const std::string &plug_name );
 
+private:
+
+	std::string getDirectionalLightFunction();
+	std::string getPointLightFunction();
+	std::string getSpotLightFunction();
+
 };
 
 #endif //_LAMBERT_H_

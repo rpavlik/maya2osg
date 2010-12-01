@@ -278,10 +278,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\GLSL\glsllighting.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\src\GLSL\glslutils.cpp"
 					>
 				</File>
@@ -420,10 +416,6 @@
 				</File>
 				<File
 					RelativePath="..\..\src\GLSL\filetexture.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\GLSL\glsllighting.h"
 					>
 				</File>
 				<File
