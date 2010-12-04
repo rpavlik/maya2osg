@@ -25,6 +25,8 @@
 #include <maya/MFnDependencyNode.h>
 #include <maya/MPlug.h>
 
+#define DISCARD_BACKFACING_BEFORE_BUMP_MAPPING
+
 
 /**
  *  Constructor
@@ -131,15 +133,20 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
             // ----- DIRECTIONAL LIGHT
             if ( hasBumpMap() ) {
                 code_block.computeCode +=
-"           vec3 lightDir;\n"
-"           lightDir.x = dot(gl_LightSource[i].position.xyz, tangent);\n"
-"           lightDir.y = dot(gl_LightSource[i].position.xyz, binormal);\n"
-"           lightDir.z = dot(gl_LightSource[i].position.xyz, normal);\n"
-"	        DirectionalLight(" + plug_normal_camera.codeBlock.accessCode + ", \n"
-"                            normalize(lightDir), \n"
-"                            gl_LightSource[i].ambient, \n"
-"                            gl_LightSource[i].diffuse, \n"
-"                            amb, diff);\n";
+#ifdef DISCARD_BACKFACING_BEFORE_BUMP_MAPPING
+"           if ( dot( nnormal, normalize(gl_LightSource[i].position.xyz) ) > 0.0 )\n"
+#endif
+"           {\n"
+"               vec3 lightDir;\n"
+"               lightDir.x = dot(gl_LightSource[i].position.xyz, tangent);\n"
+"               lightDir.y = dot(gl_LightSource[i].position.xyz, binormal);\n"
+"               lightDir.z = dot(gl_LightSource[i].position.xyz, normal);\n"
+"	            DirectionalLight(" + plug_normal_camera.codeBlock.accessCode + ", \n"
+"                                normalize(lightDir), \n"
+"                                gl_LightSource[i].ambient, \n"
+"                                gl_LightSource[i].diffuse, \n"
+"                                amb, diff);\n"
+"           }\n";
             }
             else {
                 code_block.computeCode +=
@@ -155,24 +162,29 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
             // ----- POINT LIGHT
             if ( hasBumpMap() ) {
                 code_block.computeCode +=
-"           vec3 lightPos;\n"
-"           lightPos.x = dot(gl_LightSource[i].position.xyz, tangent);\n"
-"           lightPos.y = dot(gl_LightSource[i].position.xyz, binormal);\n"
-"           lightPos.z = dot(gl_LightSource[i].position.xyz, normal);\n"
-"           vec3 surfPos;\n"
-"           surfPos.x = dot(ecPosition3, tangent);\n"
-"           surfPos.y = dot(ecPosition3, binormal);\n"
-"           surfPos.z = dot(ecPosition3, normal);\n"
-"	        PointLight(surfPos, \n"
-"                      " + plug_normal_camera.codeBlock.accessCode + ",\n"
-"                      lightPos, \n"
-"                      vec3( gl_LightSource[i].constantAttenuation, \n"
-"                            gl_LightSource[i].linearAttenuation, \n"
-"                            gl_LightSource[i].quadraticAttenuation ), \n"
-"                      gl_LightSource[i].ambient, \n"
-"                      gl_LightSource[i].diffuse, \n"
-"                      amb, \n"
-"                      diff);\n";
+#ifdef DISCARD_BACKFACING_BEFORE_BUMP_MAPPING
+"           if ( dot( nnormal, normalize(gl_LightSource[i].position.xyz - ecPosition3) ) > 0.0 )\n"
+#endif
+"           {\n"
+"               vec3 lightPos;\n"
+"               lightPos.x = dot(gl_LightSource[i].position.xyz, tangent);\n"
+"               lightPos.y = dot(gl_LightSource[i].position.xyz, binormal);\n"
+"               lightPos.z = dot(gl_LightSource[i].position.xyz, normal);\n"
+"               vec3 surfPos;\n"
+"               surfPos.x = dot(ecPosition3, tangent);\n"
+"               surfPos.y = dot(ecPosition3, binormal);\n"
+"               surfPos.z = dot(ecPosition3, normal);\n"
+"   	        PointLight(surfPos, \n"
+"                          " + plug_normal_camera.codeBlock.accessCode + ",\n"
+"                          lightPos, \n"
+"                          vec3( gl_LightSource[i].constantAttenuation, \n"
+"                                gl_LightSource[i].linearAttenuation, \n"
+"                                gl_LightSource[i].quadraticAttenuation ), \n"
+"                          gl_LightSource[i].ambient, \n"
+"                          gl_LightSource[i].diffuse, \n"
+"                          amb, \n"
+"                          diff);\n"
+"           }\n";
             }
             else {
                 code_block.computeCode +=
@@ -193,31 +205,36 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
             // ----- SPOT LIGHT
             if ( hasBumpMap() ) {
                 code_block.computeCode +=
-"           vec3 lightPos;\n"
-"           lightPos.x = dot(gl_LightSource[i].position.xyz, tangent);\n"
-"           lightPos.y = dot(gl_LightSource[i].position.xyz, binormal);\n"
-"           lightPos.z = dot(gl_LightSource[i].position.xyz, normal);\n"
-"           vec3 surfPos;\n"
-"           surfPos.x = dot(ecPosition3, tangent);\n"
-"           surfPos.y = dot(ecPosition3, binormal);\n"
-"           surfPos.z = dot(ecPosition3, normal);\n"
-"           vec3 spotDir;\n"
-"           spotDir.x = dot(gl_LightSource[i].spotDirection, tangent);\n"
-"           spotDir.y = dot(gl_LightSource[i].spotDirection, binormal);\n"
-"           spotDir.z = dot(gl_LightSource[i].spotDirection, normal);\n"
-"	        SpotLight(surfPos, \n"
-"                    " + plug_normal_camera.codeBlock.accessCode + ",\n"
-"                     lightPos, \n"
-"                     vec3( gl_LightSource[i].constantAttenuation, \n"
-"                           gl_LightSource[i].linearAttenuation, \n"
-"                           gl_LightSource[i].quadraticAttenuation ), \n"
-"                     spotDir, \n"
-"                     gl_LightSource[i].spotCosCutoff, \n"
-"                     gl_LightSource[i].spotExponent, \n"
-"                     gl_LightSource[i].ambient, \n"
-"                     gl_LightSource[i].diffuse, \n"
-"                     amb, \n"
-"                     diff);\n";
+#ifdef DISCARD_BACKFACING_BEFORE_BUMP_MAPPING
+"           if ( dot( nnormal, normalize(gl_LightSource[i].position.xyz - ecPosition3) ) > 0.0 )\n"
+#endif
+"           {\n"
+"               vec3 lightPos;\n"
+"               lightPos.x = dot(gl_LightSource[i].position.xyz, tangent);\n"
+"               lightPos.y = dot(gl_LightSource[i].position.xyz, binormal);\n"
+"               lightPos.z = dot(gl_LightSource[i].position.xyz, normal);\n"
+"               vec3 surfPos;\n"
+"               surfPos.x = dot(ecPosition3, tangent);\n"
+"               surfPos.y = dot(ecPosition3, binormal);\n"
+"               surfPos.z = dot(ecPosition3, normal);\n"
+"               vec3 spotDir;\n"
+"               spotDir.x = dot(gl_LightSource[i].spotDirection, tangent);\n"
+"               spotDir.y = dot(gl_LightSource[i].spotDirection, binormal);\n"
+"               spotDir.z = dot(gl_LightSource[i].spotDirection, normal);\n"
+"   	        SpotLight(surfPos, \n"
+"                         " + plug_normal_camera.codeBlock.accessCode + ",\n"
+"                         lightPos, \n"
+"                         vec3( gl_LightSource[i].constantAttenuation, \n"
+"                               gl_LightSource[i].linearAttenuation, \n"
+"                               gl_LightSource[i].quadraticAttenuation ), \n"
+"                         spotDir, \n"
+"                         gl_LightSource[i].spotCosCutoff, \n"
+"                         gl_LightSource[i].spotExponent, \n"
+"                         gl_LightSource[i].ambient, \n"
+"                         gl_LightSource[i].diffuse, \n"
+"                         amb, \n"
+"                         diff);\n"
+"           }\n";
             }
             else {
                 code_block.computeCode +=
