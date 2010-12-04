@@ -26,7 +26,6 @@
 #include "../common.h"
 
 #include <maya/MFnDependencyNode.h>
-#include <sstream>
 #include <fstream>
 
 // Dump shaders to disk (for debugging purposes)
@@ -79,7 +78,7 @@ ShadingNetwork::ShadingNetwork( const MObject &shading_network, TexturingConfig 
     	program->addShader( fragment_shader );
     }
 #else
-    std::string fragment_shader_src = getFragmentShaderSrc();
+    std::string fragment_shader_src = _surfaceShader->getFragmentShaderSrc();
     program->addShader( new osg::Shader(osg::Shader::FRAGMENT, fragment_shader_src) );
 #  ifdef DUMP_SHADERS
     {
@@ -104,7 +103,7 @@ ShadingNetwork::ShadingNetwork( const MObject &shading_network, TexturingConfig 
     	program->addShader( vertex_shader );
     }
 #else
-    std::string vertex_shader_src = getVertexShaderSrc();
+    std::string vertex_shader_src = _surfaceShader->getVertexShaderSrc();
     program->addShader( new osg::Shader(osg::Shader::VERTEX, vertex_shader_src) );
 #  ifdef DUMP_SHADERS
     {
@@ -135,131 +134,6 @@ ShadingNetwork::ShadingNetwork( const MObject &shading_network, TexturingConfig 
 											Config::instance()->getBlendFuncDst()) );
 		_stateSet.setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 	}
-}
-
-
-/**
- *	Build the vertex shader GLSL source code for generic materials
- */
-std::string ShadingNetwork::getVertexShaderSrc()
-{
-    bool bump_map = _surfaceShader->hasBumpMap();
-
-    std::string shader_src =
-"// Exported with Maya2OSG " VERSION "\n"
-"// http://maya2osg.sourceforge.net\n"
-"#version 120\n"
-"\n";
-    if ( bump_map ) {
-        shader_src += 
-"attribute vec3 inTangent;\n";
-    }
-    shader_src +=
-"varying vec3 ecPosition3;\n"
-"varying vec3 normal;\n";
-    if ( bump_map ) {
-        shader_src += 
-"varying vec3 tangent;\n"
-"varying vec3 binormal;\n"
-;
-    }
-
-    shader_src +=
-"\n"
-"void main() {\n"
-"	// Transform vertex from object space to clip space\n"
-"	gl_Position = ftransform();\n"
-"\n"
-"	// NOTE: Lighting computations are performed in eye coordinates\n"
-"	// because OpenGL specifies that light positions are transformed\n"
-"	// by the modelview matrix when they are provided to OpenGL\n"
-"\n"
-"	// Vertex position in eye coordinates (and projected)\n"
-"	vec4 ecPosition = gl_ModelViewMatrix * gl_Vertex;\n"
-"	ecPosition3 = (vec3(ecPosition)) / ecPosition.w;\n"
-"\n"
-"	// Normal (in eye coordinates)\n"
-"	normal = normalize(gl_NormalMatrix * gl_Normal);\n";
-
-    if ( bump_map ) {
-        shader_src +=
-"    tangent = normalize(gl_NormalMatrix * inTangent);\n"
-"    binormal = cross(normal, tangent);\n"
-;
-    }
-
-    shader_src +=
-"\n"
-;
-    for ( std::set<int>::const_iterator i = _texturingConfig.getTCSetsUnitsUsed().begin() ; 
-            i != _texturingConfig.getTCSetsUnitsUsed().end() ; i++ ) 
-    {
-		std::stringstream tc_set;
-		tc_set << *i;
-		shader_src += 
-"	gl_TexCoord[" + tc_set.str() + "] = gl_TextureMatrix[" + 
-				tc_set.str() + "] * gl_MultiTexCoord" + tc_set.str() + ";\n"
-;
-	}
-    shader_src +=
-"}\n";
-
-	return shader_src;
-}
-
-
-/**
- *  Build the fragment shader GLSL source code for this Shading Network
- */
-std::string ShadingNetwork::getFragmentShaderSrc()
-{
-    SurfaceShader::CodeBlock cb_fragment_output = _surfaceShader->getCodeBlock("fragmentOutput");
-    bool bump_map = _surfaceShader->hasBumpMap();
-
-    std::string shader_src;
-    shader_src =
-"// Exported with Maya2OSG " VERSION "\n"
-"// http://maya2osg.sourceforge.net\n"
-"#version 120\n"
-"\n"
-"// Uniforms set from Maya2OSG exporter\n"
-"uniform bool LocalViewer;\n"
-"uniform int NumEnabledLights;\n"
-"\n"
-"// From vertex shader\n"
-"varying vec3 ecPosition3;\n"
-"varying vec3 normal;\n";
-
-    if ( bump_map ) {
-        shader_src += 
-"varying vec3 tangent;\n"
-"varying vec3 binormal;\n"
-;
-    }
-
-    shader_src +=
-"\n"
-;
-    // Declarations
-    shader_src += cb_fragment_output.declarations;
-    // Functions
-    shader_src += cb_fragment_output.functions;
-
-    // Main
-    shader_src +=
-"void main()\n"
-"{\n"
-;
-
-    // inline code
-    shader_src += cb_fragment_output.computeCode;
-
-    // variable names
-    shader_src += 
-"    gl_FragColor = " + cb_fragment_output.accessCode + ";\n"
-"}\n"
-;
-    return shader_src;
 }
 
 

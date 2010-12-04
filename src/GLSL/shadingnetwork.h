@@ -71,12 +71,6 @@ private:
     /// Map of Shading Nodes created in the Shading Network
     std::map<std::string, osg::ref_ptr<ShadingNode> > _shadingNodesMap;
 
-    ///	Build the vertex shader GLSL source code for generic materials
-    std::string getVertexShaderSrc();
-
-    ///	Build the fragment shader GLSL source code for this Shading Network
-    std::string getFragmentShaderSrc();
-
 };
 
 #endif //_SHADINGNETWORK_H_

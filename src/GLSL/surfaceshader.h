@@ -47,6 +47,22 @@ public:
     /// Check whether this shader has a bump map connected
     virtual bool hasBumpMap();
 
+    /**
+     *  Get the vertex shader GLSL source code
+     *
+     *  This code is used when this surface shader is the root of a shading network,
+     *  not when it is used as a shading node inside the shading network
+     */
+    virtual std::string getVertexShaderSrc();
+
+    /**
+     *  Get the fragment shader GLSL source code
+     *
+     *  This code is used when this surface shader is the root of a shading network,
+     *  not when it is used as a shading node inside the shading network
+     */
+    virtual std::string getFragmentShaderSrc();
+
 };
 
 #endif //_SURFACESHADER_H_
