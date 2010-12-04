@@ -24,6 +24,8 @@
 
 // This should use clonation and autoregistering of shading nodes to the factory
 #include "lambert.h"
+#include "flatshader.h"
+
 #include "filetexture.h"
 #include "bump2d.h"
 #include "../config.h"
@@ -44,6 +46,9 @@ ShadingNode *ShadingNodeFactory::build( const MObject &node, ShadingNetwork &sha
 
     if ( node.hasFn( MFn::kLambert ) ) {
         sn = new Lambert( node, shading_network );
+    }
+    else if ( node.hasFn( MFn::kSurfaceShader ) ) {
+        sn = new FlatShader( node, shading_network );
     }
     else if ( node.hasFn( MFn::kFileTexture ) ) {
         sn = new FileTexture( node, shading_network );

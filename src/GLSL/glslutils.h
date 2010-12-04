@@ -41,6 +41,13 @@ namespace GLSLUtils {
 	 */
 	std::string backFaceCulling( osg::StateSet &sset );
 
+	/**
+	 *	GLSL code that implements backface culling in the fragment shader
+	 *	following the StateSet configuration
+     *  This version do not consider normals
+	 */
+	std::string backFaceCullingWithoutNormals( osg::StateSet &sset );
+
 }
 
 #endif //_GLSLUTILS_H_

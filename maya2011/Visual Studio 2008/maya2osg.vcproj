@@ -278,6 +278,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\GLSL\flatshader.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\GLSL\glslutils.cpp"
 					>
 				</File>
@@ -416,6 +420,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\GLSL\filetexture.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\flatshader.h"
 					>
 				</File>
 				<File

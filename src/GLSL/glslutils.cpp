@@ -23,6 +23,9 @@
 #include <osg/CullFace>
 
 
+/**
+ *
+ */
 std::string GLSLUtils::backFaceCulling( osg::StateSet &sset )
 {
 	std::string glsl_code =
@@ -72,6 +75,42 @@ std::string GLSLUtils::backFaceCulling( osg::StateSet &sset )
 "    else\n"
 "        nnormal = normalize(-normal);\n"
 "\n";
+    }
+
+	return glsl_code;
+}
+
+
+/**
+ *
+ */
+std::string GLSLUtils::backFaceCullingWithoutNormals( osg::StateSet &sset )
+{
+    std::string glsl_code;
+
+    bool opposite = false;
+    osg::StateAttribute *sa = sset.getAttribute( osg::StateAttribute::CULLFACE );
+    if ( sa ) {
+        osg::CullFace *cf = dynamic_cast<osg::CullFace*>(sa);
+        if ( cf ) {
+            // If culling front facing polygons, we consider it the opposite direction
+            opposite = cf->getMode() == osg::CullFace::FRONT;
+        }
+    }
+
+    // Check if the StateSet has backface culling enabled 
+    // and add code to the shader to perform it 
+    if ( sset.getMode(GL_CULL_FACE) == osg::StateAttribute::ON ) {
+        if ( opposite ) {
+            glsl_code += 
+"    if ( gl_FrontFacing )\n"
+"        discard;\n";
+        }
+        else {
+            glsl_code += 
+"    if ( !gl_FrontFacing )\n"
+"        discard;\n";
+        }
     }
 
 	return glsl_code;
