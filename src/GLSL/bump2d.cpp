@@ -54,6 +54,7 @@ ShadingNode::CodeBlock Bump2D::getCodeBlock( const std::string &plug_name )
             Plug plug_bump_value = getPlug("bumpValue");
             // Bump depth
             Plug plug_bump_depth = getPlug("bumpDepth");
+            // *** TO-DO : Bump depth value is currently ignored *** FIXME!!!
 
             code_block.declarations = plug_bump_value.codeBlock.declarations
                                     + plug_bump_depth.codeBlock.declarations;
@@ -64,8 +65,7 @@ ShadingNode::CodeBlock Bump2D::getCodeBlock( const std::string &plug_name )
             code_block.computeCode = plug_bump_value.codeBlock.computeCode
                                    + plug_bump_depth.codeBlock.computeCode
                                    + "    vec3 " + variable_name + " = ( " 
-                                   + "normalize(gl_NormalMatrix * (2.0 * (" + getPlugValue(plug_bump_value) + " - 0.5)))"
-//                                   + " * " + getPlugValue(plug_bump_depth) 
+                                   + "normalize(2.0 * (" + getPlugValue(plug_bump_value) + " - 0.5))"
                                    + " );\n";
 
             _computedVariables.insert(variable_name);

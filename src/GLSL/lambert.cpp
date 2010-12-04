@@ -118,20 +118,7 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
 "\n" +
 			GLSLUtils::backFaceCulling(_shadingNetwork.getStateSet());
 
-	        // Bump mapping
-            if ( hasBumpMap() ) {
-                code_block.computeCode +=
-"    nnormal = " + plug_normal_camera.codeBlock.accessCode + ";\n"
-;
-            }
-
             code_block.computeCode +=
-"	vec3 eye;\n"
-"	if (LocalViewer)\n"
-"	    eye = -normalize(ecPosition3);\n"
-"	else\n"
-"	    eye = vec3(0.0, 0.0, 1.0);\n"
-"\n"
 "	// Clear the light intensity accumulators\n"
 "	vec4 amb  = vec4(0.0);\n"
 "	vec4 diff = vec4(0.0);\n"
@@ -140,18 +127,57 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
 "	int i;\n"
 "	for (i = 0; i < NumEnabledLights; i++)\n"
 "	{\n"
-"	    if (gl_LightSource[i].position.w == 0.0) {\n"
-"           vec3 lightDir = normalize(vec3(gl_LightSource[i].position));\n"
-"	        DirectionalLight(nnormal, \n"
-"                            lightDir, \n"
+"	    if (gl_LightSource[i].position.w == 0.0) {\n";
+            // ----- DIRECTIONAL LIGHT
+            if ( hasBumpMap() ) {
+                code_block.computeCode +=
+"           vec3 lightDir;\n"
+"           lightDir.x = dot(gl_LightSource[i].position.xyz, tangent);\n"
+"           lightDir.y = dot(gl_LightSource[i].position.xyz, binormal);\n"
+"           lightDir.z = dot(gl_LightSource[i].position.xyz, normal);\n"
+"	        DirectionalLight(" + plug_normal_camera.codeBlock.accessCode + ", \n"
+"                            normalize(lightDir), \n"
 "                            gl_LightSource[i].ambient, \n"
 "                            gl_LightSource[i].diffuse, \n"
-"                            amb, diff);\n"
+"                            amb, diff);\n";
+            }
+            else {
+                code_block.computeCode +=
+"	        DirectionalLight(nnormal, \n"
+"                            normalize(vec3(gl_LightSource[i].position)), \n"
+"                            gl_LightSource[i].ambient, \n"
+"                            gl_LightSource[i].diffuse, \n"
+"                            amb, diff);\n";
+            }
+            code_block.computeCode +=
 "       }\n"
-"	    else if (gl_LightSource[i].spotCutoff == 180.0) {\n"
+"	    else if (gl_LightSource[i].spotCutoff == 180.0) {\n";
+            // ----- POINT LIGHT
+            if ( hasBumpMap() ) {
+                code_block.computeCode +=
+"           vec3 lightPos;\n"
+"           lightPos.x = dot(gl_LightSource[i].position.xyz, tangent);\n"
+"           lightPos.y = dot(gl_LightSource[i].position.xyz, binormal);\n"
+"           lightPos.z = dot(gl_LightSource[i].position.xyz, normal);\n"
+"           vec3 surfPos;\n"
+"           surfPos.x = dot(ecPosition3, tangent);\n"
+"           surfPos.y = dot(ecPosition3, binormal);\n"
+"           surfPos.z = dot(ecPosition3, normal);\n"
+"	        PointLight(surfPos, \n"
+"                      " + plug_normal_camera.codeBlock.accessCode + ",\n"
+"                      lightPos, \n"
+"                      vec3( gl_LightSource[i].constantAttenuation, \n"
+"                            gl_LightSource[i].linearAttenuation, \n"
+"                            gl_LightSource[i].quadraticAttenuation ), \n"
+"                      gl_LightSource[i].ambient, \n"
+"                      gl_LightSource[i].diffuse, \n"
+"                      amb, \n"
+"                      diff);\n";
+            }
+            else {
+                code_block.computeCode +=
 "	        PointLight(ecPosition3, \n"
 "                      nnormal, \n"
-"                      eye, \n"
 "                      gl_LightSource[i].position.xyz, \n"
 "                      vec3( gl_LightSource[i].constantAttenuation, \n"
 "                            gl_LightSource[i].linearAttenuation, \n"
@@ -159,12 +185,44 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
 "                      gl_LightSource[i].ambient, \n"
 "                      gl_LightSource[i].diffuse, \n"
 "                      amb, \n"
-"                      diff);\n"
+"                      diff);\n";
+            }
+            code_block.computeCode +=
 "       }\n"
-"	    else {\n"
+"	    else {\n";
+            // ----- SPOT LIGHT
+            if ( hasBumpMap() ) {
+                code_block.computeCode +=
+"           vec3 lightPos;\n"
+"           lightPos.x = dot(gl_LightSource[i].position.xyz, tangent);\n"
+"           lightPos.y = dot(gl_LightSource[i].position.xyz, binormal);\n"
+"           lightPos.z = dot(gl_LightSource[i].position.xyz, normal);\n"
+"           vec3 surfPos;\n"
+"           surfPos.x = dot(ecPosition3, tangent);\n"
+"           surfPos.y = dot(ecPosition3, binormal);\n"
+"           surfPos.z = dot(ecPosition3, normal);\n"
+"           vec3 spotDir;\n"
+"           spotDir.x = dot(gl_LightSource[i].spotDirection, tangent);\n"
+"           spotDir.y = dot(gl_LightSource[i].spotDirection, binormal);\n"
+"           spotDir.z = dot(gl_LightSource[i].spotDirection, normal);\n"
+"	        SpotLight(surfPos, \n"
+"                    " + plug_normal_camera.codeBlock.accessCode + ",\n"
+"                     lightPos, \n"
+"                     vec3( gl_LightSource[i].constantAttenuation, \n"
+"                           gl_LightSource[i].linearAttenuation, \n"
+"                           gl_LightSource[i].quadraticAttenuation ), \n"
+"                     spotDir, \n"
+"                     gl_LightSource[i].spotCosCutoff, \n"
+"                     gl_LightSource[i].spotExponent, \n"
+"                     gl_LightSource[i].ambient, \n"
+"                     gl_LightSource[i].diffuse, \n"
+"                     amb, \n"
+"                     diff);\n";
+            }
+            else {
+                code_block.computeCode +=
 "	        SpotLight(ecPosition3, \n"
 "                     nnormal, \n"
-"                     eye, \n"
 "                     gl_LightSource[i].position.xyz, \n"
 "                     vec3( gl_LightSource[i].constantAttenuation, \n"
 "                           gl_LightSource[i].linearAttenuation, \n"
@@ -175,7 +233,9 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
 "                     gl_LightSource[i].ambient, \n"
 "                     gl_LightSource[i].diffuse, \n"
 "                     amb, \n"
-"                     diff);\n"
+"                     diff);\n";
+            }
+            code_block.computeCode +=
 "       }\n"
 "	}\n"
 "\n"
@@ -248,7 +308,6 @@ std::string Lambert::getPointLightFunction()
     std::string shader_src = 
 "void PointLight(in vec3 surfacePos,\n"
 "                in vec3 normal,\n"
-"                in vec3 eyePos,\n"
 "                in vec3 lightPos,\n"
 "                in vec3 lightAttenuation,\n"
 "                in vec4 lightAmbient,\n"
@@ -292,7 +351,6 @@ std::string Lambert::getSpotLightFunction()
     std::string shader_src = 
 "void SpotLight(in vec3 surfacePos,\n"
 "               in vec3 normal,\n"
-"               in vec3 eyePos,\n"
 "               in vec3 lightPos,\n"
 "               in vec3 lightAttenuation,\n"
 "               in vec3 spotDirection,\n"

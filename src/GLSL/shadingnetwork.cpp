@@ -149,13 +149,16 @@ std::string ShadingNetwork::getVertexShaderSrc()
 "// Exported with Maya2OSG " VERSION "\n"
 "// http://maya2osg.sourceforge.net\n"
 "#version 120\n"
-"\n"
-"varying vec3 ecPosition3;\n"
-"varying vec3 normal;\n";
-
+"\n";
     if ( bump_map ) {
         shader_src += 
-"attribute vec3 inTangent;\n"
+"attribute vec3 inTangent;\n";
+    }
+    shader_src +=
+"varying vec3 ecPosition3;\n"
+"varying vec3 normal;\n";
+    if ( bump_map ) {
+        shader_src += 
 "varying vec3 tangent;\n"
 "varying vec3 binormal;\n"
 ;
@@ -175,12 +178,11 @@ std::string ShadingNetwork::getVertexShaderSrc()
 "	vec4 ecPosition = gl_ModelViewMatrix * gl_Vertex;\n"
 "	ecPosition3 = (vec3(ecPosition)) / ecPosition.w;\n"
 "\n"
-"	// Normals (in eye coordinates, we will normalize them after interpolation)\n"
+"	// Normal (in eye coordinates)\n"
 "	normal = normalize(gl_NormalMatrix * gl_Normal);\n";
 
     if ( bump_map ) {
         shader_src +=
-"    normal = normalize(normal);\n"
 "    tangent = normalize(gl_NormalMatrix * inTangent);\n"
 "    binormal = cross(normal, tangent);\n"
 ;
