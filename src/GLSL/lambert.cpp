@@ -25,7 +25,7 @@
 #include <maya/MFnDependencyNode.h>
 #include <maya/MPlug.h>
 
-#define DISCARD_BACKFACING_BEFORE_BUMP_MAPPING
+#define DISCARD_SELF_SHADOWED_BEFORE_BUMP_MAPPING
 
 
 /**
@@ -133,7 +133,7 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
             // ----- DIRECTIONAL LIGHT
             if ( hasBumpMap() ) {
                 code_block.computeCode +=
-#ifdef DISCARD_BACKFACING_BEFORE_BUMP_MAPPING
+#ifdef DISCARD_SELF_SHADOWED_BEFORE_BUMP_MAPPING
 "           if ( dot( nnormal, normalize(gl_LightSource[i].position.xyz) ) > 0.0 )\n"
 #endif
 "           {\n"
@@ -162,7 +162,7 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
             // ----- POINT LIGHT
             if ( hasBumpMap() ) {
                 code_block.computeCode +=
-#ifdef DISCARD_BACKFACING_BEFORE_BUMP_MAPPING
+#ifdef DISCARD_SELF_SHADOWED_BEFORE_BUMP_MAPPING
 "           if ( dot( nnormal, normalize(gl_LightSource[i].position.xyz - ecPosition3) ) > 0.0 )\n"
 #endif
 "           {\n"
@@ -205,7 +205,7 @@ ShadingNode::CodeBlock Lambert::getCodeBlock( const std::string &plug_name )
             // ----- SPOT LIGHT
             if ( hasBumpMap() ) {
                 code_block.computeCode +=
-#ifdef DISCARD_BACKFACING_BEFORE_BUMP_MAPPING
+#ifdef DISCARD_SELF_SHADOWED_BEFORE_BUMP_MAPPING
 "           if ( dot( nnormal, normalize(gl_LightSource[i].position.xyz - ecPosition3) ) > 0.0 )\n"
 #endif
 "           {\n"
