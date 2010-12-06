@@ -47,6 +47,8 @@ ShadingNode::CodeBlock FlatShader::getCodeBlock( const std::string &plug_name )
 
     std::string variable_name;
     MFnDependencyNode dn(_mayaShadingNode);
+    std::string maya_surface_shader_name = dn.name().asChar();
+    hygienizeName( maya_surface_shader_name );
 
     // Check plug name and avoid duplicating code
 
@@ -54,7 +56,7 @@ ShadingNode::CodeBlock FlatShader::getCodeBlock( const std::string &plug_name )
          plug_name == "outColor" || 
          plug_name == "outTransparency" ) 
     {
-        variable_name = "sn_flat_" + std::string(dn.name().asChar()) + "_output";
+        variable_name = "sn_flat_" + maya_surface_shader_name + "_output";
         // Both color and transparency are stored in "color" variable.
         // if it is already declared, we omit all the GLSL code
         if ( !variableIsAvailable(variable_name) ) {

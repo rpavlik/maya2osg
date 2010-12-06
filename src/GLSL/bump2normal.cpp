@@ -75,6 +75,11 @@ std::string bump2Normal( const std::string &bump_map_file_name )
 {
     std::string normal_map_file_name;
 
+    if ( ! osgDB::fileExists( bump_map_file_name ) ) {
+        std::cerr << "ERROR. Bump (height) map file " << bump_map_file_name << " not found!" << std::endl;
+        return "";
+    }
+
 #if defined(NVIDIA_TEXTURE_TOOLS) && defined(WIN32)
     std::string texture_tools_dir = getenv( "TEXTURE_TOOLS_DIR" );
     bool nvidia_texture_tools = !texture_tools_dir.empty();

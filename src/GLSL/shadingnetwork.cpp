@@ -29,7 +29,7 @@
 #include <fstream>
 
 // Dump shaders to disk (for debugging purposes)
-#define DUMP_SHADERS
+//#define DUMP_SHADERS
 
 /**
  *  Constructor
@@ -84,6 +84,7 @@ ShadingNetwork::ShadingNetwork( const MObject &shading_network, TexturingConfig 
     {
         MFnDependencyNode dn(_mayaShadingNetwork);
         std::string filename = dn.name().asChar();
+        hygienizeName( filename );
         filename += "_fragment.glsl";
         std::ofstream fout(filename.c_str());
         fout << fragment_shader_src;
@@ -109,6 +110,7 @@ ShadingNetwork::ShadingNetwork( const MObject &shading_network, TexturingConfig 
     {
         MFnDependencyNode dn(_mayaShadingNetwork);
         std::string filename = dn.name().asChar();
+        hygienizeName( filename );
         filename += "_vertex.glsl";
         std::ofstream fout(filename.c_str());
         fout << vertex_shader_src;

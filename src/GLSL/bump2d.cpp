@@ -18,6 +18,7 @@
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "bump2d.h"
+#include "../common.h"
 
 #include <maya/MFnDependencyNode.h>
 
@@ -40,6 +41,7 @@ ShadingNode::CodeBlock Bump2D::getCodeBlock( const std::string &plug_name )
     std::string variable_name;
     MFnDependencyNode dn(_mayaShadingNode);
     std::string maya_bump_name = dn.name().asChar();
+    hygienizeName( maya_bump_name );
 
     // Check the plug name. Supported ones: outNormal
 

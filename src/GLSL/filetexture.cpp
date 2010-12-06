@@ -23,6 +23,7 @@
 #include "../texture.h"
 #include "../shader.h"
 #include "../config.h"
+#include "../common.h"
 
 #include <maya/MFnDependencyNode.h>
 #include <maya/MPlugArray.h>
@@ -58,7 +59,9 @@ ShadingNode::CodeBlock FileTexture::getCodeBlock( const std::string &plug_name )
          plug_name == "outTransparency" ||
          plug_name == "outAlpha" )
     {
-        variable_name = "sn_filetexture_" + maya_tex_name + "_output";
+        std::string maya_tex_name_clean = maya_tex_name;
+        hygienizeName( maya_tex_name_clean );
+        variable_name = "sn_filetexture_" + maya_tex_name_clean + "_output";
 
         MPlugArray remote_plugs;
         Shader::getPlugConnectedFromChannel(_mayaShadingNode, plug_name, remote_plugs);
@@ -94,7 +97,7 @@ ShadingNode::CodeBlock FileTexture::getCodeBlock( const std::string &plug_name )
             int texture_unit = _shadingNetwork.getTexturingConfig().getTextureUnit( maya_tex_name );
 
             std::stringstream ss_sampler_name;
-            ss_sampler_name << "tex" << texture_unit << "_" << maya_tex_name;
+            ss_sampler_name << "tex" << texture_unit << "_" << maya_tex_name_clean;
             std::string sampler_name = ss_sampler_name.str();
 
             // Set the texture in the stateset

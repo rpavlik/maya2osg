@@ -28,6 +28,8 @@
 
 #include <osg/Version>
 
+#include <algorithm>
+
 
 /**
  *
@@ -84,4 +86,22 @@ bool MCheckStatus(MStatus &st, const std::string &msg)
 		return true;
 	}
 	return false;
+}
+
+
+/**
+ *  Remove dangerous characters from a Maya name.
+ *
+ *  Maya names use :, | and . to separate namespaces, DAG nodes and 
+ *  attributes. These characters can cause problems in most uses,
+ *  such as variable names or even file names.
+ *
+ *  @warning This substitution do not guarantee that name collisions
+ *  won't occur, even though they probably won't.  TO-DO *** FIXME!!!
+ */
+void hygienizeName( std::string & variable_name )
+{
+    replace(variable_name.begin(), variable_name.end(), ':', '_');
+    replace(variable_name.begin(), variable_name.end(), '|', '_');
+    replace(variable_name.begin(), variable_name.end(), '.', '_');
 }
