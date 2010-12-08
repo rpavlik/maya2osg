@@ -57,6 +57,11 @@ ShadingNetwork::ShadingNetwork( const MObject &shading_network, TexturingConfig 
     // Build the Surface Shader (root of the Shading Network)
     _surfaceShader = dynamic_cast<SurfaceShader *>(ShadingNodeFactory::build( _mayaShadingNetwork, *this ));
 
+    if ( !_surfaceShader.valid() ) {
+        std::cerr << "ERROR building Shading Network." << std::endl;
+        return;
+    }
+
 	// GLSL Program
 	osg::Program *program = new osg::Program();
 

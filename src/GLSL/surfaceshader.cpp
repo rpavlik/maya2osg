@@ -25,6 +25,7 @@
 #include "../shader.h"
 
 #include <maya/MFnDependencyNode.h>
+#include <maya/MPlug.h>
 
 #include <sstream>
 
@@ -56,10 +57,20 @@ bool SurfaceShader::hasTransparency()
  */
 bool SurfaceShader::hasBumpMap()
 {
-	if ( Config::instance()->getEnableBumpMapping() )
-	    return Shader::connectedChannel(_mayaShadingNode, "normalCamera");
-	else
-		return false;
+    if ( Config::instance()->getEnableBumpMapping() ) {
+        // We must check if there is a connection to the normalCamera channel
+        if ( Shader::connectedChannel(_mayaShadingNode, "normalCamera") ) {
+            MPlug remote_plug;
+            Shader::getPlugConnectedToChannel(_mayaShadingNode, "normalCamera", remote_plug);
+            // and if the connected node and attribute is supported
+            if ( remote_plug.node().hasFn( MFn::kBump ) && 
+                remote_plug.partialName(false, false, false, false, false, true) == MString("outNormal") ) 
+            {
+                return true;
+            }
+        }
+    }
+	return false;
 }
 
 
