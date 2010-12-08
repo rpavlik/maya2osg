@@ -1,13 +1,18 @@
+#include "camera.h"
+#include "config.h"
+
 #include <maya/MFnCamera.h>
 #include <maya/MColor.h>
 #include <maya/MPlug.h>
 #include <maya/MFnTransform.h>
 #include <maya/MMatrix.h>
-#include "camera.h"
-#include "config.h"
-#include <fstream>
+#include <maya/MRenderUtil.h>
+#include <maya/MCommonRenderSettingsData.h>
+
 #include <osgViewer/Viewer>
 #include <osgDB/WriteFile>
+
+#include <fstream>
 
 /**
  *	Exports Camera node
@@ -95,8 +100,15 @@ osg::ref_ptr<osg::Node> Camera::exporta(MObject &obj)
 
 	// Projection matrix
 	double l, r, b ,t;
+//    double ar = cam.aspectRatio();
+    // WARNING: Camera does not know the aspect ratio of the render window
+    // It must be queried in the Render Settings
+    MCommonRenderSettingsData render_settings;
+    MRenderUtil::getCommonRenderSettings(render_settings);
+    float ar = render_settings.deviceAspectRatio;
+
 	// We use the rendering frustum instead of the viewing frustum
-	cam.getRenderingFrustum(cam.aspectRatio(), l, r, b, t);
+	cam.getRenderingFrustum(ar, l, r, b, t);
 	double n = cam.nearClippingPlane();
 	double f = cam.farClippingPlane();
 	if ( cam.isOrtho() ) {
@@ -115,7 +127,7 @@ osg::ref_ptr<osg::Node> Camera::exporta(MObject &obj)
 	}
 
 	// Write camera/viewer config file
-    std::string camera_filename = Config::instance()->getSceneFileBaseName() + "_" + std::string(dn.name().asChar()) + ".osg";
+    std::string camera_filename = Config::instance()->getSceneFilePath().getDirectory() + "/" + Config::instance()->getSceneFilePath().getFileBaseName() + "_" + std::string(dn.name().asChar()) + ".osg";
     osgDB::writeObjectFile( viewer, camera_filename );
 
 	// We do not include the camera in the scene graph, so return NULL

@@ -54,11 +54,23 @@ public:
 		PARALLEL_SPLIT_SHADOW_MAP
 	} ShadowTechnique;
 
+    /// Scene file path (where 3D contents are exported into)
+    class SceneFilePath {
+    private:
+        std::string _path;
+    public:
+        SceneFilePath( const std::string & path );
+        std::string getFullPath() const;
+        std::string getFileBaseName() const;
+        std::string getDirectory() const;
+        std::string getExtension() const;
+    };
+
 private:
 	static Config *_instance;
 
-	/// Scene file base name
-	std::string _sceneFileBaseName;
+	/// Scene file path
+	SceneFilePath _sceneFilePath;
 
 	/// TexEnv
 	osg::TexEnv::Mode _mode;
@@ -130,12 +142,12 @@ public:
 	{ return _instance; }
 
 	/// Get the scene file base name
-	inline const std::string &getSceneFileBaseName()
-    { return _sceneFileBaseName; }
+	inline const SceneFilePath &getSceneFilePath()
+    { return _sceneFilePath; }
 
 	/// Set the scene file base name
-	inline void setSceneFileBaseName( const std::string &name )
-    { _sceneFileBaseName = name; }
+	inline void setSceneFilePath( const std::string &name )
+    { _sceneFilePath = SceneFilePath(name); }
 
 	inline void setMode(osg::TexEnv::Mode mode)
 	{ _mode = mode; }

@@ -33,7 +33,7 @@ global proc maya2osg_preview( string $opts ) {
 	{
 		$camera = `modelEditor -q -camera $panel`;
 		$camera_shape = `listRelatives -shapes $camera`;
-		$camera_file_name = $filebasename + "_" + $camera_shape[0] + ".osg";
+		$camera_file_name = `internalVar -utd` + $filebasename + "_" + $camera_shape[0] + ".osg";
 	}
 
 	loadPlugin -quiet "maya2osg";
@@ -42,7 +42,7 @@ global proc maya2osg_preview( string $opts ) {
 
 	// If "current camera" was exported to OSG, then use it for preview
 	if ( `filetest -r $camera_file_name` ) {
-		$options += " -c " + $camera_file_name; // + " --noautohomeview";
+		$options += " -c " + $camera_file_name;// + " --noautohomeview";
 	}
 
 	int $offs_x = 100;
@@ -54,5 +54,6 @@ global proc maya2osg_preview( string $opts ) {
 	// Additional options (proc parameter)
 	$options += " " + $opts;
 
+//	print( "osgviewer " + $options + " " + $tmp_file + "\n );
 	exec("osgviewer " + $options + " " + $tmp_file);
 }

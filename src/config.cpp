@@ -19,12 +19,16 @@
 */
 #include "config.h"
 
+#include <osgDB/FileNameUtils>
+
+
 Config *Config::_instance = new Config();
 
 /**
  *	Constructor
  */
-Config::Config()
+Config::Config() :
+    _sceneFilePath("")
 {
 	// Default values
 
@@ -49,4 +53,29 @@ Config::Config()
     _exportTexCoords = true;
 	_maxAnisotropy = 0;
 	_enableBumpMapping = true;
+}
+
+Config::SceneFilePath::SceneFilePath( const std::string &path )
+{
+    _path = path;
+}
+
+std::string Config::SceneFilePath::getFullPath() const
+{
+    return _path;
+}
+
+std::string Config::SceneFilePath::getFileBaseName() const
+{
+    return osgDB::getStrippedName( _path );
+}
+
+std::string Config::SceneFilePath::getDirectory() const
+{
+    return osgDB::getFilePath( _path );
+}
+
+std::string Config::SceneFilePath::getExtension() const
+{
+    return osgDB::getFileExtension( _path );
 }

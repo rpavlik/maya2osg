@@ -40,6 +40,7 @@
 #include <osg/StateSet>
 #include <osg/StateAttribute>
 #include <osgDB/WriteFile>
+#include <osgDB/FileNameUtils>
 
 #include <stdlib.h>
 #include <string.h>
@@ -315,22 +316,11 @@ MStatus maya2osg::doIt( const MArgList & args )
 		root = new osg::Group();
 	}
 
-	// Remove file extension (if any)
-#ifdef WIN32
-	char *filebasename = (char *)malloc(strlen(filename.asChar()));
-	_splitpath(filename.asChar(), NULL, NULL, filebasename, NULL);
-#else
-	char *filebasename = strdup(filename.asChar());
-	filebasename = basename(filebasename);
-	if(strrchr(filebasename, '.')!=NULL)
-		*(strrchr(filebasename, '.'))=0;
-#endif
-	// This operation could have been done with any of the
-	// osgDB functions, such as osgDB::getSimpleFileName
-
-	root->setName(filebasename);
 	// Set the base name to the Config (used to export Camera and CameraAnimation files)
-	Config::instance()->setSceneFileBaseName( filebasename );
+	Config::instance()->setSceneFilePath( filename.asChar() );
+
+    // Scene root node name -> file base name
+    root->setName( Config::instance()->getSceneFilePath().getFileBaseName() );
 
 	if ( sel.length() > 0 ) {
 		// If there is a selection, export only the selected elements

@@ -21,6 +21,7 @@
 #define _CAMERA_H_
 
 #include <osg/Node>
+#include <maya/MObject.h>
 
 class Camera {
 

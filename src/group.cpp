@@ -76,7 +76,7 @@ osg::ref_ptr<osg::Node> Group::exporta(MDagPath &dp)
 		if(cb){
 			MFnDependencyNode dn(node);
 			std::cout << "EXPORTING CAMERA ANIMATION: " << dn.name().asChar() << std::endl;
-			CameraAnimation::save(cb->getAnimationPath(), Config::instance()->getSceneFileBaseName() + "_" + std::string(dn.name().asChar()) + ".path" );
+            CameraAnimation::save(cb->getAnimationPath(), Config::instance()->getSceneFilePath().getDirectory() + "/" + Config::instance()->getSceneFilePath().getFileBaseName() + "_" + std::string(dn.name().asChar()) + ".path" );
 		}
 		return NULL;
 	}

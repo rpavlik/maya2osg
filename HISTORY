@@ -1,4 +1,6 @@
 WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+	BUG FIX. Camera and animation files are now exported to the same directory of the exported file, not to current directory
+	BUG FIX. Camera configuration did not fit render settings. Aspect ratio was not correctly computed. Now it matches exactly the render Maya render view
 	Configuration option -enableBumpMapping to enable or disable bump mapping when exporting GLSL shaders
 	Texture anisotropic filtering. Export configuration option -maxAnisotropy to set the maximum number of samples to use
 	New export configuration options: exporting normals and exporting texture coordinates can now be disabled from the GUI

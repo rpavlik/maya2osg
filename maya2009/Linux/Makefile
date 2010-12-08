@@ -2,7 +2,7 @@ MAYA_BASE=/usr/autodesk/maya2009-x64
 CXXFLAGS_MAYA= -pipe -m64 -O3 -pipe -D_BOOL -DLINUX_64 -DREQUIRE_IOSTREAM -fPIC -w -c -I$(MAYA_BASE)/include
 CXXFLAGS=-Wall -pedantic -Wno-long-long $(CXXFLAGS_MAYA)
 LDFLAGS=-L$(MAYA_BASE)/lib -m64 -O3 -pipe
-LDLIBS=-lOpenMaya -lOpenMayaAnim -lOpenMayaFX -losg -losgDB -losgViewer -losgParticle -losgShadow
+LDLIBS=-lOpenMaya -lOpenMayaAnim -lOpenMayaFX -lOpenMayaRender -losg -losgDB -losgViewer -losgParticle -losgShadow
 #VPATH=../../src
 
 vpath %.h ../../src
