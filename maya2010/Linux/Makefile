@@ -8,16 +8,20 @@ LDLIBS=-lOpenMaya -lOpenMayaAnim -lOpenMayaFX -lOpenMayaRender -losg -losgDB -lo
 vpath %.h ../../src
 vpath %.cpp ../../src
 
+DIRS=GLSL
 OBJS=maya2osg.o dagnode.o group.o transform.o mesh.o shader.o texture.o config.o lights.o directionallight.o \
 	pointlight.o spotlight.o cameraanimation.o camera.o common.o osg2maya.o proxymaterials.o importervisitor.o \
-	particle.o nparticle.o pointemitter.o shaderglsl.o shadows.o texturingconfig.o glslutils.o lambert.o \
-	shadingnetwork.o shadingnode.o shadingnodefactory.o surfaceshader.o filetexture.o bump2d.o bump2normal.o \
-	flatshader.o
+	particle.o nparticle.o pointemitter.o shadows.o GLSL/texturingconfig.o GLSL/glsllighting.o GLSL/lambert.o \
+	GLSL/shadingnetwork.o GLSL/shadingnode.o GLSL/shadingnodefactory.o GLSL/surfaceshader.o GLSL/filetexture.o \
+	GLSL/bump2d.o GLSL/bump2normal.o GLSL/flatshader.o
 
 TARGET=../bin/maya2osg.so
 INSTDIR=$(MAYA_BASE)/bin/plug-ins
 
-all: $(TARGET)
+all: dirs $(TARGET)
+
+dirs:
+	mkdir $(DIRS)
 
 $(TARGET): $(OBJS)
 	$(CXX) -shared $(LDFLAGS) -o $(TARGET) $(OBJS) $(LDLIBS)
@@ -27,3 +31,4 @@ install: $(TARGET)
 
 clean:
 	rm -f $(TARGET) $(OBJS) *~
+	rmdir $(DIRS)

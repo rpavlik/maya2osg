@@ -19,6 +19,7 @@
 */
 #include "bump2normal.h"
 
+#include <osg/Version>
 #include <osgDB/FileUtils>
 #include <osgDB/FileNameUtils>
 #include <osgDB/ReadFile>
@@ -27,12 +28,22 @@
 #ifdef WIN32
 #  include <windows.h>
 #  include <winbase.h>
+#  include <io.h>
+#  define stat _stat
+#  define fstat _fstat
+#  define open _open
+#  define close _close
+#  define O_RDONLY _O_RDONLY
+#  define O_CREAT _O_CREAT
+#  define O_TRUNC _O_TRUNC
+#  define S_IREAD _S_IREAD
+#  define S_IWRITE _S_IWRITE
 #endif
-#include <io.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <iostream>
 
 //#define NVIDIA_TEXTURE_TOOLS
 
@@ -96,15 +107,15 @@ std::string bump2Normal( const std::string &bump_map_file_name )
     // Check whether the normal map file exists (and is more recent than bump map)
     if ( osgDB::fileExists( normal_map_file_name ) ) {
         // If it exists, check if it is newer or older than the bump map file
-        struct _stat stat_bump_map;
+        struct stat stat_bump_map;
         int fd, result;
-        fd = _open( bump_map_file_name.c_str(), _O_RDONLY );
-        result = _fstat( fd, &stat_bump_map );
-        _close(fd);
-        struct _stat stat_normal_map;
-        fd = _open( normal_map_file_name.c_str(), _O_RDONLY );
-        result = _fstat( fd, &stat_normal_map );
-        _close(fd);
+        fd = open( bump_map_file_name.c_str(), O_RDONLY );
+        result = fstat( fd, &stat_bump_map );
+        close(fd);
+        struct stat stat_normal_map;
+        fd = open( normal_map_file_name.c_str(), O_RDONLY );
+        result = fstat( fd, &stat_normal_map );
+        close(fd);
         if ( stat_normal_map.st_mtime > stat_bump_map.st_mtime ) {
             // Normal map is more recent than bump map. It is done!
             return normal_map_file_name;
@@ -120,7 +131,7 @@ std::string bump2Normal( const std::string &bump_map_file_name )
         normal_map_file_name = filename_nm;
 
         // CREATE AN EMPTY NM TO BE ABLE TO GET ITS SHORT PATH
-        int fd = _open( filename_nm.c_str(), _O_CREAT|_O_TRUNC, _S_IREAD|_S_IWRITE );
+        int fd = open( filename_nm.c_str(), O_CREAT|O_TRUNC, S_IREAD|S_IWRITE );
         if ( fd == -1 ) {
             std::cerr << "ERROR. Creating normal map file " << filename_nm << std::endl;
         }
@@ -188,7 +199,11 @@ std::string bump2Normal( const std::string &bump_map_file_name )
         }
 #else // THE_CG_TUTORIAL
 
+#if OSG_MIN_VERSION_REQUIRED(2,9,0)
         unsigned char *buffer = (unsigned char *)normal_map->getDataPointer();
+#else
+        unsigned char *buffer = (unsigned char *)normal_map->data();
+#endif
         for( int t=0 ; t < bump_map->t() ; t++ ) {
             int tp1 = (t==bump_map->t()-1)?0:(t+1);
             int tm1 = (t==0)?(bump_map->t()-1):(t-1);
