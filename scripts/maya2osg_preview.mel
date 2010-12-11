@@ -54,6 +54,6 @@ global proc maya2osg_preview( string $opts ) {
 	// Additional options (proc parameter)
 	$options += " " + $opts;
 
-//	print( "osgviewer " + $options + " " + $tmp_file + "\n );
+//	print( "osgviewer " + $options + " " + $tmp_file + "\n" );
 	exec("osgviewer " + $options + " " + $tmp_file);
 }

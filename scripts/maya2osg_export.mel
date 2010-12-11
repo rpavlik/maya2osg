@@ -60,10 +60,10 @@ global proc maya2osg_doExportGUIAndPreview(string $file, string $format)
 
 	// If "current camera" was exported to OSG, then use it for preview
 	if ( `filetest -r $camera_file_name` ) {
-		$options += " -c " + $camera_file_name; // + " --noautohomeview";
+		$options += " -c " + $camera_file_name;// + " --noautohomeview";
 	}
 	
-	print( "osgviewer " + $options + " " + $file);
+//	print( "osgviewer " + $options + " " + $file + "\n" );
 	exec("osgviewer " + $options + " " + $file);
 }
 

@@ -25,7 +25,7 @@
 #include <iostream>
 #include <maya/MFnDependencyNode.h>
 #include <maya/MFnLambertShader.h>
-#include <maya/MFnBlinnShader.h>
+#include <maya/MFnPhongShader.h>
 #include <maya/MColor.h>
 #include <maya/MPlug.h>
 #include <maya/MPlugArray.h>
@@ -113,15 +113,16 @@ osg::ref_ptr<osg::Material> Shader::material(const MObject &surface_shader, bool
 		material->setDiffuse(osg::Material::FRONT_AND_BACK,
 			osg::Vec4(color.r*dc, color.g*dc, color.b*dc, opacity));
 
-		if(surface_shader.hasFn(MFn::kReflect)){
-			MFnReflectShader reflect(surface_shader);
+        if(surface_shader.hasFn(MFn::kPhong)){
+			MFnPhongShader phong(surface_shader);
 			// Specular
-			MColor spec = reflect.specularColor();
+			MColor spec = phong.specularColor();
 			material->setSpecular(osg::Material::FRONT_AND_BACK,
 				osg::Vec4(spec.r, spec.g, spec.b, opacity));
-			// Shininess  ***** WRONG! It should take the shininess from other attributes, dependent on the material type  - FIXME!!!
-			material->setShininess(osg::Material::FRONT_AND_BACK,
-				reflect.reflectivity());
+			// Shininess
+            // NOTE: This factor was empirically estimated to approximate Maya highlights to OpenGL highlights
+#define CP_FACTOR 4.0   
+    		material->setShininess(osg::Material::FRONT_AND_BACK, phong.cosPower() * CP_FACTOR);
 		}
 
 		// Color Mode

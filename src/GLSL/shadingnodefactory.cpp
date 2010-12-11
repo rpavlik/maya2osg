@@ -24,6 +24,7 @@
 
 // This should use clonation and autoregistering of shading nodes to the factory
 #include "lambert.h"
+#include "phong.h"
 #include "flatshader.h"
 
 #include "filetexture.h"
@@ -44,7 +45,10 @@ ShadingNode *ShadingNodeFactory::build( const MObject &node, ShadingNetwork &sha
         return sn.get();
     }
 
-    if ( node.hasFn( MFn::kLambert ) ) {
+    if ( node.hasFn( MFn::kPhong ) ) {
+        sn = new Phong( node, shading_network );
+    }
+    else if ( node.hasFn( MFn::kLambert ) ) {
         sn = new Lambert( node, shading_network );
     }
     else if ( node.hasFn( MFn::kSurfaceShader ) ) {

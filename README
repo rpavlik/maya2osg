@@ -94,4 +94,6 @@ tests					Test scenes/models
 maya2009				Stuff needed for compiling and installing in Maya 2009
 maya2010				Stuff needed for compiling and installing in Maya 2010
 maya2011				Stuff needed for compiling and installing in Maya 2011
+prefs					Maya preferences (shelf and icons)
+scripts					Maya MEL scripts
 misc					Files that do not fall into any of the previous categories

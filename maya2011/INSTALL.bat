@@ -15,6 +15,6 @@ if exist "%USERPROFILE%\Documents" GOTO ELSE
 	set DOCFILES="%USERPROFILE%\Documents"
 :ENDIF
 
-copy scripts\*.mel %DOCFILES%\maya\%MAYA_VERSION%\scripts
-copy prefs\icons\*.bmp %DOCFILES%\maya\%MAYA_VERSION%\prefs\icons
-copy prefs\shelves\*.mel %DOCFILES%\maya\%MAYA_VERSION%\prefs\shelves
+copy ..\scripts\*.mel %DOCFILES%\maya\%MAYA_VERSION%\scripts
+copy ..\prefs\icons\*.bmp %DOCFILES%\maya\%MAYA_VERSION%\prefs\icons
+copy ..\prefs\shelves\*.mel %DOCFILES%\maya\%MAYA_VERSION%\prefs\shelves

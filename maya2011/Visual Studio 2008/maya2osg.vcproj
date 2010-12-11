@@ -290,6 +290,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\GLSL\phong.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\GLSL\shadingnetwork.cpp"
 					>
 				</File>
@@ -432,6 +436,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\GLSL\lambert.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\GLSL\phong.h"
 					>
 				</File>
 				<File
