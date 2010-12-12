@@ -77,11 +77,6 @@ ShadingNode::CodeBlock Bump2D::getCodeBlock( const std::string &plug_name )
                                        + "normalize(" + getPlugValue(plug_bump_value) + " - 0.5) - " + unperturbed + ";\n"
                                        + "    vec3 " + variable_name + " = " + unperturbed + " + " + delta + " * "
                                        + getPlugValue(plug_bump_depth) + ";\n";
-
-                code_block.computeCode = plug_bump_value.codeBlock.computeCode
-                                       + "    vec3 " + variable_name + " = ( " 
-                                       + "normalize(" + getPlugValue(plug_bump_value) + " - 0.5)"
-                                       + " );\n";
             }
             else { 
                 // Bump depth is not applied at run-time in the shader, because it
