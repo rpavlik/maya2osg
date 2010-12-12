@@ -53,6 +53,8 @@ Config::Config() :
     _exportTexCoords = true;
 	_maxAnisotropy = 0;
 	_enableBumpMapping = true;
+    _runTimeBumpDepth = true;
+    _regenerateTextures = false;
 }
 
 Config::SceneFilePath::SceneFilePath( const std::string &path )

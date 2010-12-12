@@ -18,6 +18,7 @@
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "bump2normal.h"
+#include "../config.h"
 
 #include <osg/Version>
 #include <osgDB/FileUtils>
@@ -105,7 +106,7 @@ std::string bump2Normal( const std::string &bump_map_file_name )
     }
 
     // Check whether the normal map file exists (and is more recent than bump map)
-    if ( osgDB::fileExists( normal_map_file_name ) ) {
+    if ( !Config::instance()->getRegenerateTextures() && osgDB::fileExists( normal_map_file_name ) ) {
         // If it exists, check if it is newer or older than the bump map file
         struct stat stat_bump_map;
         int fd, result;

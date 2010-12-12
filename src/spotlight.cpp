@@ -33,8 +33,6 @@
 
 osg::ref_ptr<osg::Node> SpotLight::exporta(MObject &obj)
 {
-	MFnLight mlight(obj);
-	MFnNonAmbientLight mnalight(obj);
 	MFnSpotLight mslight(obj);
 	MFnDependencyNode dn(obj);
 
@@ -45,22 +43,22 @@ osg::ref_ptr<osg::Node> SpotLight::exporta(MObject &obj)
 	light->setDirection(osg::Vec3(0,0,-1));
 
 	// Ambient, diffuse and specular components
-	MColor color = mlight.color();
-	float intensity = mlight.intensity();
-	if(mlight.lightAmbient())
+	MColor color = mslight.color();
+	float intensity = mslight.intensity();
+	if(mslight.lightAmbient())
 		light->setAmbient(osg::Vec4( color.r*intensity, color.g*intensity, color.b*intensity, color.a ));
 	else
 		light->setAmbient(osg::Vec4(0,0,0,1));
-	if(mlight.lightDiffuse())
+	if(mslight.lightDiffuse())
 		light->setDiffuse(osg::Vec4( color.r*intensity, color.g*intensity, color.b*intensity, color.a ));
 	else
 		light->setDiffuse(osg::Vec4(0,0,0,1));
-	if(mlight.lightSpecular())
+	if(mslight.lightSpecular())
 		light->setSpecular(osg::Vec4( color.r*intensity, color.g*intensity, color.b*intensity, color.a ));
 	else
 		light->setSpecular(osg::Vec4(0,0,0,1));
 
-	switch(mnalight.decayRate()) {
+	switch(mslight.decayRate()) {
 		case 0:
 			// No decay (constant)
 			light->setConstantAttenuation(1.0f);
@@ -84,7 +82,7 @@ osg::ref_ptr<osg::Node> SpotLight::exporta(MObject &obj)
 			std::cerr << "Cubic Decay Rate not supported in OpenGL" << std::endl;
 			break;
 		default:
-			std::cerr << "Unknown Decay Rate type : " << mnalight.decayRate() << std::endl;
+			std::cerr << "Unknown Decay Rate type : " << mslight.decayRate() << std::endl;
 			break;
 	}
 

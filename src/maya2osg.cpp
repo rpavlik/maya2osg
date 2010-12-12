@@ -282,6 +282,28 @@ MStatus maya2osg::doIt( const MArgList & args )
 				Config::instance()->setEnableBumpMapping( true );
 			}
 		}
+		else if ( args.asString(i) == "-runTimeBumpDepth" ){
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "0" ){
+				Config::instance()->setRunTimeBumpDepth( false );
+			}
+			else {
+				Config::instance()->setRunTimeBumpDepth( true );
+			}
+		}
+		else if ( args.asString(i) == "-regenerateTextures" ){
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "0" ){
+				Config::instance()->setRegenerateTextures( false );
+			}
+			else {
+				Config::instance()->setRegenerateTextures( true );
+			}
+		}
 		else if ( args.asString(i).length() > 0 ) {
 			// We discard empty arguments
 			filename = args.asString(i);

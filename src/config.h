@@ -134,6 +134,12 @@ private:
 	/// Enable the bump mapping in the exported GLSL shaders
 	bool _enableBumpMapping;
 
+    /// Apply bump depth in run-time (vs baked into the texture file)
+    bool _runTimeBumpDepth;
+
+    /// Regenerate textures (even when they are up-to-date)
+    bool _regenerateTextures;
+
 	/// Constructor
 	Config();
 
@@ -271,6 +277,18 @@ public:
 
 	inline bool getEnableBumpMapping() const
 	{ return _enableBumpMapping; }
+
+    inline void setRunTimeBumpDepth( bool v )
+    { _runTimeBumpDepth = v; }
+
+    inline bool getRunTimeBumpDepth() const
+    { return _runTimeBumpDepth; }
+
+    inline void setRegenerateTextures( bool v )
+    { _regenerateTextures = v; }
+
+    inline bool getRegenerateTextures() const
+    { return _regenerateTextures; }
 
 };
 

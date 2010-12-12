@@ -1,4 +1,7 @@
 WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+	BUG FIX. Extremely weird error when exporting spot lights (they reported no ambient, no diffuse, no specular, even when the components are selected in the Maya spot light node)
+	Added exporter option -runTimeBumpDepth to activate/deactivate the use of the bump depth in the GLSL shader. If it is deactivated, the bump depth will be considered only in the moment of creation of the normal map
+	Added exporter option -regenerateTextures to force the rebuild of the textures (currently only normal maps)
 	Linux installer script, contribution by Ares Lagae
 	Moved scripts and prefs directories to root directory
 	Added modified version of osgviewer.cpp to be able to see the initial camera view. See the Wiki page "Scene Preview" in http://sourceforge.net/apps/mediawiki/maya2osg/index.php?title=Scene_preview	
