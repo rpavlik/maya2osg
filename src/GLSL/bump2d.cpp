@@ -22,6 +22,8 @@
 
 #include <maya/MFnDependencyNode.h>
 
+#define RUN_TIME_BUMP_DEPTH // *** TO-DO: document this!
+
 /**
  *  Constructor
  */
@@ -54,21 +56,41 @@ ShadingNode::CodeBlock Bump2D::getCodeBlock( const std::string &plug_name )
 
             // Bump value
             Plug plug_bump_value = getPlug("bumpValue");
+#ifdef RUN_TIME_BUMP_DEPTH
             // Bump depth
             Plug plug_bump_depth = getPlug("bumpDepth");
-            // *** TO-DO : Bump depth value is currently ignored *** FIXME!!!
+#endif
 
             code_block.declarations = plug_bump_value.codeBlock.declarations
-                                    + plug_bump_depth.codeBlock.declarations;
+#ifdef RUN_TIME_BUMP_DEPTH
+                                    + plug_bump_depth.codeBlock.declarations
+#endif
+                                    ;
 
             code_block.functions = plug_bump_value.codeBlock.functions
-                                 + plug_bump_depth.codeBlock.functions;
+#ifdef RUN_TIME_BUMP_DEPTH
+                                 + plug_bump_depth.codeBlock.functions
+#endif
+                                 ;
 
+#ifdef RUN_TIME_BUMP_DEPTH
+            std::string unperturbed = "sn_bump2d_" + maya_bump_name + "_unperturbed";
+            std::string delta = "sn_bump2d_" + maya_bump_name + "_delta";
             code_block.computeCode = plug_bump_value.codeBlock.computeCode
                                    + plug_bump_depth.codeBlock.computeCode
+                                   + "    vec3 " + unperturbed + " = vec3(0.0, 0.0, 1.0);\n"
+                                   + "    vec3 " + delta + " = "
+                                   + "normalize(" + getPlugValue(plug_bump_value) + " - 0.5) - " + unperturbed + ";\n"
+                                   + "    vec3 " + variable_name + " = " + unperturbed + " + " + delta + " * "
+                                   + getPlugValue(plug_bump_depth) + ";\n"
+                                   ;
+#else
+            code_block.computeCode = plug_bump_value.codeBlock.computeCode
                                    + "    vec3 " + variable_name + " = ( " 
-                                   + "normalize(2.0 * (" + getPlugValue(plug_bump_value) + " - 0.5))"
+//                                   + "normalize(2.0 * (" + getPlugValue(plug_bump_value) + " - 0.5))"
+                                   + "normalize(" + getPlugValue(plug_bump_value) + " - 0.5)"
                                    + " );\n";
+#endif
 
             _computedVariables.insert(variable_name);
         }

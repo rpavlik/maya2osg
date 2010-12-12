@@ -1,4 +1,7 @@
 WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
+	Linux installer script, contribution by Ares Lagae
+	Moved scripts and prefs directories to root directory
+	Added modified version of osgviewer.cpp to be able to see the initial camera view. See the Wiki page "Scene Preview" in http://sourceforge.net/apps/mediawiki/maya2osg/index.php?title=Scene_preview	
 	BUG FIX. Camera and animation files are now exported to the same directory of the exported file, not to current directory
 	BUG FIX. Camera configuration did not fit render settings. Aspect ratio was not correctly computed. Now it matches exactly the render Maya render view
 	Configuration option -enableBumpMapping to enable or disable bump mapping when exporting GLSL shaders
@@ -7,7 +10,7 @@ WHATEVER	WHENEVER	Javier Taibo <javier.taibo@gmail.com>
 	BUG FIX. Opaque geometry was put into transparent bin
 	Bump mapping. Automatic conversion from bump to normal maps
 	Meshes export tangent arrays to be used in shading effects like bump mapping
-	Support for Maya shading nodes: Lambert, SurfaceShader, FileTexture, Bump2D
+	Support for Maya shading nodes: Lambert, Phong, SurfaceShader, FileTexture, Bump2D
 	Added framework to export Maya shading networks to GLSL code (see documentation in the wiki page)
 	Implemented backface culling and double side illumination in the GLSL shader
 	Multiple texture coordinate sets (Maya UV sets) for use in GLSL shaders. Each texture connected to a shader channel use the corresponding TC set
