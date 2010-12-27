@@ -13,7 +13,7 @@ OBJS=maya2osg.o dagnode.o group.o transform.o mesh.o shader.o texture.o config.o
 	pointlight.o spotlight.o cameraanimation.o camera.o common.o osg2maya.o proxymaterials.o importervisitor.o \
 	particle.o nparticle.o pointemitter.o shadows.o GLSL/texturingconfig.o GLSL/glslutils.o GLSL/lambert.o \
 	GLSL/shadingnetwork.o GLSL/shadingnode.o GLSL/shadingnodefactory.o GLSL/surfaceshader.o GLSL/filetexture.o \
-	GLSL/bump2d.o GLSL/bump2normal.o GLSL/flatshader.o GLSL/phong.o
+	GLSL/bump2d.o GLSL/bump2normal.o GLSL/flatshader.o GLSL/phong.o osgfiletranslator.o
 
 TARGET=../bin/maya2osg.so
 INSTDIR=$(MAYA_BASE)/bin/plug-ins

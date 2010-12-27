@@ -21,6 +21,7 @@
 #include "common.h"
 #include "maya2osg.h"
 #include "osg2maya.h"
+#include "osgfiletranslator.h"
 
 #include <maya/MStatus.h>
 #include <maya/MObject.h>
@@ -50,6 +51,10 @@ MStatus initializePlugin( MObject _obj )
 	if ( MCheckStatus(stat, "registerCommand - osg2maya") ) {
 		return stat;
 	}
+    stat = plugin.registerFileTranslator( "OSG", NULL, OSGFileTranslator::creator, "", "" );
+	if ( MCheckStatus(stat, "registerFileTranslator - OSG") ) {
+		return stat;
+	}
 	return MStatus::kSuccess;
 }
 
@@ -69,6 +74,10 @@ MStatus uninitializePlugin( MObject _obj )
 	}
 	stat = plugin.deregisterCommand( "osg2maya" );
 	if ( MCheckStatus(stat, "deregisterCommand - osg2maya") ) {
+		return stat;
+	}
+	stat = plugin.deregisterFileTranslator( "OSG" );
+	if ( MCheckStatus(stat, "deregisterFileTranslator - OSG") ) {
 		return stat;
 	}
 	return MStatus::kSuccess;

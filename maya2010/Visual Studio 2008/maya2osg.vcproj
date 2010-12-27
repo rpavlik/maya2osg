@@ -227,6 +227,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\osgfiletranslator.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\particle.cpp"
 				>
 			</File>
@@ -369,6 +373,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\osg2maya.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\osgfiletranslator.h"
 				>
 			</File>
 			<File
