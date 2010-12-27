@@ -1,7 +1,9 @@
 set MAYA_VERSION=2010
 
 REM Copy the plug-in binary (maya2osg.mll)
-copy bin\maya2osg.mll "%PROGRAMFILES%\Autodesk\Maya%MAYA_VERSION%\bin\plug-ins\"
+set PLUGIN_DIRECTORY="%PROGRAMFILES%\Autodesk\Maya%MAYA_VERSION%\bin\plug-ins\"
+if exist %MAYA_PLUG_IN_PATH% set PLUGIN_DIRECTORY=%MAYA_PLUGIN_PATH%
+copy bin\maya2osg.mll %PLUGIN_DIRECTORY%
 
 REM Copy plug-in associated files (MEL scripts, shelf buttons, ...)
 if exist "%USERPROFILE%\Documents" GOTO ELSE
