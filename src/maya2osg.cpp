@@ -47,6 +47,13 @@
 
 #include <iostream>
 
+// Work in progress: to convert textures to hardware compressed format, we need a GL context
+//#define CREATE_GL_CONTEXT
+#ifdef CREATE_GL_CONTEXT
+#  include <osgViewer/Viewer>
+#  include <osg/ArgumentParser>
+#endif
+
 void* maya2osg::creator()
 {
 	return new maya2osg();
@@ -309,6 +316,23 @@ MStatus maya2osg::doIt( const MArgList & args )
 			filename = args.asString(i);
 		}
 	}
+
+#ifdef CREATE_GL_CONTEXT
+/*    int argc = 1;
+    char *argv[1] = { "arg0" };
+    osg::ArgumentParser viewer_args(&argc, argv);
+    osgViewer::Viewer viewer( viewer_args );
+    viewer.setThreadingModel( osgViewer::ViewerBase::SingleThreaded );*/
+	osg::GraphicsContext::Traits *traits = new osg::GraphicsContext::Traits();
+    traits->x = traits->y = 0;
+    traits->width = traits->height = 1;
+    traits->windowDecoration = false;
+	osg::GraphicsContext *gc = osg::GraphicsContext::createGraphicsContext( traits );
+//    viewer.getCamera()->setGraphicsContext(gc);
+//    viewer.realize();
+    gc->realize();
+    gc->makeCurrent();
+#endif
 
 	std::cout << "---------------------------------------------------" << std::endl;
 	std::cout << "---      Maya2OSG - OSG Maya Exporter           ---" << std::endl;
