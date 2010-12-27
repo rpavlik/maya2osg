@@ -61,7 +61,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/export:initializePlugin /export:uninitializePlugin"
-				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaFX.lib OpenMayaAnim.lib OpenMayaRender.lib osgd.lib osgDBd.lib osgViewerd.lib osgParticled.lib osgShadowd.lib opengl32.lib pthreadVC2.lib"
+				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaFX.lib OpenMayaAnim.lib OpenMayaRender.lib osgd.lib osgDBd.lib osgViewerd.lib osgParticled.lib osgShadowd.lib opengl32.lib"
 				OutputFile="$(OutDir)/$(ProjectName).mll"
 				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
@@ -135,7 +135,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/export:initializePlugin /export:uninitializePlugin"
-				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaAnim.lib OpenMayaFX.lib OpenMayaRender.lib osg.lib osgDB.lib osgViewer.lib osgParticle.lib osgShadow.lib pthreadVC2.lib opengl32.lib"
+				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaAnim.lib OpenMayaFX.lib OpenMayaRender.lib osg.lib osgDB.lib osgViewer.lib osgParticle.lib osgShadow.lib opengl32.lib"
 				OutputFile="$(OutDir)/$(ProjectName).mll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
