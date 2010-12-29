@@ -48,18 +48,18 @@ public:
     { return true; }
 
     virtual inline MString defaultExtension() const
-//#if (OPENSCENEGRAPH_MAJOR_VERSION>=2) && (OPENSCENEGRAPH_MINOR_VERSION>=9)
-//    { return "osgt"; }
-//#else
+#if (OPENSCENEGRAPH_MAJOR_VERSION>=2) && (OPENSCENEGRAPH_MINOR_VERSION>=9)
+    { return "osgt"; }
+#else
     { return "osg"; }
-//#endif
+#endif
 
     virtual inline MString filter() const
-//#if (OPENSCENEGRAPH_MAJOR_VERSION>=2) && (OPENSCENEGRAPH_MINOR_VERSION>=9)
-//    { return "*.osgt"; }
-//#else
-    { return "*.osg;*.ive;*.osgt;*.osgb;*.osgx"; }
-//#endif
+#if (OPENSCENEGRAPH_MAJOR_VERSION>=2) && (OPENSCENEGRAPH_MINOR_VERSION>=9)
+    { return "*.osgt;*.osgb;*.osgx;*.osg;*.ive"; }
+#else
+    { return "*.osg;*.ive"; }
+#endif
     virtual MFileKind identifyFile (const MFileObject &file, const char *buffer, short size) const;
 
 };
