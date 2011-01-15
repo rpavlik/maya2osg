@@ -1,0 +1,240 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{83d95997-7adc-4da6-a6e3-647605aa3b70}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm</Extensions>
+    </Filter>
+    <Filter Include="Source Files\GLSL">
+      <UniqueIdentifier>{c87e6387-6f1a-453b-89a8-f311e655e8f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{716a10ac-7bce-495c-ae15-81c57d162c10}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc</Extensions>
+    </Filter>
+    <Filter Include="Header Files\GLSL">
+      <UniqueIdentifier>{99ce0bee-3417-4109-ace0-217c568a9f8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{ab1ed5c1-8091-420d-9a77-3f047ca0f5f3}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cameraanimation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dagnode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\directionallight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\group.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\importervisitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\lights.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\maya2osg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\nparticle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\osg2maya.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\osgfiletranslator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\particle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pointemitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pointlight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\proxymaterials.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\shadows.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\spotlight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\transform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GLSL\bump2d.cpp">
+      <Filter>Source Files\GLSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GLSL\bump2normal.cpp">
+      <Filter>Source Files\GLSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GLSL\filetexture.cpp">
+      <Filter>Source Files\GLSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GLSL\flatshader.cpp">
+      <Filter>Source Files\GLSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GLSL\glslutils.cpp">
+      <Filter>Source Files\GLSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GLSL\lambert.cpp">
+      <Filter>Source Files\GLSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GLSL\phong.cpp">
+      <Filter>Source Files\GLSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GLSL\shadingnetwork.cpp">
+      <Filter>Source Files\GLSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GLSL\shadingnode.cpp">
+      <Filter>Source Files\GLSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GLSL\shadingnodefactory.cpp">
+      <Filter>Source Files\GLSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GLSL\surfaceshader.cpp">
+      <Filter>Source Files\GLSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GLSL\texturingconfig.cpp">
+      <Filter>Source Files\GLSL</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\cameraanimation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\dagnode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\directionallight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\group.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\importervisitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\lights.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\maya2osg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\nparticle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\osg2maya.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\osgfiletranslator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\particle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\pointemitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\pointlight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\proxymaterials.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\shaderglsl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\shadows.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\spotlight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GLSL\bump2d.h">
+      <Filter>Header Files\GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GLSL\bump2normal.h">
+      <Filter>Header Files\GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GLSL\filetexture.h">
+      <Filter>Header Files\GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GLSL\flatshader.h">
+      <Filter>Header Files\GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GLSL\glslutils.h">
+      <Filter>Header Files\GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GLSL\lambert.h">
+      <Filter>Header Files\GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GLSL\phong.h">
+      <Filter>Header Files\GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GLSL\shadingnetwork.h">
+      <Filter>Header Files\GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GLSL\shadingnode.h">
+      <Filter>Header Files\GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GLSL\shadingnodefactory.h">
+      <Filter>Header Files\GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GLSL\surfaceshader.h">
+      <Filter>Header Files\GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GLSL\texturingconfig.h">
+      <Filter>Header Files\GLSL</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
