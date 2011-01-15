@@ -51,7 +51,7 @@ MStatus initializePlugin( MObject _obj )
 	if ( MCheckStatus(stat, "registerCommand - osg2maya") ) {
 		return stat;
 	}
-    stat = plugin.registerFileTranslator( "OSG", NULL, OSGFileTranslator::creator, "", "" );
+    stat = plugin.registerFileTranslator( "OSG", NULL, OSGFileTranslator::creator, "osgFileExportOptions", "" );
 	if ( MCheckStatus(stat, "registerFileTranslator - OSG") ) {
 		return stat;
 	}
