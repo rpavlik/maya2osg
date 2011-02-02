@@ -116,11 +116,11 @@ call INSTALL.bat
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <CustomBuildStep>
-      <Message>Installing Maya2OSG Plug-In for Maya 2011</Message>
+      <Message>Installing Maya2OSG Plug-In for Maya 2011 debug</Message>
       <Command>cd ..
 call INSTALL.bat
 </Command>
-      <Outputs>$(ProgramFiles)\Autodesk\Maya2011\bin\plug-ins\maya2osg.mll;%(Outputs)</Outputs>
+      <Outputs>$(MAYA_PLUG_IN_PATH)\maya2osgd.mll;%(Outputs)</Outputs>
     </CustomBuildStep>
     <ClCompile>
       <AdditionalIncludeDirectories>$(MAYA_INCLUDE_PATH);$(OSG_INCLUDE_PATH)</AdditionalIncludeDirectories>
@@ -177,12 +177,10 @@ call INSTALL.bat
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <CustomBuildStep>
-      <Message>
-      </Message>
-      <Command>
-      </Command>
-      <Outputs>
-      </Outputs>
+      <Message>Installing Maya2OSG Plug-In for Maya 2011 release</Message>
+      <Command>cd ..
+call INSTALL.bat</Command>
+      <Outputs>$(MAYA_PLUG_IN_PATH)\maya2osg.mll;%(Outputs)</Outputs>
     </CustomBuildStep>
     <ClCompile>
       <AdditionalIncludeDirectories>$(MAYA_INCLUDE_PATH);$(OSG_INCLUDE_PATH)</AdditionalIncludeDirectories>
