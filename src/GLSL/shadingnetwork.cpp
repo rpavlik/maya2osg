@@ -25,6 +25,8 @@
 #include "../lights.h"
 #include "../common.h"
 
+#include <osg/Program>
+
 #include <maya/MFnDependencyNode.h>
 #include <fstream>
 
