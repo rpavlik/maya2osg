@@ -60,10 +60,10 @@ global proc maya2osg_doExportGUIAndPreview(string $file, string $format)
 
 	// If "current camera" was exported to OSG, then use it for preview
 	if ( `filetest -r $camera_file_name` ) {
-		$options += " -c " + $camera_file_name;// + " --noautohomeview";
+		$options += " -c " + $camera_file_name; // + " --noautohomeview";
 	}
 	
-//	print( "osgviewer " + $options + " " + $file + "\n" );
+	print( "osgviewer " + $options + " " + $file);
 	exec("osgviewer " + $options + " " + $file);
 }
 
@@ -77,6 +77,7 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 	global string $maya2osg_texclamp;
 	global string $maya2osg_yup2zup;
 	global string $maya2osg_export_anim;
+	global string $maya2osg_anim_transformType;
 	global string $maya2osg_anim_sampleby;
 	global string $maya2osg_cbParticlesEmissive;
 	global string $maya2osg_cbParticlesLighting;
@@ -85,10 +86,6 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 	global string $maya2osg_global_ambient;
 	global string $maya2osg_local_viewer;
 	global string $maya2osg_use_glsl;
-	global string $maya2osg_enable_bumpmapping;
-	global string $maya2osg_export_normals;
-	global string $maya2osg_export_texcoords;
-	global string $maya2osg_max_aniso;
 
 	string $command = "maya2osg";
 		
@@ -127,6 +124,9 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 	// Export animations
 	$command += "-exportAnim " + `checkBox -q -value $maya2osg_export_anim`;
 	
+	// Animation Transform Type
+	$command += "-animTransformType " + `optionMenuGrp -query -value $maya2osg_anim_transformType` ;
+	
 	// Animation sample by
 	$command += "-animSampleBy " + `intField -q -value $maya2osg_anim_sampleby`;
 
@@ -148,18 +148,6 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 
 	// GLSL shaders
 	$command += " -useGLSL " + `checkBox -q -value $maya2osg_use_glsl`;
-	
-	// Bump mapping
-	$command += " -enableBumpMapping " + `checkBox -q -value $maya2osg_enable_bumpmapping`;
-	
-	// Export normals
-	$command += " -exportNormals " + `checkBox -q -value $maya2osg_export_normals`;
-	
-	// Export texture coordinates
-	$command += " -exportTexCoords " + `checkBox -q -value $maya2osg_export_texcoords`;
-	
-	// Max anisotropy
-	$command += " -maxAnisotropy " + `intField -q -value $maya2osg_max_aniso`;
 		
 	$command += " \"" + $file + "\";";
 //	print($command + "\n");
@@ -179,6 +167,7 @@ proc maya2osg_options(){
 	global string $maya2osg_texclamp;
 	global string $maya2osg_yup2zup;
 	global string $maya2osg_export_anim;
+	global string $maya2osg_anim_transformType;
 	global string $maya2osg_anim_sampleby;
 	global string $maya2osg_cbParticlesEmissive;
 	global string $maya2osg_cbParticlesLighting;
@@ -187,10 +176,6 @@ proc maya2osg_options(){
 	global string $maya2osg_global_ambient;
 	global string $maya2osg_local_viewer;
 	global string $maya2osg_use_glsl;
-	global string $maya2osg_enable_bumpmapping;
-	global string $maya2osg_export_normals;
-	global string $maya2osg_export_texcoords;
-	global string $maya2osg_max_aniso;
 
 	// Open a dialog for the selection of export options
 	int $marginW = 15;
@@ -207,42 +192,32 @@ proc maya2osg_options(){
 						if ( `upAxis -q -axis` == "y" ) {
 							$maya2osg_yup2zup = `checkBox -label "Convert from Y-Up to Z-Up" -value true -height $line_height`;
 						}
-						rowLayout -nc 2;
-							$maya2osg_export_normals = `checkBox -annotation "Export normals" -label "Normals" -value true -height $line_height`;
-							$maya2osg_export_texcoords = `checkBox -annotation "Export texture coordinates" -label "Texture coordinates" -value true -height $line_height`;
-							setParent ..;
 						setParent ..;
 					setParent ..;
 				$frame_textures = `frameLayout -label "Texturing" -collapsable true -marginWidth $marginW -marginHeight $marginH`;
-					columnLayout;
-						rowLayout -nc 2;
-// 							rowLayout -nc 2;
-// 								text -label "Image path" -enable false;
-// 								textField -editable true -width 300 -enable false;
-// 								setParent ..;
-							columnLayout;
-								text -label "Default mode: ";
-								$maya2osg_texenv = `textScrollList -numberOfRows 3
-									-allowMultiSelection false
-									-append "DECAL"
-									-append "MODULATE"
-									-append "BLEND"
-									-append "REPLACE"
-									-append "ADD"
-									-selectItem "MODULATE"`;
-								setParent ..;
-							columnLayout;
-								text -label "Clamping: ";
-								$maya2osg_texclamp = `textScrollList -numberOfRows 2
-									-allowMultiSelection false
-									-append "EDGE"
-									-append "COLOR"
-									-selectItem "COLOR"`;
-								setParent ..;
+					rowLayout -nc 2;
+// 						rowLayout -nc 2;
+// 							text -label "Image path" -enable false;
+// 							textField -editable true -width 300 -enable false;
+// 							setParent ..;
+						columnLayout;
+							text -label "Default mode: ";
+							$maya2osg_texenv = `textScrollList -numberOfRows 3
+								-allowMultiSelection false
+								-append "DECAL"
+								-append "MODULATE"
+								-append "BLEND"
+								-append "REPLACE"
+								-append "ADD"
+								-selectItem "MODULATE"`;
 							setParent ..;
-						rowLayout -nc 2;
-							text -label "Max anisotropy";
-							$maya2osg_max_aniso = `intField -annotation "Max Anisotropy" -minValue 1 -maxValue 16 -value 4 -step 1`;
+						columnLayout;
+							text -label "Clamping: ";
+							$maya2osg_texclamp = `textScrollList -numberOfRows 2
+								-allowMultiSelection false
+								-append "EDGE"
+								-append "COLOR"
+								-selectItem "COLOR"`;
 							setParent ..;
 						setParent ..;
 					setParent ..;
@@ -250,7 +225,6 @@ proc maya2osg_options(){
 					columnLayout;
 						//text -label "Coming soon..." -height $line_height;
 						$maya2osg_use_glsl = `checkBox -label "Build GLSL shaders" -value 0 -height $line_height`;
-						$maya2osg_enable_bumpmapping = `checkBox -label "Bump mapping" - value 1 -height $line_height`;
 						setParent ..;
 					setParent ..;
 				$frame_geometry = `frameLayout -label "Lighting" -collapsable true -marginWidth $marginW -marginHeight $marginH`;
@@ -272,7 +246,10 @@ proc maya2osg_options(){
 				$frame_geometry = `frameLayout -label "Animation" -collapsable true -marginWidth $marginW -marginHeight $marginH`;
 					columnLayout;
 						$maya2osg_export_anim = `checkBox -label "Export animations" -value 1 -height $line_height`;
-						rowLayout -nc 2;
+						$maya2osg_anim_transformType = `optionMenuGrp -columnWidth2 82 220 -label "Transform Type"`;
+						menuItem -label "ANIMATION_PATH";
+						menuItem -label "OSG_ANIMATION";
+						rowColumnLayout -nc 2;
 							text -label "Sample by: ";
 							$maya2osg_anim_sampleby = `intField -minValue 1 -maxValue 100 -step 1 -value 1`;
 							setParent ..;
@@ -349,7 +326,27 @@ global proc maya2osg_export( int $option_box ) {
 		maya2osg_options();
 	}
 	else {
-		fileBrowserDialog -an "Export as..." -fc "maya2osg_doExport" -ft "osg"
-			-in "OSG" -m 1 -om "ExportAll";
+		fileBrowserDialog -an "Export as..." -fc "maya2osg_doExport" -ft "osg" -in "OSG" -m 1 -om "ExportAll";
+		//fileDialog2 -fc "maya2osg_doExport" -ft "osg" -in "OSG" -m 1 -om "ExportAll";
 	}
 }
+
+/*
+// Old way:
+global proc int importImage( string $filename, string $fileType )
+{
+    file -import $filename;
+    return 1;
+}
+
+
+fileBrowserDialog -m 0 -fc "importImage" -ft "image" -an "Import_Image" -om "Import";
+
+//
+// Recommended way:
+string $filename[] = `fileDialog2 -fileMode 1 -caption "Import Image"`;
+if (1 == `size($filename)`)
+{
+    importImage($filename[0], "");
+}
+*/
