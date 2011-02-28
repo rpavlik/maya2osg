@@ -54,6 +54,12 @@ public:
 		PARALLEL_SPLIT_SHADOW_MAP
 	} ShadowTechnique;
 
+	/// export Transform Animation as motionPath or osgAnimation
+	typedef enum {
+		ANIMATION_PATH,
+		OSG_ANIMATION
+	} AnimTransformType;
+	
     /// Scene file path (where 3D contents are exported into)
     class SceneFilePath {
     private:
@@ -97,6 +103,9 @@ private:
 
 	/// Export animations
 	bool _exportAnimations;
+
+	/// export Transform Animation as motionPath or osgAnimation
+	AnimTransformType _animTransformType;
 
 	/// Animation export "sample by"
 	int _animSampleBy;
@@ -205,6 +214,12 @@ public:
 
 	inline bool getExportAnimations() const
 	{ return _exportAnimations; }
+
+	inline void setAnimTransformType( AnimTransformType m )
+	{ _animTransformType = m; }
+
+	inline AnimTransformType getAnimTransformType() const
+	{ return _animTransformType; }
 
 	inline void setAnimSampleBy( int s )
 	{ _animSampleBy = s; }

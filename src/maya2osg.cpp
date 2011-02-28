@@ -27,6 +27,7 @@
 #include "camera.h"
 #include "particle.h"
 #include "shadows.h"
+#include "animation.h"
 
 #include <maya/MGlobal.h>
 #include <maya/MArgList.h>
@@ -158,6 +159,17 @@ MStatus maya2osg::doIt( const MArgList & args )
 			}
 			else {
 				Config::instance()->setExportAnimations( true );
+			}
+		}
+		else if ( args.asString(i) == "-animTransformType" ) {
+			i++;
+			if(i==args.length())
+				break;
+			if( args.asString(i) == "ANIMATION_PATH" ){
+				Config::instance()->setAnimTransformType(Config::ANIMATION_PATH);
+			}
+			else if( args.asString(i) == "OSG_ANIMATION" ){
+				Config::instance()->setAnimTransformType(Config::OSG_ANIMATION);
 			}
 		}
 		else if ( args.asString(i) == "-animSampleBy" ){
@@ -390,9 +402,22 @@ MStatus maya2osg::doIt( const MArgList & args )
 			return MS::kFailure;
 		}
 
+		// Create New AnimationManager
+		// Initialize Attribute Arrays required once on Plug-In load
+		Animation::init() ;
+
+		// all animated Transform Plugs will be collected
 		osg::ref_ptr<osg::Node> scene = DAGNode::exporta(dagPath);
-        if ( scene.valid() )
+		if ( scene.valid() )
     		root->addChild(scene.get());
+
+		// all collected Plugs will be captured in keyframes once per Maya Character Clip
+		if ( Config::instance() -> getAnimTransformType() == Config::OSG_ANIMATION )  {
+			if ( Animation::exporta() )  {
+				Animation::getManager() -> buildTargetReference() ;			
+				root -> addUpdateCallback( Animation::getManager().get() ) ;	//	add AnimationManager from Animation Object to root node
+			}
+		}
 	}
 
 	osg::ref_ptr<osg::StateSet> st = root->getOrCreateStateSet();

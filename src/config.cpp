@@ -41,6 +41,7 @@ Config::Config() :
 	_texClampMode = COLOR;
 	_YUp2ZUp = true;
 	_exportAnimations = true;
+	_animTransformType = ANIMATION_PATH;
 	_animSampleBy = 1;
 	_particlesEmissive = false;
 	_particlesLighting = false;
