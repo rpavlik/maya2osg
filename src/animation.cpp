@@ -86,6 +86,8 @@ void Animation::mapInputConnections( const MObject & mObject , osg::ref_ptr< osg
 	// Do Not create Keyframes for not keyed Stacked Transform Elements ( non Default Values )
 	// - Is working properly for translate, but not for scale  ???
 	// --- Check if hasInputConnections Flag stays for all Transform Elements
+	// --- Create enum : DEFAULT : TWEAKED : INPUTS
+	// --- Generate Attribute Vector with enum, and export accordingly
 
 	bool hasInputs = false ;		// check for Inputs
 	MFnDependencyNode	mfnDependencyNode( mObject ) ;
@@ -123,6 +125,8 @@ void Animation::mapInputConnections( const MObject & mObject , osg::ref_ptr< osg
 			_mStatus = _mKeyframeNode.append( mObject ) ;
 			_mStatus = _mKeyframeAttr.append( ka ) ;
 		}
+
+//		hasInputs = false ;
 	}
 
 
@@ -468,6 +472,10 @@ bool Animation::exporta()
 		// If Character has no clips, sample the scene one time
 		if ( !clipCount )  {
 			addAnimationClip( mfnCharacter.name( & _mStatus ).asChar() ) ;	// Add osgAnimation and sample Maya Animation
+
+			_mKeyframeNode.clear() ;
+			_mKeyframeAttr.clear() ;
+
 			return true ;
 		}
 
@@ -495,6 +503,10 @@ bool Animation::exporta()
 			mfnClip.setEnabled( clipConfig[ cc ] , & mdgModifier ) ;
 		}
 	}
+
+	// Cleanup - delete all mObjects and Attributes ( intArray ) in List for Keyframing
+	_mKeyframeNode.clear() ;
+	_mKeyframeAttr.clear() ;
 
 	return true ;
 
