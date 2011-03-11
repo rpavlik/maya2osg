@@ -61,7 +61,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/export:initializePlugin /export:uninitializePlugin"
-				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaFX.lib OpenMayaAnim.lib OpenMayaRender.lib osgd.lib osgDBd.lib osgViewerd.lib osgParticled.lib osgShadowd.lib opengl32.lib"
+				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaFX.lib OpenMayaAnim.lib OpenMayaRender.lib osgd.lib osgDBd.lib osgViewerd.lib osgParticled.lib osgShadowd.lib osgAnimationd.lib opengl32.lib"
 				OutputFile="$(OutDir)/$(ProjectName).mll"
 				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
@@ -135,7 +135,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/export:initializePlugin /export:uninitializePlugin"
-				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaAnim.lib OpenMayaFX.lib OpenMayaRender.lib osg.lib osgDB.lib osgViewer.lib osgParticle.lib osgShadow.lib opengl32.lib"
+				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaAnim.lib OpenMayaFX.lib OpenMayaRender.lib osg.lib osgDB.lib osgViewer.lib osgParticle.lib osgShadow.lib osgAnimation.lib opengl32.lib"
 				OutputFile="$(OutDir)/$(ProjectName).mll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
@@ -175,6 +175,10 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
 			>
 			<File
+				RelativePath="..\..\src\animation.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\camera.cpp"
 				>
 			</File>
@@ -196,6 +200,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\directionallight.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\field.cpp"
 				>
 			</File>
 			<File
@@ -324,6 +332,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
 			<File
+				RelativePath="..\..\src\animation.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\camera.h"
 				>
 			</File>
@@ -345,6 +357,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\directionallight.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\field.h"
 				>
 			</File>
 			<File
@@ -400,10 +416,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shaderglsl.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\shadows.h"
 				>
 			</File>
@@ -417,6 +429,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\transform.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\utility.h"
 				>
 			</File>
 			<Filter

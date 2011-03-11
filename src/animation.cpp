@@ -35,7 +35,7 @@
 
 // Static Data Member Definitions
 bool				Animation::_isInited = false ;	// Setting Attributes once per Plug-In Load
-double			Animation::_slopeTollerance ;		//	key if slope between keys changes more then this value
+double			Animation::_slopeTolerance ;		//	key if slope between keys changes more then this value
 MStatus			Animation::_mStatus ;
 MObjectArray	Animation::_mKeyframeNode ;		// holds all DAG Paths for key framing
 MIntArray		Animation::_mKeyframeAttr ;		// holds the corresponding Pointer into keyAttributes ( Types, e.g. "translate" ) 
@@ -50,7 +50,7 @@ osg::ref_ptr< osgAnimation::BasicAnimationManager > Animation::_manager ;
 void Animation::init()  {
 	_manager = new osgAnimation::BasicAnimationManager ;
 
-	_slopeTollerance = 0.0001 ;
+	_slopeTolerance = 0.0001 ;
 
 	if ( !_isInited )  {
 		_keyAttributes.append( "translate" ) ; 

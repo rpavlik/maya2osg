@@ -22,6 +22,7 @@
 #include "particle.h"
 
 #include <maya/MFnDependencyNode.h>
+#include <maya/MFnDAGNode.h>
 #include <maya/MPlugArray.h>
 #include <maya/MPlug.h>
 
@@ -123,8 +124,13 @@ osg::ref_ptr<osg::Node> PointEmitter::exporta(MObject &obj)
 			MObject destination_node = destination.node();
 			if(destination_node.hasFn(MFn::kParticle)){
 				MFnDependencyNode particle(destination_node);
-				particle_systems_names.push_back( particle.name().asChar() );
-				std::cout << "CONNECTION BETWEEN " << dnodefn.name().asChar() << " AND " << particle.name().asChar() << std::endl;
+//				particle_systems_names.push_back( particle.name().asChar() );
+//				std::cout << "CONNECTION BETWEEN " << dnodefn.name().asChar() << " AND " << particle.name().asChar() << std::endl;
+				MFnDagNode dagnode_fn(destination_node);
+				particle_systems_names.push_back( dagnode_fn.fullPathName().asChar() );
+				std::cout << "CONNECTION BETWEEN " << dnodefn.name().asChar() << " AND " 
+					<< dagnode_fn.name().asChar() << " ("
+					<< particle.name().asChar() << ")" << std::endl;
 			}
 		}
 	}

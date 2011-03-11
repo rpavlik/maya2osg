@@ -17,36 +17,31 @@
     You should have received a copy of the GNU General Public License
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef _POINTEMITTER_H_
-#define _POINTEMITTER_H_
+#ifndef _FIELD_H_
+#define _FIELD_H_
 
-#include <osg/Node>
-#include <osgParticle/ModularEmitter>
+#include <vector>
 
 #include <maya/MObject.h>
 
-class PointEmitter {
-
-private:
-	/// Association of each emitter to the particle systems that emits
-	static std::vector<std::pair<osg::ref_ptr<osgParticle::ModularEmitter>, std::vector<std::string> > > _emittersParticles;
+class Field {
 
 public:
-	/// Exports Emitter node
-	static osg::ref_ptr<osg::Node> exporta(MObject &obj);
+
+	/// Association of each field to the particle systems that affects
+	static std::vector<std::pair<Field, std::vector<std::string> > > _fieldsParticles;
+
+	/// Exports a Maya field
+	static void exporta( const MObject &field );
 
 	/**
-	 *	Bind emitters to particle systems 
+	 *	Bind fields to particle systems 
 	 *	This operation must be done at the end of the export,
-	 *	when all nodes exist because emitters and partiles
+	 *	when all nodes exist because fields and partiles
 	 *	can be placed in any order in the DAG
 	 */
-	static void bindEmittersToParticles();
-
-	/// Clear the particle-emitter bindings
-	static void reset()
-	{ _emittersParticles.clear(); }
+	static void bindFieldsToParticles();
 
 };
 
-#endif //_POINTEMITTER_H_
+#endif //_FIELD_H_

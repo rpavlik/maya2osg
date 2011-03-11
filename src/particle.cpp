@@ -37,6 +37,7 @@ std::map<std::string, osg::ref_ptr<osgParticle::ParticleSystem> > Particle::_psM
 osg::ref_ptr<osg::Node> Particle::exporta(MObject &obj)
 {
 	MFnDependencyNode dnodefn(obj);
+	MFnDagNode dagnodefn(obj);
 	MFnParticleSystem particlefn(obj);
 	MStatus status;
 
@@ -231,7 +232,8 @@ osg::ref_ptr<osg::Node> Particle::exporta(MObject &obj)
 
 	// Particle systems are registered in a map to be able to
 	// attach the emitters later
-	_psMap[ dnodefn.name().asChar() ] = particle_system;
+	std::cout << dnodefn.name().asChar() << " " << dagnodefn.fullPathName().asChar() << std::endl;
+	_psMap[ dagnodefn.fullPathName().asChar() ] = particle_system;
 
 	return geode;
 }

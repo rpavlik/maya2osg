@@ -55,7 +55,7 @@ private :
 	static void	sampleAttributeAnimation( osgAnimation::Animation * animation ) ;
 
 	static bool				_isInited ;
-	static double			_slopeTollerance ;	//	key if slope between keys changes more then this value
+	static double			_slopeTolerance ;	//	key if slope between keys changes more then this value
 	static MStatus			_mStatus ;
 	static MObjectArray	_mKeyframeNode ;		// holds all DAG Paths for key framing
 	static MIntArray		_mKeyframeAttr ;		// holds the corresponding Pointer into keyAttributes ( Types, e.g. "translate" ) 
@@ -68,7 +68,7 @@ private :
 
 
 
-	//inline bool inTollerance( double base , double test ) const ;
+	//inline bool inTolerance( double base , double test ) const ;
 
 	// ToDo :
 	// - First Channel in Animation must have length of entire animation, otherwise playback is corrupted
@@ -89,10 +89,10 @@ private :
 			key2 = & keys -> at( keys -> size() - 2 ) ;	// handle to last but one key frame
 
 			for( unsigned int vs = 0 ; vs < numComps ; ++vs )  {	// loop through each Component of the Vec3
-				sameSlope = sameSlope && inTollerance(			// check if slope of last key frames is in tolerance with slope of current and last
+				sameSlope = sameSlope && inTolerance(			// check if slope of last key frames is in tolerance with slope of current and last
 					( key1 -> getValue()[ vs ]	- key2 -> getValue()[ vs ] ) / ( key1 -> getTime()	- key2 -> getTime() ) , 
 					( osgVec[ vs ]					- key1 -> getValue()[ vs ] ) / ( time					- key1 -> getTime() ) ,
-					_slopeTollerance ) ;
+					_slopeTolerance ) ;
 			}
 
 			// if the slope is the same, delete the last key frame
@@ -113,7 +113,7 @@ private :
 			key2 = & keys -> at( keys -> size() - 2 ) ;	// handle to last but one key frame
 
 			for( unsigned int vs = 0 ; vs < 3 ; ++vs )  {	// loop through each Component of the Vec3, to check if values are inTolerance
-				sameSlope = sameSlope && inTollerance( key1 -> getValue()[ vs ] , key2 -> getValue()[ vs ] , _slopeTollerance ) ;
+				sameSlope = sameSlope && inTolerance( key1 -> getValue()[ vs ] , key2 -> getValue()[ vs ] , _slopeTolerance ) ;
 			}
 
 			// if last and last but one keyframes are the same, delete the last one

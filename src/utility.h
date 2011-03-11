@@ -15,9 +15,9 @@
 #include <osg/Matrixf>
 
 
-// CHECK if distance from BASE is in TOLLERANCE
-static inline bool inTollerance( double base , double match , double tollerance )  {
-	return ( base - tollerance <= match ) && ( base + tollerance >= match ) ;
+// CHECK if distance from BASE is in TOLERANCE
+static inline bool inTolerance( double base , double match , double tolerance )  {
+	return ( base - tolerance <= match ) && ( base + tolerance >= match ) ;
 }
 
 //------------------------------------------------------------------------------
