@@ -89,7 +89,8 @@ void Animation::mapInputConnections( const MObject & mObject , osg::ref_ptr< osg
 	// --- Create enum : DEFAULT : TWEAKED : INPUTS
 	// --- Generate Attribute Vector with enum, and export accordingly
 
-	bool hasInputs = false ;		// check for Inputs
+	bool hasPlugInputs = false ;		// if Plug has no Inputs just add the StackedTransformElement
+	bool hasNodeInputs = false ;		// if Node has no Inputs don't add update callback
 	MFnDependencyNode	mfnDependencyNode( mObject ) ;
 	MPlugArray mPlugInputArray ;	// will hold the connections to the current plug of this node
 	MPlug mPlug ;
@@ -108,30 +109,31 @@ void Animation::mapInputConnections( const MObject & mObject , osg::ref_ptr< osg
 		if ( mPlug.isCompound() )  {
 			for( unsigned int cp = 0 ; cp < mPlug.numChildren() ; ++cp )  {							// cp = childPlug
 				mPlug.child( cp ).connectedTo( mPlugInputArray , true , false ) ;	
-				hasInputs = hasInputs || ( mPlugInputArray.length() > 0 ) ;
+				hasPlugInputs = hasPlugInputs || ( mPlugInputArray.length() > 0 ) ;
 			}
 		}
 
 		// else Attribute is not compound, still check for default value, even though not in use yet
 		else  {
 			mPlug.connectedTo( mPlugInputArray , true , false ) ;
-			hasInputs = mPlugInputArray.length() > 0 ;
+			hasPlugInputs = mPlugInputArray.length() > 0 ;
 		}
 		
 
-		// hasInputs determines if the current Transform has Transformation Inputs of any kind
+		// hasPlugInputs determines if the current Transform has Transformation Inputs of any kind
 		// to map a Channel to the current Transform Type ( e.g. rotation ), query the length of mPlugInputArray
-		if ( hasInputs )  {
+		if ( hasPlugInputs )  {
 			_mStatus = _mKeyframeNode.append( mObject ) ;
 			_mStatus = _mKeyframeAttr.append( ka ) ;
 		}
 
-//		hasInputs = false ;
+		hasNodeInputs = hasNodeInputs || hasPlugInputs ;
+		hasPlugInputs = false ;
 	}
 
 
 	// If the Maya Object has no Input Connections, there is no need for an Animation UpdateCallback, but for a Joint
-	if ( hasInputs || mObject.hasFn( MFn::kJoint ) )  {
+	if ( hasNodeInputs || mObject.hasFn( MFn::kJoint ) )  {
 		osgAnimation::UpdateMatrixTransform * updateCallback ;
 		
 		// Create Different Callbacks for Transforms and Joints ( second is derived from UpdateMatrixTransform )
@@ -152,7 +154,6 @@ void Animation::mapInputConnections( const MObject & mObject , osg::ref_ptr< osg
 		}
 
 
-		
 		MFnTransform	mfnTransform( mObject ) ;	// attach the function set to the object
 		osg::Vec3		osgVec3 ;
 		osg::Quat		osgQuat ;
@@ -462,6 +463,10 @@ bool Animation::exporta()
 	// If Maya Scene has no Character, sample the scene one time
 	if ( mitDG.isDone() )  {
 		addAnimationClip( "No Character" ) ;	// Add osgAnimation and sample Maya Animation
+
+		_mKeyframeNode.clear() ;
+		_mKeyframeAttr.clear() ;
+
 		return true ;
 	}
 	

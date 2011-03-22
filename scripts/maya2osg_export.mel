@@ -59,31 +59,18 @@ proc initOptionVars()  {
 
 // Delete all Option Vars, use this with initOptionVars to reset to default Values
 proc removeOptionVars()  {
-	optionVar
-		-remove "maya2osg_bfcull"
-		-remove "maya2osg_bfcull"
-		-remove "maya2osg_yup2zup"
-		-remove "maya2osg_texenv"
-		-remove "maya2osg_texclamp"
-		-remove "maya2osg_use_glsl"
-		-remove "maya2osg_global_ambient"
-		-remove "maya2osg_local_viewer"
-		-remove "maya2osg_compute_shadows"
-		-remove "maya2osg_shadow_technique"
-		-remove "maya2osg_export_anim"
-		-remove "maya2osg_anim_transformType"
-		-remove "maya2osg_anim_sampleby"
-		-remove "maya2osg_cbParticlesEmissive"
-		-remove "maya2osg_cbParticlesLighting"
-		-remove "maya2osg_cbDefaultCameras"
-		-remove "maya2osg_cbOrthoCameras" ;
+	string $optionVar ;
+
+	for( $optionVar in optionVar( "-list" ) )
+		if ( gmatch( $optionVar , "maya2osg_*" ) )
+			optionVar -remove $optionVar ;
 }
 
 
 
 proc string buildCommandOptions()
 {
-	string $command = " " ;
+	string $command = "" ;
 
 	// TEXTURE
 	$command += " -texenv "						+ `optionVar -query "maya2osg_texenv"` ;
@@ -390,6 +377,16 @@ global proc maya2osg_fileUtil( string $command )
 
 
 
+proc buildFrameLayout( string $label )  {
+	int $marginW = 15 ;
+	int $marginH = 10 ;
+	
+	frameLayout -label $label -collapsable true -marginWidth $marginW -marginHeight $marginH
+		-collapse ( optionVar( "-query" , "maya2osg_frame" + $label ) )
+		-expandCommand	( "optionVar -intValue \"maya2osg_frame" + $label + "\" 0" )
+		-collapseCommand	( "optionVar -intValue \"maya2osg_frame" + $label + "\" 1" ) ;
+}
+
 // Use this proceedur in fileDialog and custom window - alternative Layout
 // set optionVar -intValue "maya2osg_uiType" 1
 proc addFrameLayouts_optionMenu()
@@ -405,7 +402,7 @@ proc addFrameLayouts_optionMenu()
 
 
 	// GEOMETRY
-	frameLayout -label "Geometry" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+	buildFrameLayout( "Geometry" ) ;
 		rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
 			text -align "right" -label "Surface Mode:" -height $line_height ;
 			$command = "string $token[] ; tokenize #1 \"_\" $token ; optionVar -stringValue \"maya2osg_bfcull\" $token[0] ; " ;
@@ -428,7 +425,7 @@ proc addFrameLayouts_optionMenu()
 		setParent.. ;
 
 	// TEXTURING
-	frameLayout -label "Texturing" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+	buildFrameLayout( "Texturing" ) ;
 		rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
 			text -align "right" -label "Default Mode:" ;
 			optionMenu -width $col2 -changeCommand "optionVar -stringValue \"maya2osg_texenv\" #1" maya2osgUI_texenv ; // menuItem -value is stored in #1
@@ -449,8 +446,8 @@ proc addFrameLayouts_optionMenu()
 
 		setParent ..;
 
-	// MATERIALS / SHADING
-	frameLayout -label "Materials / Shading" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+	// SHADING
+	buildFrameLayout( "Shading" ) ;
 		rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
 			//text -label "Coming soon..." -height $line_height;
 			text -align "right" -label "Build GLSL Shaders:" ;
@@ -462,7 +459,7 @@ proc addFrameLayouts_optionMenu()
 		setParent.. ;
 
 	// LIGHTING
-	frameLayout -label "Lighting" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+	buildFrameLayout( "Lighting" ) ;
 		rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
 			text -align "right" -label "Global Ambient:" ;
 			float $color[3] = `optionVar -query "maya2osg_global_ambient"` ;
@@ -499,7 +496,7 @@ proc addFrameLayouts_optionMenu()
 		setParent ..;
 
 	// ANIMATION
-	frameLayout -label "Animation" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+	buildFrameLayout( "Animation" ) ;
 		rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
 			text -align "right" -label "Export Animation:" ;
 			checkBox -label "" -height $line_height
@@ -528,7 +525,7 @@ proc addFrameLayouts_optionMenu()
 		setParent.. ;
 
 	// PARTICLES
-	frameLayout -label "Particles" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+	buildFrameLayout( "Particles" ) ;
 		rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
 			text -align "right" -label "Emissive Particles:" ;
 			checkBox -label "" -height $line_height
@@ -545,7 +542,7 @@ proc addFrameLayouts_optionMenu()
 		setParent.. ;
 
 	// CAMERAS
-	frameLayout -label "Cameras" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+	buildFrameLayout( "Cameras" ) ;
 		rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
 			text -align "right" -label "Default Cameras:" ;
 			checkBox -label "" -height $line_height
@@ -567,12 +564,9 @@ proc addFrameLayouts_optionMenu()
 // set optionVar -intValue "maya2osg_uiType" 0, or remove the optionVar
 proc addFrameLayouts_scrollList()
 {
-	int $marginW = 15;
-	int $marginH = 10;
 	int $line_height = 25;
 
-
-	frameLayout -label "Geometry" -collapsable true -marginWidth $marginW -marginHeight $marginH;
+	buildFrameLayout( "Geometry" ) ;
 		columnLayout;
 			text -label "Single/double side surfaces:" -height $line_height;
 			string $optionVar = `optionVar -query "maya2osg_bfcull"`;
@@ -588,7 +582,7 @@ proc addFrameLayouts_scrollList()
 			}
 			setParent ..;
 		setParent ..;
-	frameLayout -label "Texturing" -collapsable true -marginWidth $marginW -marginHeight $marginH;
+	buildFrameLayout( "Texturing" ) ;
 		rowLayout -nc 2;
 // 						rowLayout -nc 2;
 // 							text -label "Image path" -enable false;
@@ -617,7 +611,7 @@ proc addFrameLayouts_scrollList()
 				setParent ..;
 			setParent ..;
 		setParent ..;
-	frameLayout -label "Materials/shading" -collapsable true -marginWidth $marginW -marginHeight $marginH;
+	buildFrameLayout( "Shading" ) ;
 		columnLayout;
 			//text -label "Coming soon..." -height $line_height;
 			checkBox -label "Build GLSL shaders" -height $line_height
@@ -625,7 +619,7 @@ proc addFrameLayouts_scrollList()
 				-changeCommand "optionVar -intValue \"maya2osg_use_glsl\" #1" ;
 			setParent ..;
 		setParent ..;
-	frameLayout -label "Lighting" -collapsable true -marginWidth $marginW -marginHeight $marginH;
+	buildFrameLayout( "Lighting" ) ;
 		columnLayout;
 			float $color[3] = `optionVar -query "maya2osg_global_ambient"` ;
 			$command  = "float $color[3] = `colorSliderGrp -query -rgbValue maya2osgUI_global_ambient` ;" ;
@@ -654,7 +648,7 @@ proc addFrameLayouts_scrollList()
 				-selectItem ( `optionVar -query "maya2osg_shadow_technique"` ) maya2osgUI_shadow_technique;
 			setParent ..;
 		setParent ..;
-	frameLayout -label "Animation" -collapsable true -marginWidth $marginW -marginHeight $marginH;
+	buildFrameLayout( "Animation" ) ;
 		columnLayout;
 			checkBox -label "Export animations" -height $line_height
 				-value ( `optionVar -query "maya2osg_export_anim"` )
@@ -671,7 +665,7 @@ proc addFrameLayouts_scrollList()
 				setParent ..;
 			setParent ..;
 		setParent ..;
-	frameLayout -label "Particles" -collapsable true -marginWidth $marginW -marginHeight $marginH;
+	buildFrameLayout( "Particles" ) ;
 		columnLayout;
 			checkBox -label "Emissive particles"
 				-value ( `optionVar -query "maya2osg_cbParticlesEmissive"` )
@@ -681,7 +675,7 @@ proc addFrameLayouts_scrollList()
 				-changeCommand "optionVar -intValue \"maya2osg_cbParticlesLighting\" #1" ;
 			setParent ..;
 		setParent ..;
-	frameLayout -label "Cameras" -collapsable true -marginWidth $marginW -marginHeight $marginH;
+	buildFrameLayout( "Cameras" ) ;
 		columnLayout;
 			checkBox -label "Export default cameras"
 				-value ( `optionVar -query "maya2osg_cbDefaultCameras"` )
@@ -716,7 +710,7 @@ proc maya2osg_options()
 	$form = `formLayout -numberOfDivisions 100`;
 		$frame_config = `scrollLayout -horizontalScrollBarThickness 0 -verticalScrollBarThickness 0 -childResizable true -minChildWidth 300`;
 			columnLayout -adjustableColumn true ;
-				frameLayout -label "File" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+				buildFrameLayout( "File" ) ;
 					rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
 						text -align "right" -label "Filepath:" -height $line_height ;
 						textFieldButtonGrp -columnWidth2 ( 3 * $col2 / 4 ) ( $col2 / 4 ) -buttonLabel "Browse"

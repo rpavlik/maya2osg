@@ -372,9 +372,15 @@ MStatus OSGWrite::exporta( const MString & filename )
 	// Set the base name to the Config (used to export Camera and CameraAnimation files)
 	Config::instance()->setSceneFilePath( filename.asChar() );
 
-    // Scene root node name -> file base name
-    root->setName( Config::instance()->getSceneFilePath().getFileBaseName() );
+	// Scene root node name -> file base name
+	root->setName( Config::instance()->getSceneFilePath().getFileBaseName() );
 
+	// Create New AnimationManager
+	// Initialize Attribute Arrays required once on Plug-In load
+	Animation::init() ;
+
+	// Malfunctioning, Objects get exported multiple times, if
+	// several objects are selected which are children of each other
 	if ( sel.length() > 0 ) {
 		// If there is a selection, export only the selected elements
 		for( int i=0 ; i < sel.length() ; i++ ) {
@@ -385,7 +391,16 @@ MStatus OSGWrite::exporta( const MString & filename )
             if ( scene.valid() )
     			root->addChild(scene.get());
 		}
+
+		// all collected Plugs will be captured in keyframes once per Maya Character Clip
+		if ( Config::instance() -> getAnimTransformType() == Config::OSG_ANIMATION )  {
+			if ( Animation::exporta() )  {
+				Animation::getManager() -> buildTargetReference() ;			
+				root -> addUpdateCallback( Animation::getManager().get() ) ;	//	add AnimationManager from Animation Object to root node
+			}
+		}
 	}
+
 	else {
 		// If there is no selection, export all the scene
 
