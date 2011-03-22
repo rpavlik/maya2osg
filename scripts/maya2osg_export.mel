@@ -26,6 +26,10 @@
 
 // Initialize Option Variables with default Values
 proc initOptionVars()  {
+	if ( !`optionVar -exists "maya2osg_filepath"` ) 				optionVar -stringValue	"maya2osg_filepath"					( `workspace -query -rootDirectory` ) ;
+	if ( !`optionVar -exists "maya2osg_filename"` ) 				optionVar -stringValue	"maya2osg_filename"					"maya2osg" ;
+	if ( !`optionVar -exists "maya2osg_filetype"` ) 				optionVar -stringValue	"maya2osg_filetype"					"osgt" ;
+	
 	if ( !`optionVar -exists "maya2osg_bfcull"` ) 					optionVar -stringValue	"maya2osg_bfcull"					"KEEP" ;
 	if ( !`optionVar -exists "maya2osg_yup2zup"` ) 				optionVar -intValue		"maya2osg_yup2zup"					( `upAxis -query -axis` == "y" ) ;
 
@@ -39,16 +43,16 @@ proc initOptionVars()  {
 
 	if ( !`optionVar -exists "maya2osg_local_viewer"` ) 			optionVar -intValue		"maya2osg_local_viewer"				1 ;
 	if ( !`optionVar -exists "maya2osg_compute_shadows"` ) 		optionVar -intValue		"maya2osg_compute_shadows"			1 ;
-	if ( !`optionVar -exists "maya2osg_shadow_technique"` ) 		optionVar -stringValue	"maya2osg_shadow_technique"			"SHADOW_MAP" ;
+	if ( !`optionVar -exists "maya2osg_shadow_technique"` ) 		optionVar -stringValue	"maya2osg_shadow_technique"		"SHADOW_MAP" ;
 
 	if ( !`optionVar -exists "maya2osg_export_anim"` ) 			optionVar -intValue		"maya2osg_export_anim"				1 ;
-	if ( !`optionVar -exists "maya2osg_anim_transformType"` )		optionVar -stringValue	"maya2osg_anim_transformType"		"OSG_ANIMATION" ;
-	if ( !`optionVar -exists "maya2osg_anim_sampleby"` ) 			optionVar -intValue		"maya2osg_anim_sampleby"			1 ;
+	if ( !`optionVar -exists "maya2osg_anim_transformType"` )	optionVar -stringValue	"maya2osg_anim_transformType"		"OSG_ANIMATION" ;
+	if ( !`optionVar -exists "maya2osg_anim_sampleby"` ) 		optionVar -intValue		"maya2osg_anim_sampleby"			1 ;
 
 	if ( !`optionVar -exists "maya2osg_cbParticlesEmissive"` ) 	optionVar -intValue		"maya2osg_cbParticlesEmissive"		0 ;
 	if ( !`optionVar -exists "maya2osg_cbParticlesLighting"` ) 	optionVar -intValue		"maya2osg_cbParticlesLighting"		0 ;
 
-	if ( !`optionVar -exists "maya2osg_cbDefaultCameras"` ) 		optionVar -intValue		"maya2osg_cbDefaultCameras"			0 ;
+	if ( !`optionVar -exists "maya2osg_cbDefaultCameras"` ) 		optionVar -intValue		"maya2osg_cbDefaultCameras"		0 ;
 	if ( !`optionVar -exists "maya2osg_cbOrthoCameras"` ) 		optionVar -intValue		"maya2osg_cbOrthoCameras"			0 ;
 }
 
@@ -56,6 +60,7 @@ proc initOptionVars()  {
 // Delete all Option Vars, use this with initOptionVars to reset to default Values
 proc removeOptionVars()  {
 	optionVar
+		-remove "maya2osg_bfcull"
 		-remove "maya2osg_bfcull"
 		-remove "maya2osg_yup2zup"
 		-remove "maya2osg_texenv"
@@ -76,69 +81,16 @@ proc removeOptionVars()  {
 
 
 
-global proc maya2osg_doExport(string $file, string $format)
+proc string buildCommandOptions()
 {
-	$command = "maya2osg";
-
-	// If scene is Z-Up do nothing, if scene is Y-Up repeat last behaviour
-	if ( `upAxis -q -axis` == "z" ) {
-		$command += " -YUp2ZUp 0";
-	}
-	$command += " \"" + $file + "\";";
-	eval($command);
-}
-
-
-
-global proc maya2osg_doExportGUIAndPreview(string $file, string $format)
-{
-	string $extension = fileExtension($file);
-	string $filebasename = basename($file, "." + $extension);
-	string $dirname = dirname($file);
-
-	int $offs_x = 100;
-	int $offs_y = 100;
-	int $width = `getAttr defaultResolution.width`;
-	int $height = `getAttr defaultResolution.height`;
-
-	$options = " --window " + $offs_x + " " + $offs_y + " " + $width + " " + $height;
-
-	string $camera_file_name = "";
-	string $camera_shape[];
-	$panel = `getPanel -withFocus`;
-	// Compare the panel's type to confirm it is a "modelPanel"
-	if ( "modelPanel" == `getPanel -to $panel` )
-	{
-		$camera = `modelEditor -q -camera $panel`;
-		$camera_shape = `listRelatives -shapes $camera`;
-		$camera_file_name = $filebasename + "_" + $camera_shape[0] + ".osg";
-	}
-
-	maya2osg_doExportGUI($file, $format);
-
-	// If "current camera" was exported to OSG, then use it for preview
-	if ( `filetest -r $camera_file_name` ) {
-		$options += " -c " + $camera_file_name; // + " --noautohomeview";
-	}
-
-	print( "osgviewer " + $options + " " + $file);
-	exec("osgviewer " + $options + " " + $file);
-}
-
-
-
-global proc maya2osg_doExportGUI(string $file, string $format)
-{
-	global string $maya2osg_export_win;
-
-	string $command = "maya2osg" ;
-
+	string $command = " " ;
+	
 	// TEXTURE
 	$command += " -texenv "						+ `optionVar -query "maya2osg_texenv"` ;
 	$command += " -texClampMode "				+ `optionVar -query "maya2osg_texclamp"` ;
 
 	// CAMERAS
-	$command += " -exportDefaultCameras "		+ `optionVar -query "maya2osg_cbDefaultCameras"` ;
+	$command += " -exportDefaultCameras "	+ `optionVar -query "maya2osg_cbDefaultCameras"` ;
 	$command += " -exportOrthoCameras "		+ `optionVar -query "maya2osg_cbOrthoCameras"` ;
 
 	// GEOMETRY
@@ -148,7 +100,7 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 	// ANIMATION
 	$command += " -exportAnim " 				+ `optionVar -query "maya2osg_export_anim"` ;
 	$command += " -animTransformType "		+ `optionVar -query "maya2osg_anim_transformType"` ;
-	$command += " -animSampleBy " 				+ `optionVar -query "maya2osg_anim_sampleby"` ;
+	$command += " -animSampleBy " 			+ `optionVar -query "maya2osg_anim_sampleby"` ;
 
 	// PARTICLES
 	$command += " -particlesEmissive " 		+ `optionVar -query "maya2osg_cbParticlesEmissive"` ;
@@ -165,12 +117,268 @@ global proc maya2osg_doExportGUI(string $file, string $format)
 
 	// GLSL SHADERS
 	$command += " -useGLSL "					+ `optionVar -query "maya2osg_use_glsl"` ;
+	
+	return $command ;
+	
+}
 
-	$command += " \"" + $file + "\" ; " ;
-	//print( $command + "\n" ) ;
-	eval( $command ) ;
 
-	deleteUI -window $maya2osg_export_win ;
+// Concatenates filepath, filename, filetype into one valid filpath
+// Arguments prefix and postfix the filname
+proc string fixFilepath( string $prefix , string $postfix )
+{
+	
+	string $path = "" , $filepath = optionVar( "-query" , "maya2osg_filepath" ) ;
+	
+	$path += $filepath + "/"  + $prefix ;
+	$path += optionVar( "-query" , "maya2osg_filename" ) + $postfix + "." ;
+	$path += optionVar( "-query" , "maya2osg_filetype" ) ; 
+	
+	return $path ;
+}
+
+
+// Concatenates filepath, filename, filetype into one valid filpath directly
+proc string getFilepath()  {  
+	return fixFilepath( "" , "" ) ;
+}
+
+
+
+global proc maya2osg_doExport(string $file, string $format)
+{
+	$command = "maya2osg";
+
+	// If scene is Z-Up do nothing, if scene is Y-Up repeat last behaviour
+	if ( `upAxis -q -axis` == "z" ) {
+		$command += " -YUp2ZUp 0";
+	}
+	$command += " \"" + $file + "\";";
+	print $command ;
+	eval($command);
+}
+
+
+
+//global proc maya2osg_doExportGUIAndPreview(string $file, string $format)
+global proc maya2osg_doExportGUIAndPreview()
+{
+//	string $extension = fileExtension($file);
+//	string $filebasename = basename($file, "." + $extension);
+//	string $dirname = dirname($file);
+
+	if ( getPanel( "-typeOf" , getPanel( "-withFocus" ) ) != "modelPanel" )  {
+		warning "No modelPanel in Focus ! Select ( activate ) a Camera Panel. " ;
+		return ;
+	}
+	
+	int $offs_x = 100;
+	int $offs_y = 100;
+	int $width = `getAttr defaultResolution.width`;
+	int $height = `getAttr defaultResolution.height`;
+
+	$options = " --window " + $offs_x + " " + $offs_y + " " + $width + " " + $height;
+
+	string $camera_file_name = "";
+	string $camera_shape[];
+	$panel = `getPanel -withFocus`;
+	// Compare the panel's type to confirm it is a "modelPanel"
+	if ( "modelPanel" == `getPanel -to $panel` )
+	{
+		$camera = `modelEditor -q -camera $panel`;
+		$camera_shape = `listRelatives -shapes $camera`;
+		$camera_file_name = fixFilepath( "" , ( "_" + $camera_shape[0] ) ) ;
+	}
+
+	//maya2osg_doExportGUI($file, $format);
+	maya2osg_doExportGUI( $camera_file_name ) ;
+
+	// If "current camera" was exported to OSG, then use it for preview
+	if ( `filetest -r $camera_file_name` )  {
+		$options += " -c " + $camera_file_name; // + " --noautohomeview";
+	}
+
+	string $viewer ;
+	if ( optionVar( "-query" , "maya2osg_anim_transformType" ) == "OSG_ANIMATION" )
+		$viewer = "osganimationviewer " ;
+	
+	else $viewer = "osgviewer " ;
+	
+	string $exec = $viewer + $options + " " + $camera_file_name ;
+	print( $exec ) ;
+	exec(  $exec ) ;
+}
+
+
+
+//global proc maya2osg_doExportGUI(string $filepath, string $format)
+global proc maya2osg_doExportGUI( string $filepath )
+{
+	//global string $maya2osg_export_win ;
+	
+	maya2osg_fileUtil( "updateFilepathHistory" ) ;
+	maya2osg_fileUtil( "buildFilepathPopUp" ) ;
+
+	string $command = "maya2osg" + buildCommandOptions() ;
+
+	if ( !size( $filepath ) )
+		$filepath = getFilepath() ;
+	
+	if ( !( filetest( "-d" , dirname( $filepath ) ) ) )
+		warning( "Nothing Exportetd, Invalid Path : \"" + dirname( $filepath ) + "\"" ) ;
+		
+	else  {
+		$command += " \"" + $filepath + "\" ; " ; 
+		//print( $command + "\n" ) ;
+		eval( $command ) ;
+		//deleteUI -window $maya2osg_export_win ;
+	
+	}
+}
+
+
+
+// Util Proc for filename and path UI commands
+global proc maya2osg_fileUtil( string $command )
+{
+	// Check if entered path is valid
+	if ( $command == "pathFieldCommand" )  {
+		string $textField = `textFieldButtonGrp -query -fileName maya2osgUI_filepath` ;
+		if ( filetest( "-d" , $textField ) )
+			optionVar -stringValue "maya2osg_filepath" $textField ;
+			
+		else warning( "Filepath \"" + $textField + "\" does not exist !" ) ;
+	}
+	
+	// common command to update Filepath TextField
+	else if ( $command == "updatePathField" )  {
+		textFieldButtonGrp -edit -fileName   `optionVar -query "maya2osg_filepath"` maya2osgUI_filepath ;
+		textFieldButtonGrp -edit -annotation `optionVar -query "maya2osg_filepath"` maya2osgUI_filepath ;
+	}
+	
+	// command opens a browser for path selection without file display
+	else if ( $command == "pathDialog" )  {
+		string $optionVar = `optionVar -query "maya2osg_filepath"` ;
+		string $path[] = `fileDialog2 -caption "maya2osg Export Path" -fileMode 3 -startingDirectory $optionVar -dialogStyle 1` ;
+		if ( size( $path ) )  optionVar -stringValue "maya2osg_filepath" $path[0] ;
+	}
+
+	// common command to update Filepath History
+	else if ( $command == "updatePathHistory" )  {
+		string $pathHistory = `optionVar -query "maya2osg_pathHistory"` , $token[] ;
+		int $i , $numToken = `tokenize $pathHistory ";" $token` ;
+		$pathHistory = `optionVar -query "maya2osg_filepath"` + ";" ;
+		for( $i = 0 ; $i < min( 5 , $numToken ) ; ++$i )  $pathHistory = $pathHistory + $token[ $i ] + ";" ;
+		optionVar -stringValue "maya2osg_pathHistory" $pathHistory ;
+	}
+	
+	// command splits the path in path components: filepath, filename, filetype
+	// writes the result into coresponding optionVars and maya2osgUIs
+	else if ( $command == "splitPath" )  {
+		string $filter = "OSG (*.osgt *.osgb *.osgx *.osg *.ive);;OSG ASCII (*.osgt );;OSG Binary (*.osgb );;OSG XML (*.osgx );;OSG bellow 2.9 ASCII(*.osg );;OSG bellow 2.9 Binary (*.ive )";
+		string $text , $path[ 1 ] ; $path[ 0 ] = `optionVar -query "maya2osg_filepath"` ;
+		$path = `fileDialog2 -caption "maya2osg Export File" -startingDirectory $path[ 0 ] -fileFilter $filter -selectFileFilter "OSG Ascii" -dialogStyle 1` ;
+		
+		if ( size( $path ) )  {
+			string $token[] ; int $i , $numToken = `tokenize $path[0] "/" $token` ; $path[ 0 ] = $token[ 0 ] ;
+			for( $i = 1 ; $i < $numToken - 1 ; ++$i )  $path[0] = $path[0] + "/" + $token[ $i ] ;
+			if ( size( $path[0] ) == 2 )  $path[0] = $path[0] + "/" ;			// if Path is Drive root file Dialog returns Driveletter:/ aswell
+			optionVar -stringValue "maya2osg_filepath" $path[ 0 ] ;
+			tokenize $token[ $numToken - 1 ] "." $token ;
+			optionVar -stringValue "maya2osg_filename" $token[ 0 ] ;
+			$text = $token[ 1 ] ;
+
+			if ( $text == "osgt" ||  $text == "osgb" || $text == "osgx" || $text == "osg" || $text == "ive" )
+				optionVar -stringValue "maya2osg_filetype" $text ;
+
+			else  {
+				optionVar -stringValue "maya2osg_filetype" "unknown" ;
+				warning ( "Unknown Filetype : " + $text ) ;  
+			}
+		}
+		
+		textFieldButtonGrp -edit -fileName `optionVar -query "maya2osg_filepath"` maya2osgUI_filepath ;
+		textFieldButtonGrp -edit -fileName `optionVar -query "maya2osg_filename"` maya2osgUI_filename ;
+		textField -edit -text $text maya2osgUI_filetypeText ;
+		optionMenu -edit -value ( `optionVar -query "maya2osg_filetype"` != "unknown" ? `optionVar -query "maya2osg_filetype"` : "" ) maya2osgUI_filetypeOption ;
+	}
+	
+	// Check Filetype and update filetype optionMenu
+	else if ( $command == "typeFieldCommand" )  {
+		string $text = `textField -query -text maya2osgUI_filetypeText` ;
+		
+		if ( $text == "osgt" ||  $text == "osgb" || $text == "osgx" || $text == "osg" || $text == "ive" )
+			optionVar -stringValue "maya2osg_filetype" $text ;
+
+		else  {
+			optionVar -stringValue "maya2osg_filetype" "unknown" ;
+			warning ( "Unknown Filetype : " + $text ) ;  
+		}
+		
+		string $optionVar = `optionVar -query "maya2osg_filetype"` ;
+		optionMenu -edit -value ( `optionVar -query "maya2osg_filetype"` != "unknown" ? `optionVar -query "maya2osg_filetype"` : "" ) maya2osgUI_filetypeOption ;
+	}
+	
+	// Check, set fletype and update filetype textField
+	else if ( $command == "typeOptionCommand" )  {
+		string $option = `optionMenu -query -value maya2osgUI_filetypeOption` ;
+		if ( size ( $option ) )
+			optionVar -stringValue "maya2osg_filetype" $option ;
+		else
+			optionVar -stringValue "maya2osg_filetype" "unknown" ;
+		
+		string $optionVar = `optionVar -query "maya2osg_filetype"` ;
+		textField -edit -text ( $optionVar != "unknown" ? `optionVar -query "maya2osg_filetype"` : "" ) maya2osgUI_filetypeText ;
+	}
+	
+	// Create filepath history PopUp Menu
+	else if ( $command == "buildFilepathPopUp" )  {
+		string $n = "\n" ;
+		string $projectPath = `workspace -query -rootDirectory` ;
+		popupMenu -edit -deleteAllItems maya2osgUI_filepathPopUp ;
+		menuItem -label "Currrent Project Path" -parent maya2osgUI_filepathPopUp
+			-command ( "optionVar -stringValue \"maya2osg_filepath\" \"" + $projectPath + "\" ; maya2osg_fileUtil( \"updatePathField\" ) ;" ) ;
+		menuItem -divider on ;
+		
+		if ( `optionVar -exists "maya2osg_pathHistory"` )  {
+			string $token[] , $pathHistory = `optionVar -query "maya2osg_pathHistory"` ;
+			int $i , $numToken = `tokenize $pathHistory ";" $token` ;
+			
+			for( $i = 0 ; $i < min( 5 , $numToken ) ; ++$i )  {
+				if ( size( $token[ $i ] ) )  {
+					menuItem -label $token[ $i ] -parent maya2osgUI_filepathPopUp
+						-command ( "optionVar -stringValue \"maya2osg_filepath\" \"" + $token[ $i ] + "\" ; maya2osg_fileUtil( \"updatePathField\" ) ;" ) ;
+				}
+			}
+		}
+	}
+	
+	// Update filepath history PopUp Menu
+	else if ( $command == "updateFilepathHistory" )  {
+		string $filepath = optionVar( "-query" , "maya2osg_filepath" ) ;
+		
+		if ( optionVar( "-exists" , "maya2osg_pathHistory" ) )  {
+			string $pathHistory = optionVar( "-query" , "maya2osg_pathHistory" ) ;
+			string $token[] ;
+			
+			tokenize $pathHistory ";" $token ;
+			int $i , $numToken = tokenize( $pathHistory , ";" , $token ) ;
+			$pathHistory = $filepath + ";" ;
+			
+			for( $i = 0 ; $i < min( 5 , $numToken ) ; ++$i )  {
+				if ( $token[ $i ] != $filepath && filetest( "-d" , $token[ $i ] ) ) {
+					$pathHistory += $token[ $i ] + ";" ;
+				}
+			}
+			
+			optionVar( "-stringValue" , "maya2osg_pathHistory" , $pathHistory ) ;
+		}
+		
+		else  optionVar( "-stringValue" , "maya2osg_pathHistory" , $filepath ) ;
+	
+	}
+
+	else print $command ;
 }
 
 
@@ -186,162 +394,161 @@ proc addFrameLayouts_optionMenu()
 	int $col1 = 100 , $col2 = 192 , $off2 = 8 ;
 
 	string $command = "" ;
+	string $optionVar ;
 
-	columnLayout -adjustableColumn true ;
-		// GEOMETRY
-		frameLayout -label "Geometry" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
-			rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
-				text -align "right" -label "Surface Mode:" -height $line_height ;
-				$command = "string $token[] ; tokenize #1 \"_\" $token ; optionVar -stringValue \"maya2osg_bfcull\" $token[0] ; " ;
-				optionMenu -width $col2 -changeCommand $command maya2osgUI_bfcull ;
-				menuItem -label "SINGLE_SIDED" ;
-				menuItem -label "DOUBLE_SIDED" ;
-				menuItem -label "KEEP_STATE" ;
-				string $optionVar = `optionVar -query "maya2osg_bfcull"` ;
-				optionMenu -edit -value ( $optionVar == "KEEP" ? $optionVar + "_STATE" : $optionVar + "_SIDED" ) maya2osgUI_bfcull ;
+			
+	// GEOMETRY
+	frameLayout -label "Geometry" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+		rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
+			text -align "right" -label "Surface Mode:" -height $line_height ;
+			$command = "string $token[] ; tokenize #1 \"_\" $token ; optionVar -stringValue \"maya2osg_bfcull\" $token[0] ; " ;
+			optionMenu -width $col2 -changeCommand $command maya2osgUI_bfcull ;
+			menuItem -label "SINGLE_SIDED" ;
+			menuItem -label "DOUBLE_SIDED" ;
+			menuItem -label "KEEP_STATE" ;
+			$optionVar = `optionVar -query "maya2osg_bfcull"` ;
+			optionMenu -edit -value ( $optionVar == "KEEP" ? $optionVar + "_STATE" : $optionVar + "_SIDED" ) maya2osgUI_bfcull ;
 
-				if ( `upAxis -q -axis` == "y" ) {
-					text -align "right" -label "Y-Up to Z-Up:" ;
-					checkBox -label "" -height $line_height
-						-value ( `optionVar -query "maya2osg_yup2zup"` )
-						-changeCommand "optionVar -intValue \"maya2osg_yup2zup\" #1" ;
-				}
-
-				setParent.. ;
+			if ( `upAxis -q -axis` == "y" ) {
+				text -align "right" -label "Y-Up to Z-Up:" ;
+				checkBox -label "" -height $line_height
+					-value ( `optionVar -query "maya2osg_yup2zup"` )
+					-changeCommand "optionVar -intValue \"maya2osg_yup2zup\" #1" ;
+			}
 
 			setParent.. ;
 
-		// TEXTURING
-		frameLayout -label "Texturing" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
-			rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
-				text -align "right" -label "Default Mode:" ;
-				optionMenu -width $col2 -changeCommand "optionVar -stringValue \"maya2osg_texenv\" #1" maya2osgUI_texenv ; // menuItem -value is stored in #1
-				menuItem -label "DECAL" ;
-				menuItem -label "MODULATE" ;
-				menuItem -label "BLEND" ;
-				menuItem -label "REPLACE" ;
-				menuItem -label "ADD" ;
-				optionMenu -edit -value ( `optionVar -query "maya2osg_texenv"` ) maya2osgUI_texenv ;
+		setParent.. ;
 
-				text -align "right" -label "Clamping:" ;
-				optionMenu -width $col2 -changeCommand "optionVar -stringValue \"maya2osg_texclamp\" #1" maya2osgUI_texclamp ; // menuItem -value is stored in #1
-				menuItem -label "EDGE" ;
-				menuItem -label "COLOR" ;
-				optionMenu -edit -value ( `optionVar -query "maya2osg_texclamp"` ) maya2osgUI_texclamp ;
+	// TEXTURING
+	frameLayout -label "Texturing" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+		rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
+			text -align "right" -label "Default Mode:" ;
+			optionMenu -width $col2 -changeCommand "optionVar -stringValue \"maya2osg_texenv\" #1" maya2osgUI_texenv ; // menuItem -value is stored in #1
+			menuItem -label "DECAL" ;
+			menuItem -label "MODULATE" ;
+			menuItem -label "BLEND" ;
+			menuItem -label "REPLACE" ;
+			menuItem -label "ADD" ;
+			optionMenu -edit -value ( `optionVar -query "maya2osg_texenv"` ) maya2osgUI_texenv ;
 
-				setParent.. ;
+			text -align "right" -label "Clamping:" ;
+			optionMenu -width $col2 -changeCommand "optionVar -stringValue \"maya2osg_texclamp\" #1" maya2osgUI_texclamp ; // menuItem -value is stored in #1
+			menuItem -label "EDGE" ;
+			menuItem -label "COLOR" ;
+			optionMenu -edit -value ( `optionVar -query "maya2osg_texclamp"` ) maya2osgUI_texclamp ;
+
+			setParent.. ;
+
+		setParent ..;
+
+	// MATERIALS / SHADING
+	frameLayout -label "Materials / Shading" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+		rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
+			//text -label "Coming soon..." -height $line_height;
+			text -align "right" -label "Build GLSL Shaders:" ;
+			checkBox -label "" -height $line_height
+				-value ( `optionVar -query "maya2osg_use_glsl"` )
+				-changeCommand "optionVar -intValue \"maya2osg_use_glsl\" #1" ;
+			setParent.. ;
+
+		setParent.. ;
+
+	// LIGHTING
+	frameLayout -label "Lighting" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+		rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
+			text -align "right" -label "Global Ambient:" ;
+			float $color[3] = `optionVar -query "maya2osg_global_ambient"` ;
+			$command  = "float $color[3] = `colorSliderGrp -query -rgbValue maya2osgUI_global_ambient` ;" ;
+			$command += "optionVar -clearArray \"maya2osg_global_ambient\" ;" ;
+			$command += "optionVar -floatValueAppend \"maya2osg_global_ambient\" $color[0] ; " ;
+			$command += "optionVar -floatValueAppend \"maya2osg_global_ambient\" $color[1] ; " ;
+			$command += "optionVar -floatValueAppend \"maya2osg_global_ambient\" $color[2] ; " ;
+			colorSliderGrp -columnWidth2 ( $col2 / 4 ) ( 3 * $col2 / 4 )
+				-rgbValue $color[0] $color[1] $color[2]
+				-changeCommand $command maya2osgUI_global_ambient ;
+
+			text -align "right" -label "Local Viewer:" ;
+			checkBox -label "" -height $line_height
+				-value ( `optionVar -query "maya2osg_local_viewer"` )
+				-changeCommand "optionVar -intValue \"maya2osg_local_viewer\" #1" ;
+
+			text -align "right" -label "Compute shadows:" ;
+			checkBox -label "" -height $line_height
+				-value ( `optionVar -query "maya2osg_compute_shadows"` )
+				-changeCommand "optionVar -intValue \"maya2osg_compute_shadows\" #1" ;
+
+			text -align "right" -label "Shadow Technique:" ;
+			optionMenu -width $col2 -changeCommand "optionVar -stringValue \"maya2osg_shadow_technique\" #1" maya2osgUI_shadow_technique ; // menuItem -value is stored in #1
+			menuItem -label "SHADOW_MAP" ;
+			menuItem -label "SOFT_SHADOW_MAP" ;
+			menuItem -label "SHADOW_VOLUME" ;
+			menuItem -label "SHADOW_TEXTURE" ;
+			menuItem -label "PARALLEL_SPLIT_SHADOW_MAP" ;
+			optionMenu -edit -value ( `optionVar -query "maya2osg_shadow_technique"` ) maya2osgUI_shadow_technique ;
 
 			setParent ..;
 
-		// MATERIALS / SHADING
-		frameLayout -label "Materials / Shading" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
-			rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
-				//text -label "Coming soon..." -height $line_height;
-				text -align "right" -label "Build GLSL Shaders:" ;
-				checkBox -label "" -height $line_height
-					-value ( `optionVar -query "maya2osg_use_glsl"` )
-					-changeCommand "optionVar -intValue \"maya2osg_use_glsl\" #1" ;
-				setParent.. ;
+		setParent ..;
+
+	// ANIMATION
+	frameLayout -label "Animation" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+		rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
+			text -align "right" -label "Export Animation:" ;
+			checkBox -label "" -height $line_height
+				-value ( `optionVar -query "maya2osg_export_anim"` )
+				-changeCommand "optionVar -intValue \"maya2osg_export_anim\" #1" ;
+
+			text -align "right" -label "Transform Type:" ;
+			optionMenu -width $col2 -changeCommand "optionVar -stringValue \"maya2osg_anim_transformType\" #1" maya2osgUI_anim_transformType ;
+			menuItem -label "ANIMATION_PATH" ;
+			menuItem -label "OSG_ANIMATION" ;
+			optionMenu -edit -value ( `optionVar -query "maya2osg_anim_transformType"` ) maya2osgUI_anim_transformType ;
+
+			text -align "right" -label "Sample by:" ;
+			intSliderGrp -field true -minValue 1 -maxValue 100 -fieldMinValue 1 -fieldMaxValue 100 -columnWidth2 ( $col2 / 4 ) ( 3 * $col2 / 4 )
+				-value ( ( int )`optionVar -query "maya2osg_anim_sampleby"` )
+				-changeCommand "optionVar -stringValue \"maya2osg_anim_sampleby\" #1" ;
+
+			// FOR LATER USAGE
+//			text -align "right" -label "Sample by:" ;
+//			floatField -precision 2 -minValue 0.1 -maxValue 100 -step 0.1 -value 1.0 maya2osgUI_anim_sampleby ;
+//			text -align "right" -label "Frames per Second:" ;
+//			floatField -precision 2 -minValue 1 -maxValue 300 -step 1 -value 1.0 maya2osgUI_anim_fps ;
 
 			setParent.. ;
 
-		// LIGHTING
-		frameLayout -label "Lighting" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
-			rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
-				text -align "right" -label "Global Ambient:" ;
-				float $color[3] = `optionVar -query "maya2osg_global_ambient"` ;
-				$command  = "float $color[3] = `colorSliderGrp -query -rgbValue maya2osgUI_global_ambient` ;" ;
-				$command += "optionVar -clearArray \"maya2osg_global_ambient\" ;" ;
-				$command += "optionVar -floatValueAppend \"maya2osg_global_ambient\" $color[0] ; " ;
-				$command += "optionVar -floatValueAppend \"maya2osg_global_ambient\" $color[1] ; " ;
-				$command += "optionVar -floatValueAppend \"maya2osg_global_ambient\" $color[2] ; " ;
-				colorSliderGrp -columnWidth2 ( $col2 / 4 ) ( 3 * $col2 / 4 )
-					-rgbValue $color[0] $color[1] $color[2]
-					-changeCommand $command maya2osgUI_global_ambient ;
+		setParent.. ;
 
-				text -align "right" -label "Local Viewer:" ;
-				checkBox -label "" -height $line_height
-					-value ( `optionVar -query "maya2osg_local_viewer"` )
-					-changeCommand "optionVar -intValue \"maya2osg_local_viewer\" #1" ;
+	// PARTICLES
+	frameLayout -label "Particles" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+		rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
+			text -align "right" -label "Emissive Particles:" ;
+			checkBox -label "" -height $line_height
+				-value ( `optionVar -query "maya2osg_cbParticlesEmissive"` )
+				-changeCommand "optionVar -intValue \"maya2osg_cbParticlesEmissive\" #1" ;
 
-				text -align "right" -label "Compute shadows:" ;
-				checkBox -label "" -height $line_height
-					-value ( `optionVar -query "maya2osg_compute_shadows"` )
-					-changeCommand "optionVar -intValue \"maya2osg_compute_shadows\" #1" ;
-
-				text -align "right" -label "Shadow Technique:" ;
-				optionMenu -width $col2 -changeCommand "optionVar -stringValue \"maya2osg_shadow_technique\" #1" maya2osgUI_shadow_technique ; // menuItem -value is stored in #1
-				menuItem -label "SHADOW_MAP" ;
-				menuItem -label "SOFT_SHADOW_MAP" ;
-				menuItem -label "SHADOW_VOLUME" ;
-				menuItem -label "SHADOW_TEXTURE" ;
-				menuItem -label "PARALLEL_SPLIT_SHADOW_MAP" ;
-				optionMenu -edit -value ( `optionVar -query "maya2osg_shadow_technique"` ) maya2osgUI_shadow_technique ;
-
-				setParent ..;
-
-			setParent ..;
-
-		// ANIMATION
-		frameLayout -label "Animation" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
-			rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
-				text -align "right" -label "Export Animation:" ;
-				checkBox -label "" -height $line_height
-					-value ( `optionVar -query "maya2osg_export_anim"` )
-					-changeCommand "optionVar -intValue \"maya2osg_export_anim\" #1" ;
-
-				text -align "right" -label "Transform Type:" ;
-				optionMenu -width $col2 -changeCommand "optionVar -stringValue \"maya2osg_anim_transformType\" #1" maya2osgUI_anim_transformType ;
-				menuItem -label "ANIMATION_PATH" ;
-				menuItem -label "OSG_ANIMATION" ;
-				optionMenu -edit -value ( `optionVar -query "maya2osg_anim_transformType"` ) maya2osgUI_anim_transformType ;
-
-				text -align "right" -label "Sample by:" ;
-				intSliderGrp -field true -minValue 1 -maxValue 100 -fieldMinValue 1 -fieldMaxValue 100 -columnWidth2 ( $col2 / 4 ) ( 3 * $col2 / 4 )
-					-value ( ( int )`optionVar -query "maya2osg_anim_sampleby"` )
-					-changeCommand "optionVar -stringValue \"maya2osg_anim_sampleby\" #1" ;
-
-				// FOR LATER USAGE
-	//			text -align "right" -label "Sample by:" ;
-	//			floatField -precision 2 -minValue 0.1 -maxValue 100 -step 0.1 -value 1.0 maya2osgUI_anim_sampleby ;
-	//			text -align "right" -label "Frames per Second:" ;
-	//			floatField -precision 2 -minValue 1 -maxValue 300 -step 1 -value 1.0 maya2osgUI_anim_fps ;
-
-				setParent.. ;
+			text -align "right" -label "Particles Lighting:" ;
+			checkBox -label "" -height $line_height
+				-value ( `optionVar -query "maya2osg_cbParticlesLighting"` )
+				-changeCommand "optionVar -intValue \"maya2osg_cbParticlesLighting\" #1" ;
 
 			setParent.. ;
 
-		// PARTICLES
-		frameLayout -label "Particles" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
-			rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
-				text -align "right" -label "Emissive Particles:" ;
-				checkBox -label "" -height $line_height
-					-value ( `optionVar -query "maya2osg_cbParticlesEmissive"` )
-					-changeCommand "optionVar -intValue \"maya2osg_cbParticlesEmissive\" #1" ;
+		setParent.. ;
 
-				text -align "right" -label "Particles Lighting:" ;
-				checkBox -label "" -height $line_height
-					-value ( `optionVar -query "maya2osg_cbParticlesLighting"` )
-					-changeCommand "optionVar -intValue \"maya2osg_cbParticlesLighting\" #1" ;
+	// CAMERAS
+	frameLayout -label "Cameras" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+		rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
+			text -align "right" -label "Default Cameras:" ;
+			checkBox -label "" -height $line_height
+				-value ( `optionVar -query "maya2osg_cbDefaultCameras"` )
+				-changeCommand "optionVar -intValue \"maya2osg_cbDefaultCameras\" #1" ;
 
-				setParent.. ;
-
-			setParent.. ;
-
-		// CAMERAS
-		frameLayout -label "Cameras" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
-			rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
-				text -align "right" -label "Default Cameras:" ;
-				checkBox -label "" -height $line_height
-					-value ( `optionVar -query "maya2osg_cbDefaultCameras"` )
-					-changeCommand "optionVar -intValue \"maya2osg_cbDefaultCameras\" #1" ;
-
-				text -align "right" -label "Ortho Cameras:" ;
-				checkBox -label "" -height $line_height
-					-value ( `optionVar -query "maya2osg_cbOrthoCameras"` )
-					-changeCommand "optionVar -intValue \"maya2osg_cbOrthoCameras\" #1" ;
-
-				setParent.. ;
+			text -align "right" -label "Ortho Cameras:" ;
+			checkBox -label "" -height $line_height
+				-value ( `optionVar -query "maya2osg_cbOrthoCameras"` )
+				-changeCommand "optionVar -intValue \"maya2osg_cbOrthoCameras\" #1" ;
 
 			setParent.. ;
 
@@ -357,128 +564,128 @@ proc addFrameLayouts_scrollList()
 	int $marginH = 10;
 	int $line_height = 25;
 
-	columnLayout -adjustableColumn true;
-		frameLayout -label "Geometry" -collapsable true -marginWidth $marginW -marginHeight $marginH;
-			columnLayout;
-				text -label "Single/double side surfaces:" -height $line_height;
-				string $optionVar = `optionVar -query "maya2osg_bfcull"`;
-				radioButtonGrp -numberOfRadioButtons 3 -label1 "all single" -label2 "all double" -label3 "keep state"
-					-onCommand1 "optionVar -stringValue \"maya2osg_bfcull\" \"SINGLE\" ;"
-					-onCommand2 "optionVar -stringValue \"maya2osg_bfcull\" \"DOUBLE\" ;"
-					-onCommand3 "optionVar -stringValue \"maya2osg_bfcull\" \"KEEP\" ;"
-					-select ( $optionVar == "SINGLE" ? 1 : $optionVar == "DOUBLE" ? 2 : 3 ) ;
-				if ( `upAxis -q -axis` == "y" ) {
-					checkBox -label "Convert from Y-Up to Z-Up" -height $line_height
-						-value ( `optionVar -query "maya2osg_yup2zup"` )
-						-changeCommand "optionVar -intValue \"maya2osg_yup2zup\" #1" ;
-				}
-				setParent ..;
+
+	frameLayout -label "Geometry" -collapsable true -marginWidth $marginW -marginHeight $marginH;
+		columnLayout;
+			text -label "Single/double side surfaces:" -height $line_height;
+			string $optionVar = `optionVar -query "maya2osg_bfcull"`;
+			radioButtonGrp -numberOfRadioButtons 3 -label1 "all single" -label2 "all double" -label3 "keep state"
+				-onCommand1 "optionVar -stringValue \"maya2osg_bfcull\" \"SINGLE\" ;"
+				-onCommand2 "optionVar -stringValue \"maya2osg_bfcull\" \"DOUBLE\" ;"
+				-onCommand3 "optionVar -stringValue \"maya2osg_bfcull\" \"KEEP\" ;"
+				-select ( $optionVar == "SINGLE" ? 1 : $optionVar == "DOUBLE" ? 2 : 3 ) ;
+			if ( `upAxis -q -axis` == "y" ) {
+				checkBox -label "Convert from Y-Up to Z-Up" -height $line_height
+					-value ( `optionVar -query "maya2osg_yup2zup"` )
+					-changeCommand "optionVar -intValue \"maya2osg_yup2zup\" #1" ;
+			}
 			setParent ..;
-		frameLayout -label "Texturing" -collapsable true -marginWidth $marginW -marginHeight $marginH;
-			rowLayout -nc 2;
+		setParent ..;
+	frameLayout -label "Texturing" -collapsable true -marginWidth $marginW -marginHeight $marginH;
+		rowLayout -nc 2;
 // 						rowLayout -nc 2;
 // 							text -label "Image path" -enable false;
 // 							textField -editable true -width 300 -enable false;
 // 							setParent ..;
-				columnLayout;
-					text -label "Default mode: ";
-					textScrollList -numberOfRows 3
-						-allowMultiSelection false
-						-append "DECAL"
-						-append "MODULATE"
-						-append "BLEND"
-						-append "REPLACE"
-						-append "ADD"
-						-selectCommand "optionVar -stringValue \"maya2osg_texenv\" `textScrollList -query -selectItem maya2osgUI_texenv` ; "
-						-selectItem ( `optionVar -query "maya2osg_texenv"` ) maya2osgUI_texenv;
-					setParent ..;
-				columnLayout;
-					text -label "Clamping: ";
-					textScrollList -numberOfRows 2
-						-allowMultiSelection false
-						-append "EDGE"
-						-append "COLOR"
-						-selectCommand "optionVar -stringValue \"maya2osg_texclamp\" `textScrollList -query -selectItem maya2osgUI_texclamp` ; "
-						-selectItem ( `optionVar -query "maya2osg_texclamp"` ) maya2osgUI_texclamp;
-					setParent ..;
-				setParent ..;
-			setParent ..;
-		frameLayout -label "Materials/shading" -collapsable true -marginWidth $marginW -marginHeight $marginH;
 			columnLayout;
-				//text -label "Coming soon..." -height $line_height;
-				checkBox -label "Build GLSL shaders" -height $line_height
-					-value ( `optionVar -query "maya2osg_use_glsl"` )
-					-changeCommand "optionVar -intValue \"maya2osg_use_glsl\" #1" ;
-				setParent ..;
-			setParent ..;
-		frameLayout -label "Lighting" -collapsable true -marginWidth $marginW -marginHeight $marginH;
-			columnLayout;
-				float $color[3] = `optionVar -query "maya2osg_global_ambient"` ;
-				$command  = "float $color[3] = `colorSliderGrp -query -rgbValue maya2osgUI_global_ambient` ;" ;
-				$command += "optionVar -clearArray \"maya2osg_global_ambient\" ;" ;
-				$command += "optionVar -floatValueAppend \"maya2osg_global_ambient\" $color[0] ; " ;
-				$command += "optionVar -floatValueAppend \"maya2osg_global_ambient\" $color[1] ; " ;
-				$command += "optionVar -floatValueAppend \"maya2osg_global_ambient\" $color[2] ; " ;
-				colorSliderGrp -label "Global ambient color"
-					-rgbValue $color[0] $color[1] $color[2]
-					-changeCommand $command maya2osgUI_global_ambient ;
-				checkBox -label "Local viewer" -height $line_height
-					-value ( `optionVar -query "maya2osg_local_viewer"` )
-					-changeCommand "optionVar -intValue \"maya2osg_local_viewer\" #1" ;
-				checkBox -label "Compute shadows" -height $line_height
-					-value ( `optionVar -query "maya2osg_compute_shadows"` )
-					-changeCommand "optionVar -intValue \"maya2osg_compute_shadows\" #1" ;
-				text -label "Shadow technique: ";
+				text -label "Default mode: ";
 				textScrollList -numberOfRows 3
 					-allowMultiSelection false
-					-append "SHADOW_MAP"
-					-append "SOFT_SHADOW_MAP"
-					-append "SHADOW_VOLUME"
-					-append "SHADOW_TEXTURE"
-					-append "PARALLEL_SPLIT_SHADOW_MAP"
-					-selectCommand "optionVar -stringValue \"maya2osg_shadow_technique\" `textScrollList -query -selectItem maya2osgUI_shadow_technique` ; "
-					-selectItem ( `optionVar -query "maya2osg_shadow_technique"` ) maya2osgUI_shadow_technique;
+					-append "DECAL"
+					-append "MODULATE"
+					-append "BLEND"
+					-append "REPLACE"
+					-append "ADD"
+					-selectCommand "optionVar -stringValue \"maya2osg_texenv\" `textScrollList -query -selectItem maya2osgUI_texenv` ; "
+					-selectItem ( `optionVar -query "maya2osg_texenv"` ) maya2osgUI_texenv;
 				setParent ..;
-			setParent ..;
-		frameLayout -label "Animation" -collapsable true -marginWidth $marginW -marginHeight $marginH;
 			columnLayout;
-				checkBox -label "Export animations" -height $line_height
-					-value ( `optionVar -query "maya2osg_export_anim"` )
-					-changeCommand "optionVar -intValue \"maya2osg_export_anim\" #1" ;
-				optionMenuGrp -columnWidth2 82 220 -label "Transform Type" -changeCommand "optionVar -stringValue \"maya2osg_anim_transformType\" #1" maya2osgUI_anim_transformType ;
-				menuItem -label "ANIMATION_PATH" ;
-				menuItem -label "OSG_ANIMATION" ;
-				optionMenuGrp -edit -value ( `optionVar -query "maya2osg_anim_transformType"` ) maya2osgUI_anim_transformType ;
-				rowColumnLayout -nc 2;
-					text -label "Sample by: ";
-					intField -minValue 1 -maxValue 100 -step 1
-						-value ( ( int )`optionVar -query "maya2osg_anim_sampleby"` )
-						-changeCommand "optionVar -stringValue \"maya2osg_anim_sampleby\" #1" ;
-					setParent ..;
-				setParent ..;
-			setParent ..;
-		frameLayout -label "Particles" -collapsable true -marginWidth $marginW -marginHeight $marginH;
-			columnLayout;
-				checkBox -label "Emissive particles"
-					-value ( `optionVar -query "maya2osg_cbParticlesEmissive"` )
-					-changeCommand "optionVar -intValue \"maya2osg_cbParticlesEmissive\" #1" ;
-				checkBox -label "Particles lighting"
-					-value ( `optionVar -query "maya2osg_cbParticlesLighting"` )
-					-changeCommand "optionVar -intValue \"maya2osg_cbParticlesLighting\" #1" ;
-				setParent ..;
-			setParent ..;
-		frameLayout -label "Cameras" -collapsable true -marginWidth $marginW -marginHeight $marginH;
-			columnLayout;
-				checkBox -label "Export default cameras"
-					-value ( `optionVar -query "maya2osg_cbDefaultCameras"` )
-					-changeCommand "optionVar -intValue \"maya2osg_cbDefaultCameras\" #1" ;
-				checkBox -label "Export orthographic cameras"
-					-value ( `optionVar -query "maya2osg_cbOrthoCameras"` )
-					-changeCommand "optionVar -intValue \"maya2osg_cbOrthoCameras\" #1" ;
+				text -label "Clamping: ";
+				textScrollList -numberOfRows 2
+					-allowMultiSelection false
+					-append "EDGE"
+					-append "COLOR"
+					-selectCommand "optionVar -stringValue \"maya2osg_texclamp\" `textScrollList -query -selectItem maya2osgUI_texclamp` ; "
+					-selectItem ( `optionVar -query "maya2osg_texclamp"` ) maya2osgUI_texclamp;
 				setParent ..;
 			setParent ..;
 		setParent ..;
-	}
+	frameLayout -label "Materials/shading" -collapsable true -marginWidth $marginW -marginHeight $marginH;
+		columnLayout;
+			//text -label "Coming soon..." -height $line_height;
+			checkBox -label "Build GLSL shaders" -height $line_height
+				-value ( `optionVar -query "maya2osg_use_glsl"` )
+				-changeCommand "optionVar -intValue \"maya2osg_use_glsl\" #1" ;
+			setParent ..;
+		setParent ..;
+	frameLayout -label "Lighting" -collapsable true -marginWidth $marginW -marginHeight $marginH;
+		columnLayout;
+			float $color[3] = `optionVar -query "maya2osg_global_ambient"` ;
+			$command  = "float $color[3] = `colorSliderGrp -query -rgbValue maya2osgUI_global_ambient` ;" ;
+			$command += "optionVar -clearArray \"maya2osg_global_ambient\" ;" ;
+			$command += "optionVar -floatValueAppend \"maya2osg_global_ambient\" $color[0] ; " ;
+			$command += "optionVar -floatValueAppend \"maya2osg_global_ambient\" $color[1] ; " ;
+			$command += "optionVar -floatValueAppend \"maya2osg_global_ambient\" $color[2] ; " ;
+			colorSliderGrp -label "Global ambient color"
+				-rgbValue $color[0] $color[1] $color[2]
+				-changeCommand $command maya2osgUI_global_ambient ;
+			checkBox -label "Local viewer" -height $line_height
+				-value ( `optionVar -query "maya2osg_local_viewer"` )
+				-changeCommand "optionVar -intValue \"maya2osg_local_viewer\" #1" ;
+			checkBox -label "Compute shadows" -height $line_height
+				-value ( `optionVar -query "maya2osg_compute_shadows"` )
+				-changeCommand "optionVar -intValue \"maya2osg_compute_shadows\" #1" ;
+			text -label "Shadow technique: ";
+			textScrollList -numberOfRows 3
+				-allowMultiSelection false
+				-append "SHADOW_MAP"
+				-append "SOFT_SHADOW_MAP"
+				-append "SHADOW_VOLUME"
+				-append "SHADOW_TEXTURE"
+				-append "PARALLEL_SPLIT_SHADOW_MAP"
+				-selectCommand "optionVar -stringValue \"maya2osg_shadow_technique\" `textScrollList -query -selectItem maya2osgUI_shadow_technique` ; "
+				-selectItem ( `optionVar -query "maya2osg_shadow_technique"` ) maya2osgUI_shadow_technique;
+			setParent ..;
+		setParent ..;
+	frameLayout -label "Animation" -collapsable true -marginWidth $marginW -marginHeight $marginH;
+		columnLayout;
+			checkBox -label "Export animations" -height $line_height
+				-value ( `optionVar -query "maya2osg_export_anim"` )
+				-changeCommand "optionVar -intValue \"maya2osg_export_anim\" #1" ;
+			optionMenuGrp -columnWidth2 82 220 -label "Transform Type" -changeCommand "optionVar -stringValue \"maya2osg_anim_transformType\" #1" maya2osgUI_anim_transformType ;
+			menuItem -label "ANIMATION_PATH" ;
+			menuItem -label "OSG_ANIMATION" ;
+			optionMenuGrp -edit -value ( `optionVar -query "maya2osg_anim_transformType"` ) maya2osgUI_anim_transformType ;
+			rowColumnLayout -nc 2;
+				text -label "Sample by: ";
+				intField -minValue 1 -maxValue 100 -step 1
+					-value ( ( int )`optionVar -query "maya2osg_anim_sampleby"` )
+					-changeCommand "optionVar -stringValue \"maya2osg_anim_sampleby\" #1" ;
+				setParent ..;
+			setParent ..;
+		setParent ..;
+	frameLayout -label "Particles" -collapsable true -marginWidth $marginW -marginHeight $marginH;
+		columnLayout;
+			checkBox -label "Emissive particles"
+				-value ( `optionVar -query "maya2osg_cbParticlesEmissive"` )
+				-changeCommand "optionVar -intValue \"maya2osg_cbParticlesEmissive\" #1" ;
+			checkBox -label "Particles lighting"
+				-value ( `optionVar -query "maya2osg_cbParticlesLighting"` )
+				-changeCommand "optionVar -intValue \"maya2osg_cbParticlesLighting\" #1" ;
+			setParent ..;
+		setParent ..;
+	frameLayout -label "Cameras" -collapsable true -marginWidth $marginW -marginHeight $marginH;
+		columnLayout;
+			checkBox -label "Export default cameras"
+				-value ( `optionVar -query "maya2osg_cbDefaultCameras"` )
+				-changeCommand "optionVar -intValue \"maya2osg_cbDefaultCameras\" #1" ;
+			checkBox -label "Export orthographic cameras"
+				-value ( `optionVar -query "maya2osg_cbOrthoCameras"` )
+				-changeCommand "optionVar -intValue \"maya2osg_cbOrthoCameras\" #1" ;
+			setParent ..;
+		setParent ..;
+
+}
 
 
 
@@ -488,6 +695,12 @@ proc maya2osg_options()
 
 	initOptionVars() ;
 
+	int $marginW = 15;
+	int $marginH = 10;
+	int $line_height = 25;
+
+	int $col1 = 100 , $col2 = 192 , $off2 = 8 ;
+	
 	// Open a dialog for the selection of export options
 	if ( `window -exists $maya2osg_export_win` )
 		deleteUI  -window $maya2osg_export_win ;
@@ -495,17 +708,61 @@ proc maya2osg_options()
 	$maya2osg_export_win = `window -title "Maya2OSG - Export options" -topLeftCorner 160 40 -widthHeight 360 540 -sizeable true` ;
 	$form = `formLayout -numberOfDivisions 100`;
 		$frame_config = `scrollLayout -horizontalScrollBarThickness 0 -verticalScrollBarThickness 0 -childResizable true -minChildWidth 300`;
-			if ( `optionVar -query "maya2osg_uiType"` == 1 )		addFrameLayouts_optionMenu() ;
-			else															addFrameLayouts_scrollList() ;
+			columnLayout -adjustableColumn true ;
+				frameLayout -label "File" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
+					rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
+						text -align "right" -label "Filepath:" -height $line_height ;
+						textFieldButtonGrp -columnWidth2 ( 3 * $col2 / 4 ) ( $col2 / 4 ) -buttonLabel "Browse"
+							-fileName ( `optionVar -query "maya2osg_filepath"` )
+							-annotation ( `optionVar -query "maya2osg_filepath"` )
+							-changeCommand "maya2osg_fileUtil( \"pathFieldCommand\" ) ; maya2osg_fileUtil( \"updatePathField\" ) ; maya2osg_fileUtil( \"updatePathHistory\" ) ;"
+							-buttonCommand "maya2osg_fileUtil( \"pathDialog\" ) ; maya2osg_fileUtil( \"updatePathField\" ) ; maya2osg_fileUtil( \"updatePathHistory\" )" maya2osgUI_filepath ;
+							
+						popupMenu maya2osgUI_filepathPopUp ;
+						maya2osg_fileUtil( "buildFilepathPopUp" ) ;
 
+						text -align "right" -label "Filename:" -height $line_height ;
+						textFieldButtonGrp -columnWidth2 ( 3 * $col2 / 4 ) ( $col2 / 4 ) -buttonLabel "Browse"
+							-fileName ( `optionVar -query "maya2osg_filename"` )
+							-annotation ( `optionVar -query "maya2osg_filepath"` + "/" + `optionVar -query "maya2osg_filename"` )
+							-changeCommand "optionVar -stringValue \"maya2osg_filename\" `textFieldButtonGrp -query -fileName maya2osgUI_filename`"
+							-buttonCommand "maya2osg_fileUtil( \"splitPath\" )" maya2osgUI_filename ;
+							
+						text -align "right" -label "Filetype:" -height $line_height ;
+						rowColumnLayout -numberOfColumns 2 -columnWidth 1 ( $col2 / 2 ) -columnWidth 2 ( $col2 / 2 ) ;
+							$optionVar = `optionVar -query "maya2osg_filetype"` ;
+							textField -text ( $optionVar != "unknown" ? `optionVar -query "maya2osg_filetype"` : "" ) 
+								-changeCommand "maya2osg_fileUtil( \"typeFieldCommand\" )" maya2osgUI_filetypeText ;
+							
+							optionMenu -width ( $col2 / 2 )-changeCommand "maya2osg_fileUtil( \"typeOptionCommand\" )" maya2osgUI_filetypeOption ;
+							menuItem -label "osgt" ;
+							menuItem -label "osgb" ;
+							menuItem -label "osgx" ;
+							menuItem -label "osg" ;
+							menuItem -label "ive" ;
+							menuItem -label "" ;
+							optionMenu -edit -value ( $optionVar != "unknown" ? `optionVar -query "maya2osg_filetype"` : "" ) maya2osgUI_filetypeOption ;
+							
+							setParent.. ;
+
+						setParent.. ;
+						
+					setParent.. ;
+
+				if ( `optionVar -query "maya2osg_uiType"` == 1 )		addFrameLayouts_optionMenu() ;
+				else															addFrameLayouts_scrollList() ;
+					
+				setParent.. ;
+				
 			setParent.. ;
 
 		$buttons = `formLayout  -numberOfDivisions 100`;
 			//$comm_export = "fileBrowserDialog -an \"Export as...\" -fc \"maya2osg_doExportGUI\" -ft \"osg\" -in \"OSG\" -m 1 -om \"ExportAll\";";
 			$comm_export = "string $file[] = `fileDialog2 -fileFilter \"OSG (*.osg* )\" -dialogStyle 2` ; maya2osg_doExportGUI( $file[ 0 ] , \"osg\" ) ;" ;
 			$comm_export_and_preview = "fileBrowserDialog -an \"Export as...\" -fc \"maya2osg_doExportGUIAndPreview\" -ft \"osg\" -in \"OSG\" -m 1 -om \"ExportAll\";";
-			$b1 = `button -label "Export" -align "center" -command $comm_export`;
-			$b2 = `button -label "Export and Preview" -align "center" -command $comm_export_and_preview`;
+			// Using new export methods which query optionVars for filepath, filename and filetype
+			$b1 = `button -label "Export" -align "center" -command "maya2osg_doExportGUI(  \"\" )"` ; //$comm_export`;
+			$b2 = `button -label "Export and Preview" -align "center" -command "maya2osg_doExportGUIAndPreview()"` ; //$comm_export_and_preview`;
 			$b3 = `button -label "Cancel" -align "center" -command "deleteUI -window $maya2osg_export_win"`;
 			formLayout -e
 				-attachForm $b1 "top" 10
@@ -540,6 +797,9 @@ proc maya2osg_options()
 }
 
 
+
+
+
 global proc maya2osg_export( int $option_box ) {
 
 	if ( !( `pluginInfo -query -loaded maya2osg` || `pluginInfo -query -loaded maya2osgd` ) )
@@ -567,55 +827,33 @@ global proc maya2osg_export( int $option_box ) {
 }
 
 
-// File Dialog Script, just stub, WIP
+
 global proc int osgFileExportOptions ( string $parent , string $action , string $initialSettings , string $resultCallback )
-//
-//	Description:
-//		This script posts the OSG file translator options.
-//		The optionsString is of the form:
-//			varName1=value1;varName2=value2;...
-//
-//	Parameters:
-//		$parent - the elf parent layout for this options layout. It is
-//					always a scrollLayout.
-//		$action - the action that is to be performed with this invokation
-//					of this proc. Valid options are:
-//						"query" - construct the options string and pass it
-//									to the resultCallback.
-//						"post" - post all the elf controls.
-//		$initialSettings - the current options string in effect at the
-//						   time this script is invoked.
-//		$resultCallback -
-//				This is the proc to be called with the result string.
-//				resultCallback ( string $optionsString )
-//
-//	Returns:
-//		1 if successfull.
-//		0 otherwise.
-//
 {
-	int		$bResult;
-	string	$currentOptions;
-	string	$optionList[];
-	string	$optionBreakDown[];
-	int		$index;
-
-	if ($action == "post") {
+	// Here Maya wants us to create the export UI and set initial values
+	// Use the same UI as in the custom export window, so no new UI needs to be created
+	if ( $action == "post" )  {
 		setParent $parent;
-
+		
 		// Open a dialog for the selection of export options
 		if ( `optionVar -query "maya2osg_uiType"` == 1 )		addFrameLayouts_optionMenu() ;
 		else															addFrameLayouts_scrollList() ;
 
-		$result = 1;
-
+		return 1 ;
 	}
-
-	else {
-		$bResult = 0;
+	
+	// Here Maya wants us to quary the exporter UI, generate one option string and append it to $resultCallback
+	// No need to query UI, as the exporter UI sets optionVars, which are queried in buildCommandOptions()
+	// $resultCallback has a ";" at the end, getting rid of this in the Plug-In
+	else if ( $action == "query" )  {
+		eval( $resultCallback + "\"" + buildCommandOptions() + "\"" ) ;
+		
+		return 1 ;
 	}
+	
+	else
+		return 0 ;
 
-	return $bResult;
 }
 
 
