@@ -28,6 +28,7 @@
  *
  *  This class define the OSG formats in Maya and provides
  *  methods to read and write from/to these formats
+ *  just wraps osgwrite
  */
 class OSGFileTranslator : public MPxFileTranslator {
 

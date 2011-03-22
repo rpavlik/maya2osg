@@ -17,7 +17,13 @@
     You should have received a copy of the GNU General Public License
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#include <maya/MGlobal.h>
+#include <maya/MIOStream.h>
+
 #include "osgfiletranslator.h"
+#include "osgwrite.h"
+
 
 
 /**
@@ -46,8 +52,17 @@ MStatus OSGFileTranslator::reader( const MFileObject &file, const MString &optio
 MStatus OSGFileTranslator::writer( const MFileObject &file, const MString &optionsString,
                                    MPxFileTranslator::FileAccessMode mode )
 {
-    // TO-DO ... fixme!!! *****
-    return MStatus::kSuccess;
+	// the first character in the optinsString is a ";", so get rid of it with substring
+	MString			options = optionsString.substring( 1 , optionsString.length() -1 ) ;
+	MStringArray	argStringArray ;
+
+	// split the String with " " to get and option Array
+	MStatus status = options.split( ' ' , argStringArray ) ;
+
+	OSGWrite::parseArgs( argStringArray ) ;
+	OSGWrite::exporta( file.expandedFullName() ) ;
+
+	return MStatus::kSuccess;
 }
 
 

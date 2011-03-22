@@ -17,18 +17,24 @@
     You should have received a copy of the GNU General Public License
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
+#ifndef _OSGWRITE_H_
+#define _OSGWRITE_H_
 
-#include <maya/MPxCommand.h>
 
-/**
- *  maya2osg MPxCommand
- *
- *  Starting point for the command
- *  just wraps OSGWrite methods
- */
-class maya2osg : public MPxCommand {
+#include <maya/MStatus.h>
+#include <maya/MString.h>
+
+
+class OSGWrite {
+
 public:
-	maya2osg() {};
-	virtual MStatus	doIt ( const MArgList& );
-	static void* creator();
+	/// parses Arguments and set config class member data
+	static MString parseArgs( const MStringArray & argStringArray ) ;
+
+	/// starts exporting process, extracted here to use in maya2osg command and osg file translator
+	static MStatus exporta( const MString & filename ) ;
+	
+
 };
+
+#endif //_OSGWRITE_H_
