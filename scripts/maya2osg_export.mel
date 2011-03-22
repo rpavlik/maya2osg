@@ -199,7 +199,7 @@ global proc maya2osg_doExportGUIAndPreview()
 	}
 
 	string $viewer ;
-	if ( optionVar( "-query" , "maya2osg_anim_transformType" ) == "OSG_ANIMATION" )
+	if ( optionVar( "-query" , "maya2osg_anim_transformType" ) == "OSG_ANIMATION" && optionVar( "-query" , "maya2osg_export_anim" ) )
 		$viewer = "osganimationviewer " ;
 
 	else $viewer = "osgviewer " ;
@@ -345,7 +345,7 @@ global proc maya2osg_fileUtil( string $command )
 		popupMenu -edit -deleteAllItems maya2osgUI_filepathPopUp ;
 		menuItem -label "Currrent Project Path" -parent maya2osgUI_filepathPopUp
 			-command ( "optionVar -stringValue \"maya2osg_filepath\" \"" + $projectPath + "\" ; maya2osg_fileUtil( \"updatePathField\" ) ;" ) ;
-		menuItem -divider on ;
+		menuItem -divider on -parent maya2osgUI_filepathPopUp ;
 
 		if ( `optionVar -exists "maya2osg_pathHistory"` )  {
 			string $token[] , $pathHistory = `optionVar -query "maya2osg_pathHistory"` ;
