@@ -29,7 +29,7 @@ proc initOptionVars()  {
 	if ( !`optionVar -exists "maya2osg_filepath"` ) 				optionVar -stringValue	"maya2osg_filepath"					( `workspace -query -rootDirectory` ) ;
 	if ( !`optionVar -exists "maya2osg_filename"` ) 				optionVar -stringValue	"maya2osg_filename"					"maya2osg" ;
 	if ( !`optionVar -exists "maya2osg_filetype"` ) 				optionVar -stringValue	"maya2osg_filetype"					"osgt" ;
-	
+
 	if ( !`optionVar -exists "maya2osg_bfcull"` ) 					optionVar -stringValue	"maya2osg_bfcull"					"KEEP" ;
 	if ( !`optionVar -exists "maya2osg_yup2zup"` ) 				optionVar -intValue		"maya2osg_yup2zup"					( `upAxis -query -axis` == "y" ) ;
 
@@ -84,7 +84,7 @@ proc removeOptionVars()  {
 proc string buildCommandOptions()
 {
 	string $command = " " ;
-	
+
 	// TEXTURE
 	$command += " -texenv "						+ `optionVar -query "maya2osg_texenv"` ;
 	$command += " -texClampMode "				+ `optionVar -query "maya2osg_texclamp"` ;
@@ -117,9 +117,9 @@ proc string buildCommandOptions()
 
 	// GLSL SHADERS
 	$command += " -useGLSL "					+ `optionVar -query "maya2osg_use_glsl"` ;
-	
+
 	return $command ;
-	
+
 }
 
 
@@ -127,19 +127,19 @@ proc string buildCommandOptions()
 // Arguments prefix and postfix the filname
 proc string fixFilepath( string $prefix , string $postfix )
 {
-	
+
 	string $path = "" , $filepath = optionVar( "-query" , "maya2osg_filepath" ) ;
-	
+
 	$path += $filepath + "/"  + $prefix ;
 	$path += optionVar( "-query" , "maya2osg_filename" ) + $postfix + "." ;
-	$path += optionVar( "-query" , "maya2osg_filetype" ) ; 
-	
+	$path += optionVar( "-query" , "maya2osg_filetype" ) ;
+
 	return $path ;
 }
 
 
 // Concatenates filepath, filename, filetype into one valid filpath directly
-proc string getFilepath()  {  
+proc string getFilepath()  {
 	return fixFilepath( "" , "" ) ;
 }
 
@@ -171,7 +171,7 @@ global proc maya2osg_doExportGUIAndPreview()
 		warning "No modelPanel in Focus ! Select ( activate ) a Camera Panel. " ;
 		return ;
 	}
-	
+
 	int $offs_x = 100;
 	int $offs_y = 100;
 	int $width = `getAttr defaultResolution.width`;
@@ -201,9 +201,9 @@ global proc maya2osg_doExportGUIAndPreview()
 	string $viewer ;
 	if ( optionVar( "-query" , "maya2osg_anim_transformType" ) == "OSG_ANIMATION" )
 		$viewer = "osganimationviewer " ;
-	
+
 	else $viewer = "osgviewer " ;
-	
+
 	string $exec = $viewer + $options + " " + $camera_file_name ;
 	print( $exec ) ;
 	exec(  $exec ) ;
@@ -215,7 +215,7 @@ global proc maya2osg_doExportGUIAndPreview()
 global proc maya2osg_doExportGUI( string $filepath )
 {
 	//global string $maya2osg_export_win ;
-	
+
 	maya2osg_fileUtil( "updateFilepathHistory" ) ;
 	maya2osg_fileUtil( "buildFilepathPopUp" ) ;
 
@@ -223,16 +223,18 @@ global proc maya2osg_doExportGUI( string $filepath )
 
 	if ( !size( $filepath ) )
 		$filepath = getFilepath() ;
-	
+
 	if ( !( filetest( "-d" , dirname( $filepath ) ) ) )
 		warning( "Nothing Exportetd, Invalid Path : \"" + dirname( $filepath ) + "\"" ) ;
-		
+
 	else  {
-		$command += " \"" + $filepath + "\" ; " ; 
+		$command += " \"" + $filepath + "\" ; " ;
 		//print( $command + "\n" ) ;
 		eval( $command ) ;
 		//deleteUI -window $maya2osg_export_win ;
-	
+
+		print( "File Exported : \"" + $filepath + "\"" ) ;
+
 	}
 }
 
@@ -241,21 +243,22 @@ global proc maya2osg_doExportGUI( string $filepath )
 // Util Proc for filename and path UI commands
 global proc maya2osg_fileUtil( string $command )
 {
+	string $n = "\n" ;
 	// Check if entered path is valid
 	if ( $command == "pathFieldCommand" )  {
 		string $textField = `textFieldButtonGrp -query -fileName maya2osgUI_filepath` ;
 		if ( filetest( "-d" , $textField ) )
 			optionVar -stringValue "maya2osg_filepath" $textField ;
-			
+
 		else warning( "Filepath \"" + $textField + "\" does not exist !" ) ;
 	}
-	
+
 	// common command to update Filepath TextField
 	else if ( $command == "updatePathField" )  {
 		textFieldButtonGrp -edit -fileName   `optionVar -query "maya2osg_filepath"` maya2osgUI_filepath ;
 		textFieldButtonGrp -edit -annotation `optionVar -query "maya2osg_filepath"` maya2osgUI_filepath ;
 	}
-	
+
 	// command opens a browser for path selection without file display
 	else if ( $command == "pathDialog" )  {
 		string $optionVar = `optionVar -query "maya2osg_filepath"` ;
@@ -271,79 +274,83 @@ global proc maya2osg_fileUtil( string $command )
 		for( $i = 0 ; $i < min( 5 , $numToken ) ; ++$i )  $pathHistory = $pathHistory + $token[ $i ] + ";" ;
 		optionVar -stringValue "maya2osg_pathHistory" $pathHistory ;
 	}
-	
+
 	// command splits the path in path components: filepath, filename, filetype
 	// writes the result into coresponding optionVars and maya2osgUIs
 	else if ( $command == "splitPath" )  {
 		string $filter = "OSG (*.osgt *.osgb *.osgx *.osg *.ive);;OSG ASCII (*.osgt );;OSG Binary (*.osgb );;OSG XML (*.osgx );;OSG bellow 2.9 ASCII(*.osg );;OSG bellow 2.9 Binary (*.ive )";
-		string $text , $path[ 1 ] ; $path[ 0 ] = `optionVar -query "maya2osg_filepath"` ;
-		$path = `fileDialog2 -caption "maya2osg Export File" -startingDirectory $path[ 0 ] -fileFilter $filter -selectFileFilter "OSG Ascii" -dialogStyle 1` ;
-		
+		string $path[] = `fileDialog2 -caption "maya2osg Export File" -startingDirectory ( getFilepath() ) -fileFilter $filter -selectFileFilter "OSG Ascii" -dialogStyle 1` ;
+		string $type ;
+//	string $extension = fileExtension($file);
+//	string $filebasename = basename($file, "." + $extension);
+//	string $dirname = dirname($file);
 		if ( size( $path ) )  {
-			string $token[] ; int $i , $numToken = `tokenize $path[0] "/" $token` ; $path[ 0 ] = $token[ 0 ] ;
-			for( $i = 1 ; $i < $numToken - 1 ; ++$i )  $path[0] = $path[0] + "/" + $token[ $i ] ;
-			if ( size( $path[0] ) == 2 )  $path[0] = $path[0] + "/" ;			// if Path is Drive root file Dialog returns Driveletter:/ aswell
-			optionVar -stringValue "maya2osg_filepath" $path[ 0 ] ;
-			tokenize $token[ $numToken - 1 ] "." $token ;
-			optionVar -stringValue "maya2osg_filename" $token[ 0 ] ;
-			$text = $token[ 1 ] ;
+			print( dirname( $path[ 0 ] ) ) ; print $n ;
+			print( basename( $path[ 0 ] , "." + fileExtension( $path[ 0 ] ) ) ) ; print $n ;
+			print( fileExtension( $path[ 0 ] ) ) ; print $n ;
 
-			if ( $text == "osgt" ||  $text == "osgb" || $text == "osgx" || $text == "osg" || $text == "ive" )
-				optionVar -stringValue "maya2osg_filetype" $text ;
+			$type = fileExtension( $path[ 0 ] ) ;
+			optionVar -stringValue "maya2osg_filepath" (  dirname( $path[ 0 ] ) ) ;
+			optionVar -stringValue "maya2osg_filename" ( basename( $path[ 0 ] , "." + $type ) ) ;
+
+			if ( $type == "osgt" ||  $type == "osgb" || $type == "osgx" || $type == "osg" || $type == "ive" )
+				optionVar -stringValue "maya2osg_filetype" $type ;
 
 			else  {
 				optionVar -stringValue "maya2osg_filetype" "unknown" ;
-				warning ( "Unknown Filetype : " + $text ) ;  
+				warning ( "Unknown Filetype : " + $type ) ;
 			}
 		}
-		
+
 		textFieldButtonGrp -edit -fileName `optionVar -query "maya2osg_filepath"` maya2osgUI_filepath ;
 		textFieldButtonGrp -edit -fileName `optionVar -query "maya2osg_filename"` maya2osgUI_filename ;
-		textField -edit -text $text maya2osgUI_filetypeText ;
+		textField -edit -text $type maya2osgUI_filetypeText ;
 		optionMenu -edit -value ( `optionVar -query "maya2osg_filetype"` != "unknown" ? `optionVar -query "maya2osg_filetype"` : "" ) maya2osgUI_filetypeOption ;
 	}
-	
+
 	// Check Filetype and update filetype optionMenu
 	else if ( $command == "typeFieldCommand" )  {
 		string $text = `textField -query -text maya2osgUI_filetypeText` ;
-		
+
 		if ( $text == "osgt" ||  $text == "osgb" || $text == "osgx" || $text == "osg" || $text == "ive" )
 			optionVar -stringValue "maya2osg_filetype" $text ;
 
 		else  {
 			optionVar -stringValue "maya2osg_filetype" "unknown" ;
-			warning ( "Unknown Filetype : " + $text ) ;  
+			warning ( "Unknown Filetype : " + $text ) ;
 		}
-		
+
 		string $optionVar = `optionVar -query "maya2osg_filetype"` ;
 		optionMenu -edit -value ( `optionVar -query "maya2osg_filetype"` != "unknown" ? `optionVar -query "maya2osg_filetype"` : "" ) maya2osgUI_filetypeOption ;
 	}
-	
+
 	// Check, set fletype and update filetype textField
 	else if ( $command == "typeOptionCommand" )  {
 		string $option = `optionMenu -query -value maya2osgUI_filetypeOption` ;
+		string $optionVarOld = `optionVar -query "maya2osg_filetype"` ;
+
 		if ( size ( $option ) )
 			optionVar -stringValue "maya2osg_filetype" $option ;
 		else
 			optionVar -stringValue "maya2osg_filetype" "unknown" ;
-		
+
 		string $optionVar = `optionVar -query "maya2osg_filetype"` ;
+		if ( $optionVarOld == "unknown" && $optionVarOld != $optionVar )  print( "\n" ) ; // Remove warning message from feedback window
 		textField -edit -text ( $optionVar != "unknown" ? `optionVar -query "maya2osg_filetype"` : "" ) maya2osgUI_filetypeText ;
 	}
-	
+
 	// Create filepath history PopUp Menu
 	else if ( $command == "buildFilepathPopUp" )  {
-		string $n = "\n" ;
 		string $projectPath = `workspace -query -rootDirectory` ;
 		popupMenu -edit -deleteAllItems maya2osgUI_filepathPopUp ;
 		menuItem -label "Currrent Project Path" -parent maya2osgUI_filepathPopUp
 			-command ( "optionVar -stringValue \"maya2osg_filepath\" \"" + $projectPath + "\" ; maya2osg_fileUtil( \"updatePathField\" ) ;" ) ;
 		menuItem -divider on ;
-		
+
 		if ( `optionVar -exists "maya2osg_pathHistory"` )  {
 			string $token[] , $pathHistory = `optionVar -query "maya2osg_pathHistory"` ;
 			int $i , $numToken = `tokenize $pathHistory ";" $token` ;
-			
+
 			for( $i = 0 ; $i < min( 5 , $numToken ) ; ++$i )  {
 				if ( size( $token[ $i ] ) )  {
 					menuItem -label $token[ $i ] -parent maya2osgUI_filepathPopUp
@@ -352,30 +359,30 @@ global proc maya2osg_fileUtil( string $command )
 			}
 		}
 	}
-	
+
 	// Update filepath history PopUp Menu
 	else if ( $command == "updateFilepathHistory" )  {
 		string $filepath = optionVar( "-query" , "maya2osg_filepath" ) ;
-		
+
 		if ( optionVar( "-exists" , "maya2osg_pathHistory" ) )  {
 			string $pathHistory = optionVar( "-query" , "maya2osg_pathHistory" ) ;
 			string $token[] ;
-			
+
 			tokenize $pathHistory ";" $token ;
 			int $i , $numToken = tokenize( $pathHistory , ";" , $token ) ;
 			$pathHistory = $filepath + ";" ;
-			
+
 			for( $i = 0 ; $i < min( 5 , $numToken ) ; ++$i )  {
 				if ( $token[ $i ] != $filepath && filetest( "-d" , $token[ $i ] ) ) {
 					$pathHistory += $token[ $i ] + ";" ;
 				}
 			}
-			
+
 			optionVar( "-stringValue" , "maya2osg_pathHistory" , $pathHistory ) ;
 		}
-		
+
 		else  optionVar( "-stringValue" , "maya2osg_pathHistory" , $filepath ) ;
-	
+
 	}
 
 	else print $command ;
@@ -396,7 +403,7 @@ proc addFrameLayouts_optionMenu()
 	string $command = "" ;
 	string $optionVar ;
 
-			
+
 	// GEOMETRY
 	frameLayout -label "Geometry" -collapsable true -marginWidth $marginW -marginHeight $marginH ;
 		rowColumnLayout -numberOfColumns 2 -columnWidth 1 $col1 -columnWidth 2 $col2 -columnOffset 2 "left" $off2 ;
@@ -700,7 +707,7 @@ proc maya2osg_options()
 	int $line_height = 25;
 
 	int $col1 = 100 , $col2 = 192 , $off2 = 8 ;
-	
+
 	// Open a dialog for the selection of export options
 	if ( `window -exists $maya2osg_export_win` )
 		deleteUI  -window $maya2osg_export_win ;
@@ -717,7 +724,7 @@ proc maya2osg_options()
 							-annotation ( `optionVar -query "maya2osg_filepath"` )
 							-changeCommand "maya2osg_fileUtil( \"pathFieldCommand\" ) ; maya2osg_fileUtil( \"updatePathField\" ) ; maya2osg_fileUtil( \"updatePathHistory\" ) ;"
 							-buttonCommand "maya2osg_fileUtil( \"pathDialog\" ) ; maya2osg_fileUtil( \"updatePathField\" ) ; maya2osg_fileUtil( \"updatePathHistory\" )" maya2osgUI_filepath ;
-							
+
 						popupMenu maya2osgUI_filepathPopUp ;
 						maya2osg_fileUtil( "buildFilepathPopUp" ) ;
 
@@ -727,13 +734,13 @@ proc maya2osg_options()
 							-annotation ( `optionVar -query "maya2osg_filepath"` + "/" + `optionVar -query "maya2osg_filename"` )
 							-changeCommand "optionVar -stringValue \"maya2osg_filename\" `textFieldButtonGrp -query -fileName maya2osgUI_filename`"
 							-buttonCommand "maya2osg_fileUtil( \"splitPath\" )" maya2osgUI_filename ;
-							
+
 						text -align "right" -label "Filetype:" -height $line_height ;
 						rowColumnLayout -numberOfColumns 2 -columnWidth 1 ( $col2 / 2 ) -columnWidth 2 ( $col2 / 2 ) ;
 							$optionVar = `optionVar -query "maya2osg_filetype"` ;
-							textField -text ( $optionVar != "unknown" ? `optionVar -query "maya2osg_filetype"` : "" ) 
+							textField -text ( $optionVar != "unknown" ? `optionVar -query "maya2osg_filetype"` : "" )
 								-changeCommand "maya2osg_fileUtil( \"typeFieldCommand\" )" maya2osgUI_filetypeText ;
-							
+
 							optionMenu -width ( $col2 / 2 )-changeCommand "maya2osg_fileUtil( \"typeOptionCommand\" )" maya2osgUI_filetypeOption ;
 							menuItem -label "osgt" ;
 							menuItem -label "osgb" ;
@@ -742,18 +749,18 @@ proc maya2osg_options()
 							menuItem -label "ive" ;
 							menuItem -label "" ;
 							optionMenu -edit -value ( $optionVar != "unknown" ? `optionVar -query "maya2osg_filetype"` : "" ) maya2osgUI_filetypeOption ;
-							
+
 							setParent.. ;
 
 						setParent.. ;
-						
+
 					setParent.. ;
 
 				if ( `optionVar -query "maya2osg_uiType"` == 1 )		addFrameLayouts_optionMenu() ;
 				else															addFrameLayouts_scrollList() ;
-					
+
 				setParent.. ;
-				
+
 			setParent.. ;
 
 		$buttons = `formLayout  -numberOfDivisions 100`;
@@ -834,23 +841,23 @@ global proc int osgFileExportOptions ( string $parent , string $action , string 
 	// Use the same UI as in the custom export window, so no new UI needs to be created
 	if ( $action == "post" )  {
 		setParent $parent;
-		
+
 		// Open a dialog for the selection of export options
 		if ( `optionVar -query "maya2osg_uiType"` == 1 )		addFrameLayouts_optionMenu() ;
 		else															addFrameLayouts_scrollList() ;
 
 		return 1 ;
 	}
-	
+
 	// Here Maya wants us to quary the exporter UI, generate one option string and append it to $resultCallback
 	// No need to query UI, as the exporter UI sets optionVars, which are queried in buildCommandOptions()
 	// $resultCallback has a ";" at the end, getting rid of this in the Plug-In
 	else if ( $action == "query" )  {
 		eval( $resultCallback + "\"" + buildCommandOptions() + "\"" ) ;
-		
+
 		return 1 ;
 	}
-	
+
 	else
 		return 0 ;
 
