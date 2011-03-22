@@ -60,13 +60,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(MAYA_PLUG_IN_PATH)\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(MAYA_PLUG_IN_PATH)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Configuration)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(MAYA_PLUG_IN_PATH)\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(MAYA_PLUG_IN_PATH)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
@@ -86,6 +86,10 @@
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.mll</TargetExt>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">maya2osg</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">maya2osgd</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.mll</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.mll</TargetExt>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">maya2osg</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">maya2osgd</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <CustomBuildStep>
@@ -93,21 +97,21 @@
       <Command>cd ..
 call INSTALL.bat
 </Command>
-      <Outputs>$(ProgramFiles)\Autodesk\Maya2011\bin\plug-ins\maya2osg.mll;%(Outputs)</Outputs>
+      <Outputs>$(MAYA_PLUG_IN_PATH)\maya2osgd.mll;%(Outputs)</Outputs>
     </CustomBuildStep>
     <ClCompile>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MAYA_INCLUDE_PATH);$(OSG_INCLUDE_PATH)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <AdditionalOptions>/export:initializePlugin /export:uninitializePlugin %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>Foundation.lib;OpenMaya.lib;OpenMayaFX.lib;OpenMayaAnim.lib;OpenMayaRender.lib;osgd.lib;osgDBd.lib;osgViewerd.lib;osgParticled.lib;osgShadowd.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(ProjectName).mll</OutputFile>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Foundation.lib;OpenMaya.lib;OpenMayaFX.lib;OpenMayaAnim.lib;OpenMayaRender.lib;osgd.lib;osgDBd.lib;osgViewerd.lib;osgParticled.lib;osgShadowd.lib;osgAnimationd.lib;OpenThreadsd.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(MAYA_PLUG_IN_PATH)\$(ProjectName)d.mll</OutputFile>
+      <AdditionalLibraryDirectories>$(MAYA_LIB_PATH);$(OSG_LIB_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -127,7 +131,7 @@ call INSTALL.bat
       <PreprocessorDefinitions>_DEBUG;WIN32;_AFXDLL;_MBCS;_WINDOWS;NT_PLUGIN;REQUIRE_IOSTREAM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <WarningLevel>Level3</WarningLevel>
       <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
       <ObjectFileName>.\Debug/</ObjectFileName>
@@ -135,7 +139,7 @@ call INSTALL.bat
     </ClCompile>
     <Link>
       <AdditionalOptions>/export:initializePlugin /export:uninitializePlugin %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>Foundation.lib;OpenMaya.lib;OpenMayaFX.lib;OpenMayaAnim.lib;OpenMayaRender.lib;osgd.lib;osgDBd.lib;osgViewerd.lib;osgParticled.lib;osgShadowd.lib;OpenThreadsd.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Foundation.lib;OpenMaya.lib;OpenMayaFX.lib;OpenMayaAnim.lib;OpenMayaRender.lib;osgd.lib;osgDBd.lib;osgViewerd.lib;osgParticled.lib;osgShadowd.lib;osgAnimationd.lib;OpenThreadsd.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(MAYA_PLUG_IN_PATH)\$(ProjectName)d.mll</OutputFile>
       <AdditionalLibraryDirectories>$(MAYA_LIB_PATH);$(OSG_LIB_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -153,20 +157,19 @@ call INSTALL.bat
       <Command>cd ..
 call INSTALL.bat
 </Command>
-      <Outputs>$(ProgramFiles)\Autodesk\Maya2011\bin\plug-ins\maya2osg.mll;%(Outputs)</Outputs>
+      <Outputs>$(MAYA_PLUG_IN_PATH)\maya2osg.mll;%(Outputs)</Outputs>
     </CustomBuildStep>
     <ClCompile>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MAYA_INCLUDE_PATH);$(OSG_INCLUDE_PATH)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <AdditionalOptions>/export:initializePlugin /export:uninitializePlugin %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>Foundation.lib;OpenMaya.lib;OpenMayaAnim.lib;OpenMayaFX.lib;OpenMayaRender.lib;osg.lib;osgDB.lib;osgViewer.lib;osgParticle.lib;osgShadow.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(ProjectName).mll</OutputFile>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Foundation.lib;OpenMaya.lib;OpenMayaFX.lib;OpenMayaAnim.lib;OpenMayaRender.lib;osg.lib;osgDB.lib;osgViewer.lib;osgParticle.lib;osgShadow.lib;osgAnimation.lib;OpenThreads.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(MAYA_PLUG_IN_PATH)\$(ProjectName).mll</OutputFile>
+      <AdditionalLibraryDirectories>$(MAYA_LIB_PATH);$(OSG_LIB_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <OptimizeReferences>
       </OptimizeReferences>
@@ -196,7 +199,7 @@ call INSTALL.bat</Command>
     </ClCompile>
     <Link>
       <AdditionalOptions>/export:initializePlugin /export:uninitializePlugin %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>Foundation.lib;OpenMaya.lib;OpenMayaFX.lib;OpenMayaAnim.lib;OpenMayaRender.lib;osg.lib;osgDB.lib;osgViewer.lib;osgParticle.lib;osgShadow.lib;OpenThreads.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Foundation.lib;OpenMaya.lib;OpenMayaFX.lib;OpenMayaAnim.lib;OpenMayaRender.lib;osg.lib;osgDB.lib;osgViewer.lib;osgParticle.lib;osgShadow.lib;osgAnimation.lib;OpenThreads.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(MAYA_PLUG_IN_PATH)\maya2osg.mll</OutputFile>
       <AdditionalLibraryDirectories>$(MAYA_LIB_PATH);$(OSG_LIB_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>
@@ -212,6 +215,7 @@ call INSTALL.bat</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\animation.cpp" />
     <ClCompile Include="..\..\src\camera.cpp" />
     <ClCompile Include="..\..\src\cameraanimation.cpp" />
     <ClCompile Include="..\..\src\common.cpp" />
@@ -226,6 +230,7 @@ call INSTALL.bat</Command>
     <ClCompile Include="..\..\src\nparticle.cpp" />
     <ClCompile Include="..\..\src\osg2maya.cpp" />
     <ClCompile Include="..\..\src\osgfiletranslator.cpp" />
+    <ClCompile Include="..\..\src\osgwrite.cpp" />
     <ClCompile Include="..\..\src\particle.cpp" />
     <ClCompile Include="..\..\src\pointemitter.cpp" />
     <ClCompile Include="..\..\src\pointlight.cpp" />
@@ -249,6 +254,7 @@ call INSTALL.bat</Command>
     <ClCompile Include="..\..\src\GLSL\texturingconfig.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\animation.h" />
     <ClInclude Include="..\..\src\camera.h" />
     <ClInclude Include="..\..\src\cameraanimation.h" />
     <ClInclude Include="..\..\src\common.h" />
@@ -263,6 +269,7 @@ call INSTALL.bat</Command>
     <ClInclude Include="..\..\src\nparticle.h" />
     <ClInclude Include="..\..\src\osg2maya.h" />
     <ClInclude Include="..\..\src\osgfiletranslator.h" />
+    <ClInclude Include="..\..\src\osgwrite.h" />
     <ClInclude Include="..\..\src\particle.h" />
     <ClInclude Include="..\..\src\pointemitter.h" />
     <ClInclude Include="..\..\src\pointlight.h" />
@@ -285,6 +292,14 @@ call INSTALL.bat</Command>
     <ClInclude Include="..\..\src\GLSL\shadingnodefactory.h" />
     <ClInclude Include="..\..\src\GLSL\surfaceshader.h" />
     <ClInclude Include="..\..\src\GLSL\texturingconfig.h" />
+    <ClInclude Include="..\..\src\utility.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\scripts\maya2osg_cleanup.mel" />
+    <None Include="..\..\scripts\maya2osg_export.mel" />
+    <None Include="..\..\scripts\maya2osg_exportDialog.mel" />
+    <None Include="..\..\scripts\maya2osg_import.mel" />
+    <None Include="..\..\scripts\maya2osg_preview.mel" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

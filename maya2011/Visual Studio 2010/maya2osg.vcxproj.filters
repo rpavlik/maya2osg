@@ -19,6 +19,9 @@
       <UniqueIdentifier>{ab1ed5c1-8091-420d-9a77-3f047ca0f5f3}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
+    <Filter Include="Mel Files">
+      <UniqueIdentifier>{6afc4ef3-5038-4515-a0b1-66f8a12cff22}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\camera.cpp">
@@ -125,6 +128,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\GLSL\texturingconfig.cpp">
       <Filter>Source Files\GLSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\animation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\osgwrite.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -236,5 +245,31 @@
     <ClInclude Include="..\..\src\GLSL\texturingconfig.h">
       <Filter>Header Files\GLSL</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\animation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\osgwrite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\scripts\maya2osg_cleanup.mel">
+      <Filter>Mel Files</Filter>
+    </None>
+    <None Include="..\..\scripts\maya2osg_export.mel">
+      <Filter>Mel Files</Filter>
+    </None>
+    <None Include="..\..\scripts\maya2osg_exportDialog.mel">
+      <Filter>Mel Files</Filter>
+    </None>
+    <None Include="..\..\scripts\maya2osg_import.mel">
+      <Filter>Mel Files</Filter>
+    </None>
+    <None Include="..\..\scripts\maya2osg_preview.mel">
+      <Filter>Mel Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
