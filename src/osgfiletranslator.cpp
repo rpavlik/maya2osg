@@ -23,6 +23,7 @@
 
 #include "osgfiletranslator.h"
 #include "osgwrite.h"
+#include "config.h"
 
 
 
@@ -52,9 +53,18 @@ MStatus OSGFileTranslator::reader( const MFileObject &file, const MString &optio
 MStatus OSGFileTranslator::writer( const MFileObject &file, const MString &optionsString,
                                    MPxFileTranslator::FileAccessMode mode )
 {
+	// Set Config ExportSelection Attribute
+	if ( ( mode == MPxFileTranslator::kExportAccessMode ) || ( mode == MPxFileTranslator::kSaveAccessMode ) )
+		Config::instance()->setExportSelection( false ) ;
+
+	else if( mode == MPxFileTranslator::kExportActiveAccessMode )
+		Config::instance()->setExportSelection( true ) ;
+
 	// the first character in the optinsString is a ";", so get rid of it with substring
 	MString			options = optionsString.substring( 1 , optionsString.length() -1 ) ;
 	MStringArray	argStringArray ;
+
+	std::cout << optionsString.asChar() ;
 
 	// split the String with " " to get and option Array
 	MStatus status = options.split( ' ' , argStringArray ) ;

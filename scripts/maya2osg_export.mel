@@ -29,7 +29,8 @@ proc initOptionVars()  {
 	if ( !`optionVar -exists "maya2osg_filepath"` ) 				optionVar -stringValue	"maya2osg_filepath"					( `workspace -query -rootDirectory` ) ;
 	if ( !`optionVar -exists "maya2osg_filename"` ) 				optionVar -stringValue	"maya2osg_filename"					"maya2osg" ;
 	if ( !`optionVar -exists "maya2osg_filetype"` ) 				optionVar -stringValue	"maya2osg_filetype"					"osgt" ;
-
+	if ( !`optionVar -exists "maya2osg_exportSelection"` ) 		optionVar -intValue		"maya2osg_exportSelection"			1 ;
+	
 	if ( !`optionVar -exists "maya2osg_bfcull"` ) 					optionVar -stringValue	"maya2osg_bfcull"					"KEEP" ;
 	if ( !`optionVar -exists "maya2osg_yup2zup"` ) 				optionVar -intValue		"maya2osg_yup2zup"					( `upAxis -query -axis` == "y" ) ;
 
@@ -142,7 +143,7 @@ global proc maya2osg_doExport(string $file, string $format)
 	}
 	$command += " \"" + $file + "\";";
 	print $command ;
-	eval($command);
+	eval( $command ) ;
 }
 
 
@@ -206,8 +207,9 @@ global proc maya2osg_doExportGUI( string $filepath )
 	maya2osg_fileUtil( "updateFilepathHistory" ) ;
 	maya2osg_fileUtil( "buildFilepathPopUp" ) ;
 
-	string $command = "maya2osg" + buildCommandOptions() ;
-
+	// Flag for Selected goes here, as it is not required in fileTranslator, but only when exporting from GUI
+	string $command = "maya2osg -exportSelection " + ( `optionVar -query "maya2osg_exportSelection"` ) + buildCommandOptions() ;
+	
 	if ( !size( $filepath ) )
 		$filepath = getFilepath() ;
 
@@ -745,6 +747,11 @@ proc maya2osg_options()
 							optionMenu -edit -value ( $optionVar != "unknown" ? `optionVar -query "maya2osg_filetype"` : "" ) maya2osgUI_filetypeOption ;
 
 							setParent.. ;
+							
+						text -align "right" -label "Export Selection:" ;
+						checkBox -label "" -height $line_height
+							-value ( `optionVar -query "maya2osg_exportSelection"` )
+							-changeCommand "optionVar -intValue \"maya2osg_exportSelection\" #1" ;
 
 						setParent.. ;
 
@@ -759,8 +766,8 @@ proc maya2osg_options()
 
 		$buttons = `formLayout  -numberOfDivisions 100`;
 			//$comm_export = "fileBrowserDialog -an \"Export as...\" -fc \"maya2osg_doExportGUI\" -ft \"osg\" -in \"OSG\" -m 1 -om \"ExportAll\";";
-			$comm_export = "string $file[] = `fileDialog2 -fileFilter \"OSG (*.osg* )\" -dialogStyle 2` ; maya2osg_doExportGUI( $file[ 0 ] , \"osg\" ) ;" ;
-			$comm_export_and_preview = "fileBrowserDialog -an \"Export as...\" -fc \"maya2osg_doExportGUIAndPreview\" -ft \"osg\" -in \"OSG\" -m 1 -om \"ExportAll\";";
+			//$comm_export = "string $file[] = `fileDialog2 -fileFilter \"OSG (*.osg* )\" -dialogStyle 2` ; maya2osg_doExportGUI( $file[ 0 ] , \"osg\" ) ;" ;
+			//$comm_export_and_preview = "fileBrowserDialog -an \"Export as...\" -fc \"maya2osg_doExportGUIAndPreview\" -ft \"osg\" -in \"OSG\" -m 1 -om \"ExportAll\";";
 			// Using new export methods which query optionVars for filepath, filename and filetype
 			$b1 = `button -label "Export" -align "center" -command "maya2osg_doExportGUI(  \"\" )"` ; //$comm_export`;
 			$b2 = `button -label "Export and Preview" -align "center" -command "maya2osg_doExportGUIAndPreview()"` ; //$comm_export_and_preview`;

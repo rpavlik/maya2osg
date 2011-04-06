@@ -56,6 +56,7 @@ Config::Config() :
 	_enableBumpMapping = true;
     _runTimeBumpDepth = true;
     _regenerateTextures = false;
+	 _exportSelection = true ;
 }
 
 Config::SceneFilePath::SceneFilePath( const std::string &path )

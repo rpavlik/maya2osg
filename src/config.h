@@ -95,7 +95,7 @@ private:
 	/// Export default cameras
 	bool _exportDefaultCameras;
 
-	/// Export orthograhpic cameras
+	/// Export orthographic cameras
 	bool _exportOrthographicCameras;
 
 	/// Convert from Y-Up to Z-Up
@@ -140,7 +140,7 @@ private:
 	/// Maximum number of samples for anisotropic filtering
 	int _maxAnisotropy;
 
-	/// Enable the bump mapping in the exported GLSL shaders
+	/// Enable the bump mapping in the exported GLSL shader
 	bool _enableBumpMapping;
 
     /// Apply bump depth in run-time (vs baked into the texture file)
@@ -148,6 +148,9 @@ private:
 
     /// Regenerate textures (even when they are up-to-date)
     bool _regenerateTextures;
+
+	 /// Required option, as fileTranslator exports also selected even if "Export All" is used
+	 bool _exportSelection;
 
 	/// Constructor
 	Config();
@@ -304,6 +307,12 @@ public:
 
     inline bool getRegenerateTextures() const
     { return _regenerateTextures; }
+
+	 inline void setExportSelection( bool v )
+	 { _exportSelection = v; }
+
+	 inline bool getExportSelection() const
+	 { return _exportSelection; }
 
 };
 

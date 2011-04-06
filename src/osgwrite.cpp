@@ -51,7 +51,18 @@ MString OSGWrite::parseArgs( const MStringArray & argStringArray )
 	filename = "model.osg";
 	for( unsigned int i = 0 ; i < argStringArray.length() ; ++i )  {
 
-		if( argStringArray[ i ] == "-texenv" ){
+		if ( argStringArray[ i ] == "-exportSelection" ){
+			i++;
+			if ( i == argStringArray.length() )
+				break;
+			if( argStringArray[ i ] == "0" ){
+				Config::instance()->setExportSelection( false );
+			}
+			else {
+				Config::instance()->setExportSelection( true );
+			}
+		}
+		else if( argStringArray[ i ] == "-texenv" ){
 			i++;
 			if ( i == argStringArray.length() )
 				break;
@@ -381,7 +392,7 @@ MStatus OSGWrite::exporta( const MString & filename )
 
 	// Malfunctioning, Objects get exported multiple times, if
 	// several objects are selected which are children of each other
-	if ( sel.length() > 0 ) {
+	if ( Config::instance()->getExportSelection() && sel.length() > 0 ) {
 		// If there is a selection, export only the selected elements
 		for( int i=0 ; i < sel.length() ; i++ ) {
 			MDagPath dagPath;
