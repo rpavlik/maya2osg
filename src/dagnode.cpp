@@ -46,7 +46,7 @@ osg::ref_ptr<osg::Node> DAGNode::exporta(MDagPath &dp)
 	MFnDependencyNode dnodefn(node);
 
     bool visible;
-    dnodefn.findPlug("visibility").getValue(visible);
+	 dnodefn.findPlug("visibility").getValue(visible);
     if ( !visible ) {
         return NULL;
     }
@@ -68,7 +68,12 @@ osg::ref_ptr<osg::Node> DAGNode::exporta(MDagPath &dp)
 	// POLYGON MESHES (AND CUSTOM NODES)
 	else if( node.hasFn( MFn::kMesh ) ){
 
-		return Mesh::exporta(node);
+		// Ignore Intermediate Objects ( Object Display ), mostly source of History and unwanted
+		if( dnodefn.findPlug( "intermediateObject" ).asBool() )
+			return NULL ;
+
+		//return MeshOld::exporta(node);
+		return Mesh::exporta(dp);
 
 	}
 	// NURBS

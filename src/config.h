@@ -84,6 +84,9 @@ private:
 	/// Surface mode
 	SurfaceMode _surfaceMode;
 
+	/// Flip Normals
+	bool _flipNormalsIfOpposite;
+
 	/// Texture clamp mode
 	TextureClampMode _texClampMode;
 
@@ -131,11 +134,11 @@ private:
 	/// Use GLSL shaders to emulate Maya shaders
 	bool _useGLSL;
 
-    /// Export geometry normals
-    bool _exportNormals;
+	/// Export geometry normals
+	bool _exportNormals;
 
-    /// Export texture coordinates
-    bool _exportTexCoords;
+	/// Export texture coordinates
+	bool _exportTexCoords;
 
 	/// Maximum number of samples for anisotropic filtering
 	int _maxAnisotropy;
@@ -143,14 +146,14 @@ private:
 	/// Enable the bump mapping in the exported GLSL shader
 	bool _enableBumpMapping;
 
-    /// Apply bump depth in run-time (vs baked into the texture file)
-    bool _runTimeBumpDepth;
+	/// Apply bump depth in run-time (vs baked into the texture file)
+	bool _runTimeBumpDepth;
 
-    /// Regenerate textures (even when they are up-to-date)
-    bool _regenerateTextures;
+	/// Regenerate textures (even when they are up-to-date)
+	bool _regenerateTextures;
 
-	 /// Required option, as fileTranslator exports also selected even if "Export All" is used
-	 bool _exportSelection;
+	/// Required option, as fileTranslator exports also selected even if "Export All" is used
+	bool _exportSelection;
 
 	/// Constructor
 	Config();
@@ -199,6 +202,12 @@ public:
 
 	inline SurfaceMode getSurfaceMode() const
 	{ return _surfaceMode; }
+
+	inline void setFlipNormalsIfOpposite( bool v )
+	{ _flipNormalsIfOpposite = v; }
+
+	inline bool getFlipNormalsIfOpposite() const
+	{ return _flipNormalsIfOpposite; }
 
 	inline void setTexClampMode( TextureClampMode m )
 	{ _texClampMode = m; }
@@ -272,17 +281,17 @@ public:
 	inline bool getUseGLSL() const
 	{ return _useGLSL; }
 
-    inline void setExportNormals( bool v )
-    { _exportNormals = v; }
+	inline void setExportNormals( bool v )
+	{ _exportNormals = v; }
 
-    inline bool getExportNormals() const
-    { return _exportNormals; }
+	inline bool getExportNormals() const
+	{ return _exportNormals; }
 
-    inline void setExportTexCoords( bool v )
-    { _exportTexCoords = v; }
+	inline void setExportTexCoords( bool v )
+	{ _exportTexCoords = v; }
 
-    inline bool getExportTexCoords() const
-    { return _exportTexCoords; }
+	inline bool getExportTexCoords() const
+	{ return _exportTexCoords; }
 
 	inline void setMaxAnisotropy( int v )
 	{ _maxAnisotropy = v; }

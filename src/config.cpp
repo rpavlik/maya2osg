@@ -38,6 +38,7 @@ Config::Config() :
 	_exportDefaultCameras = false;
 	_exportOrthographicCameras = false;
 	_surfaceMode = KEEP;
+	_flipNormalsIfOpposite = false ;
 	_texClampMode = COLOR;
 	_YUp2ZUp = true;
 	_exportAnimations = true;
@@ -50,13 +51,13 @@ Config::Config() :
 	_globalAmbient.set(0.0, 0.0, 0.0);
 	_localViewer = true;
 	_useGLSL = false;
-    _exportNormals = true;
-    _exportTexCoords = true;
+	_exportNormals = true;
+	_exportTexCoords = true;
 	_maxAnisotropy = 0;
 	_enableBumpMapping = true;
-    _runTimeBumpDepth = true;
-    _regenerateTextures = false;
-	 _exportSelection = true ;
+	_runTimeBumpDepth = true;
+	_regenerateTextures = false;
+	_exportSelection = true ;
 }
 
 Config::SceneFilePath::SceneFilePath( const std::string &path )

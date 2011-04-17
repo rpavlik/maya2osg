@@ -37,6 +37,10 @@ public:
 
 	/// Get the surface shader applied to the shading engine
 	static void getSurfaceShader(const MObject &shading_engine, MObject &surface_shader);
+	static MObject getSurfaceShader(const MObject &shading_engine);
+
+	/// Get the surface shader Name applied to the shading engine
+	static MString getSurfaceShaderName(const MObject &shading_engine);
 
 	/// Get the file texture connected to color channel (if any)
 	static void getColorTexture( const MObject &surface_shader, MObject &texture );

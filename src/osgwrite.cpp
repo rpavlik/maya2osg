@@ -23,13 +23,19 @@
 #include <osg/PositionAttitudeTransform>
 #include <osg/StateSet>
 #include <osg/StateAttribute>
+#include <osgDB/Output>
 #include <osgDB/WriteFile>
 #include <osgDB/FileNameUtils>
 
 #include <stdlib.h>
 #include <string.h>
 
-#include <iostream>
+//#include <iostream>
+#include <fstream>
+#include <sstream>
+
+// Log Steps and Stages
+osgDB::Output logFile ;
 
 
 // Work in progress: to convert textures to hardware compressed format, we need a GL context
@@ -348,7 +354,6 @@ MStatus OSGWrite::exporta( const MString & filename )
     gc->makeCurrent();
 #endif
 
-	
 
 	std::cout << "---------------------------------------------------" << std::endl;
 	std::cout << "---      Maya2OSG - OSG Maya Exporter           ---" << std::endl;
@@ -386,6 +391,9 @@ MStatus OSGWrite::exporta( const MString & filename )
 	// Scene root node name -> file base name
 	root->setName( Config::instance()->getSceneFilePath().getFileBaseName() );
 
+	// Open logFile where Scene gets exported
+	logFile.open( ( Config::instance()->getSceneFilePath().getDirectory() + "/Maya2OSG_Write.log" ).c_str() ) ;
+	
 	// Create New AnimationManager
 	// Initialize Attribute Arrays required once on Plug-In load
 	Animation::init() ;
@@ -483,8 +491,12 @@ MStatus OSGWrite::exporta( const MString & filename )
 	Shadows::reset();
 
 	std::cout << "---------------------------------------------------" << std::endl;
-	std::cout << "---      Exportation succesfully completed      ---" << std::endl;
+	std::cout << "---      Exportation successfully completed     ---" << std::endl;
 	std::cout << "---------------------------------------------------" << std::endl;
+
+	logFile.close() ;
+
 	return MStatus::kSuccess;
+
 
 }

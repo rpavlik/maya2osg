@@ -3,6 +3,7 @@
 
 
 // ----- Maya -----------------------------------------------------------------------
+#include <maya/MColor.h>
 #include <maya/MPoint.h>
 #include <maya/MMatrix.h>
 #include <maya/MVector.h>
@@ -11,6 +12,7 @@
 
 // ----- OSG ------------------------------------------------------------------------
 #include <osg/Vec3>
+#include <osg/Vec4>
 #include <osg/Matrixd>
 #include <osg/Matrixf>
 
@@ -18,6 +20,19 @@
 // CHECK if distance from BASE is in TOLERANCE
 static inline bool inTolerance( double base , double match , double tolerance )  {
 	return ( base - tolerance <= match ) && ( base + tolerance >= match ) ;
+}
+
+static inline bool inTolerance( float base , float match , float tolerance )  {
+	return ( base - tolerance <= match ) && ( base + tolerance >= match ) ;
+}
+
+template < typename SCALAR , typename VEC >
+static VEC roundTolerance( SCALAR base , VEC match , SCALAR tolerance )  {
+	for( uint i = 0 ; i < match::num_components ; ++i )
+		if ( inTolerance( base , match[ i ] , tolerance ) )
+			match[ i ] = base ;
+
+	return match ;
 }
 
 //------------------------------------------------------------------------------
@@ -34,6 +49,21 @@ static inline void assign( osg::Vec3 & osgVec3 , const MPoint & mPoint )  {
 	osgVec3[ 2 ] = mPoint[ 2 ] ;
 }
 
+
+//------------------------------------------------------------------------------
+static inline void assign( MFloatVector & mFloatVector , const osg::Vec3 & osgVec3 )  {
+	mFloatVector[ 0 ] = osgVec3[ 0 ] ;
+	mFloatVector[ 1 ] = osgVec3[ 1 ] ;
+	mFloatVector[ 2 ] = osgVec3[ 2 ] ;
+}
+
+//------------------------------------------------------------------------------
+static inline void assign( osg::Vec3 & osgVec3 , const MFloatVector & mFloatVector )  {
+	osgVec3[ 0 ] = mFloatVector[ 0 ] ;
+	osgVec3[ 1 ] = mFloatVector[ 1 ] ;
+	osgVec3[ 2 ] = mFloatVector[ 2 ] ;
+}
+
 //------------------------------------------------------------------------------
 static inline void assign( MVector & mVector , const osg::Vec3 & osgVec3 )  {
 	mVector[ 0 ] = osgVec3[ 0 ] ;
@@ -46,6 +76,23 @@ static inline void assign( osg::Vec3 & osgVec3 , const MVector & mVector )  {
 	osgVec3[ 0 ] = mVector[ 0 ] ;
 	osgVec3[ 1 ] = mVector[ 1 ] ;
 	osgVec3[ 2 ] = mVector[ 2 ] ;
+}
+
+
+//------------------------------------------------------------------------------
+static inline void assign( MVector & mColor , const osg::Vec4 & osgVec4 )  {
+	mColor[ 0 ] = osgVec4[ 0 ] ;
+	mColor[ 1 ] = osgVec4[ 1 ] ;
+	mColor[ 2 ] = osgVec4[ 2 ] ;
+	mColor[ 3 ] = osgVec4[ 3 ] ;
+}
+
+//------------------------------------------------------------------------------
+static inline void assign( osg::Vec4 & osgVec4 , const MColor & mColor )  {
+	osgVec4[ 0 ] = mColor[ 0 ] ;
+	osgVec4[ 1 ] = mColor[ 1 ] ;
+	osgVec4[ 2 ] = mColor[ 2 ] ;
+	osgVec4[ 3 ] = mColor[ 3 ] ;
 }
 
 //------------------------------------------------------------------------------

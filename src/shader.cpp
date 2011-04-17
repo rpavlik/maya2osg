@@ -239,6 +239,23 @@ void Shader::getSurfaceShader(const MObject &shading_engine, MObject &surface_sh
 	}
 }
 
+MObject Shader::getSurfaceShader(const MObject &shading_engine)  {
+	MObject surface_shader;
+	getSurfaceShader(shading_engine,surface_shader);
+	return surface_shader;
+}
+
+/**
+ *	Get the name of the surface shader applied to the shading engine
+ */
+MString Shader::getSurfaceShaderName(const MObject &shading_engine)
+{
+	MObject surface_shader;
+	getSurfaceShader(shading_engine, surface_shader);
+	MFnDependencyNode dn(surface_shader);
+	return dn.name();
+}
+
 
 /**
  *  Get the plug connected to a channel of a shading node
