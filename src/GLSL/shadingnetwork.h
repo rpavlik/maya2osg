@@ -28,6 +28,7 @@
 
 // Vertex attribute locations (see http://forum.openscenegraph.org/viewtopic.php?t=4653 and osgvertexattribute example)
 #define TANGENT_ATTRIB_LOCATION 6
+#define BINORMAL_ATTRIB_LOCATION 7
 
 /**
  *  TO-DO: check what uniforms are used, to create 

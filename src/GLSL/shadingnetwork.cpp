@@ -30,6 +30,8 @@
 #include <maya/MFnDependencyNode.h>
 #include <fstream>
 
+#include <osg/Program>
+
 // Dump shaders to disk (for debugging purposes)
 //#define DUMP_SHADERS
 
