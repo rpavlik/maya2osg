@@ -115,7 +115,6 @@ proc string buildCommandOptions()
 // Arguments prefix and postfix the filname
 proc string fixFilepath( string $prefix , string $postfix )
 {
-
 	string $path = "" , $filepath = optionVar( "-query" , "maya2osg_filepath" ) ;
 
 	$path += $filepath + "/"  + $prefix ;
@@ -160,21 +159,20 @@ global proc maya2osg_doExportGUIAndPreview()
 		return ;
 	}
 
-	int $offs_x = 100;
-	int $offs_y = 100;
-	int $width = `getAttr defaultResolution.width`;
-	int $height = `getAttr defaultResolution.height`;
+	int $offs_x = 100 ;
+	int $offs_y = 100 ;
+	int $width  = `getAttr defaultResolution.width`  ;
+	int $height = `getAttr defaultResolution.height` ;
 
-	$options = " --window " + $offs_x + " " + $offs_y + " " + $width + " " + $height;
+	$options = " --window " + $offs_x + " " + $offs_y + " " + $width + " " + $height ;
 
-	string $camera_file_name = "";
-	string $camera_shape[];
-	$panel = `getPanel -withFocus`;
+	string $camera_file_name = "" ;
+	string $camera_shape[] ;
+	$panel = `getPanel -withFocus` ;
 	// Compare the panel's type to confirm it is a "modelPanel"
-	if ( "modelPanel" == `getPanel -to $panel` )
-	{
-		$camera = `modelEditor -q -camera $panel`;
-		$camera_shape = `listRelatives -shapes $camera`;
+	if ( "modelPanel" == `getPanel -to $panel` )  {
+		$camera = `modelEditor -query -camera $panel` ;
+		$camera_shape = `listRelatives -shapes $camera` ;
 		$camera_file_name = fixFilepath( "" , ( "_" + $camera_shape[0] ) ) ;
 	}
 
@@ -203,9 +201,19 @@ global proc maya2osg_doExportGUIAndPreview()
 global proc maya2osg_doExportGUI( string $filepath )
 {
 	//global string $maya2osg_export_win ;
+	
+	// here we need to grab the GUI file / path entries, as we don't get the latest changes
+	//	in case of user typed something and immediately pressed any export button
+	maya2osg_fileUtil( "pathFieldCommand"  ) ;		// Latest Path and Check if Valid 
+	maya2osg_fileUtil( "updatePathField"   ) ;		// Update Path Field Annotation
+	maya2osg_fileUtil( "updateFilepathHistory" ) ;	// Update History Option Var
+	maya2osg_fileUtil( "buildFilepathPopUp" ) ;		// Rebuild History Menu based on Option Var
 
-	maya2osg_fileUtil( "updateFilepathHistory" ) ;
-	maya2osg_fileUtil( "buildFilepathPopUp" ) ;
+	optionVar -stringValue "maya2osg_filename" `textFieldButtonGrp -query -fileName maya2osgUI_filename` ;	// Latest File Name
+	
+	maya2osg_fileUtil( "typeFieldCommand" ) ;		// Latest Path Name and Sanaty Check
+
+
 
 	// Flag for Selected goes here, as it is not required in fileTranslator, but only when exporting from GUI
 	string $command = "maya2osg -exportSelection " + ( `optionVar -query "maya2osg_exportSelection"` ) + buildCommandOptions() ;
@@ -274,7 +282,7 @@ global proc maya2osg_fileUtil( string $command )
 //	string $filebasename = basename($file, "." + $extension);
 //	string $dirname = dirname($file);
 		if ( size( $path ) )  {
-			print( dirname( $path[ 0 ] ) ) ; print $n ;
+			print(  dirname( $path[ 0 ] ) ) ; print $n ;
 			print( basename( $path[ 0 ] , "." + fileExtension( $path[ 0 ] ) ) ) ; print $n ;
 			print( fileExtension( $path[ 0 ] ) ) ; print $n ;
 
@@ -696,8 +704,6 @@ proc maya2osg_options()
 {
 	global string $maya2osg_export_win;
 
-	initOptionVars() ;
-
 	int $marginW = 15;
 	int $marginH = 10;
 	int $line_height = 25;
@@ -718,7 +724,7 @@ proc maya2osg_options()
 						textFieldButtonGrp -columnWidth2 ( 3 * $col2 / 4 ) ( $col2 / 4 ) -buttonLabel "Browse"
 							-fileName ( `optionVar -query "maya2osg_filepath"` )
 							-annotation ( `optionVar -query "maya2osg_filepath"` )
-							-changeCommand "maya2osg_fileUtil( \"pathFieldCommand\" ) ; maya2osg_fileUtil( \"updatePathField\" ) ; maya2osg_fileUtil( \"updatePathHistory\" ) ;"
+							-changeCommand "maya2osg_fileUtil( \"pathFieldCommand\" ) ; maya2osg_fileUtil( \"updatePathField\" ) ;"
 							-buttonCommand "maya2osg_fileUtil( \"pathDialog\" ) ; maya2osg_fileUtil( \"updatePathField\" ) ; maya2osg_fileUtil( \"updatePathHistory\" )" maya2osgUI_filepath ;
 
 						popupMenu maya2osgUI_filepathPopUp ;
@@ -817,6 +823,8 @@ global proc maya2osg_export( int $option_box ) {
 		error "Maya2OSG plug-in failed to load";
 		return;
 	}
+	
+	initOptionVars() ;
 
 	// Cleanup has been deactivated. It can be explicitly called
 	// by the user from the shelf button "Cleanup scene".
