@@ -46,7 +46,7 @@ osg::ref_ptr<osg::Node> DAGNode::exporta(MDagPath &dp)
 	MFnDependencyNode dnodefn(node);
 
     bool visible;
-	 dnodefn.findPlug("visibility").getValue(visible);
+	dnodefn.findPlug("visibility").getValue(visible);
     if ( !visible ) {
         return NULL;
     }
