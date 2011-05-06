@@ -367,7 +367,7 @@ osg::ref_ptr< osg::Node > Mesh::exporta( MDagPath & mDagPath )  {
 			// Find the Texture connected to surfaceShader.normalCamera
 			MObject mBumpNode , mBumpTexture ;
 			Shader::getNodeConnectedToChannel( Shader::getSurfaceShader( mShadersAttached[ sa ] ) , "normalCamera" , mBumpNode ) ;
-			Shader::getNodeConnectedToChannel( Shader::getSurfaceShader( mBumpNode ) , "bumpValue" , mBumpTexture ) ;
+			Shader::getNodeConnectedToChannel( mBumpNode , "bumpValue" , mBumpTexture ) ;
 			MFnDependencyNode mfnDependencyTexture( mBumpTexture ) ;
 
 			hasNormalMapping = mBumpTexture.hasFn( MFn::kFileTexture )  ;

@@ -32,13 +32,14 @@ proc initOptionVars()  {
 	if ( !`optionVar -exists "maya2osg_exportSelection"` ) 		optionVar -intValue		"maya2osg_exportSelection"			1 ;
 	
 	if ( !`optionVar -exists "maya2osg_bfcull"` ) 					optionVar -stringValue	"maya2osg_bfcull"					"KEEP" ;
-	if ( !`optionVar -exists "maya2osg_yup2zup"` ) 				optionVar -intValue		"maya2osg_yup2zup"					( `upAxis -query -axis` == "y" ) ;
+	if ( !`optionVar -exists "maya2osg_yup2zup"` ) 					optionVar -intValue		"maya2osg_yup2zup"					( `upAxis -query -axis` == "y" ) ;
 
 	if ( !`optionVar -exists "maya2osg_texenv"` ) 					optionVar -stringValue	"maya2osg_texenv" 					"MODULATE" ;
 	if ( !`optionVar -exists "maya2osg_texclamp"` ) 				optionVar -stringValue	"maya2osg_texclamp"					"COLOR" ;
 
 	if ( !`optionVar -exists "maya2osg_use_glsl"` ) 				optionVar -intValue		"maya2osg_use_glsl"					0 ;
-
+	if ( !`optionVar -exists "maya2osg_enable_bumpmapping"` ) 	optionVar -intValue		"maya2osg_enable_bumpmapping"		0 ;
+	
 	if ( !`optionVar -exists "maya2osg_global_ambient"` )
 		optionVar -floatValueAppend "maya2osg_global_ambient" 0.0 -floatValueAppend "maya2osg_global_ambient" 0.0 -floatValueAppend "maya2osg_global_ambient" 0.0 ;
 
@@ -105,7 +106,8 @@ proc string buildCommandOptions()
 
 	// GLSL SHADERS
 	$command += " -useGLSL "					+ `optionVar -query "maya2osg_use_glsl"` ;
-
+	$command += " -enableBumpMapping "		+ `optionVar -query "maya2osg_enable_bumpmapping"` ;
+	
 	return $command ;
 
 }
@@ -464,6 +466,10 @@ proc addFrameLayouts_optionMenu()
 			checkBox -label "" -height $line_height
 				-value ( `optionVar -query "maya2osg_use_glsl"` )
 				-changeCommand "optionVar -intValue \"maya2osg_use_glsl\" #1" ;
+			text -align "right" -label "Export Bumpmaps:" ;
+			checkBox -label "" -height $line_height
+				-value ( `optionVar -query "maya2osg_enable_bumpmapping"` )
+				-changeCommand "optionVar -intValue \"maya2osg_enable_bumpmapping\" #1" ;
 			setParent.. ;
 
 		setParent.. ;
@@ -627,6 +633,9 @@ proc addFrameLayouts_scrollList()
 			checkBox -label "Build GLSL shaders" -height $line_height
 				-value ( `optionVar -query "maya2osg_use_glsl"` )
 				-changeCommand "optionVar -intValue \"maya2osg_use_glsl\" #1" ;
+			checkBox -label "Enable Bumpmapping" -height $line_height
+				-value ( `optionVar -query "maya2osg_enable_bumpmapping"` )
+				-changeCommand "optionVar -intValue \"maya2osg_enable_bumpmapping\" #1" ;
 			setParent ..;
 		setParent ..;
 	buildFrameLayout( "Lighting" ) ;
