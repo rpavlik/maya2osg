@@ -66,7 +66,7 @@ ShadingNode::CodeBlock FileTexture::getCodeBlock( const std::string &plug_name )
         MPlugArray remote_plugs;
         Shader::getPlugConnectedFromChannel(_mayaShadingNode, plug_name, remote_plugs);
         bool is_bump = false;
-        bool bump_is_tangent_space = false;
+        bool convert_bump = false;
 		if ( Config::instance()->getEnableBumpMapping() ) {
 			for ( int i=0 ; !is_bump && i < remote_plugs.length() ; i++ ) {
 				std::string remote_plug_name = remote_plugs[i].partialName(false, false, false, false, false, true).asChar();
@@ -79,16 +79,17 @@ ShadingNode::CodeBlock FileTexture::getCodeBlock( const std::string &plug_name )
                     MFnDependencyNode bumpNode(remote_plugs[i].node());
                     MPlug plug_bumpInterp;
                     plug_bumpInterp = bumpNode.findPlug("bumpInterp");
+                    // bumpInterp values: 0 = Bump, 1 = Tangent Space Normals, 2 = Object Space Normals
                     int bumpInterp = 0;
                     plug_bumpInterp.getValue(bumpInterp);
-                    bump_is_tangent_space = (bumpInterp == 1);
+                    convert_bump = (bumpInterp == 0);       // Convert only if used as Bump
 
                     break;
                 }
 			}
 		}
         std::string filename_nm;
-        if ( is_bump && !bump_is_tangent_space) {
+        if ( is_bump && convert_bump) {
 	        MPlug plug_filename;
 	        MString texname;
 	        plug_filename = dn.findPlug("fileTextureName");
