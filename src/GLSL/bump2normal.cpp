@@ -166,6 +166,10 @@ std::string bump2Normal( const std::string &bump_map_file_name )
 
         std::cout << "Converting bump map \"" << bump_map_file_name << "\" to normal map \"" << normal_map_file_name << "\"" << std::endl;
         osg::ref_ptr<osg::Image> bump_map = osgDB::readImageFile( bump_map_file_name );
+		if ( !bump_map.valid() ) {
+			std::cerr << "ERROR. Could not load the bump map file in " << bump_map_file_name << std::endl;
+			return "";
+		}
         osg::ref_ptr<osg::Image> normal_map = new osg::Image();
         normal_map->allocateImage( bump_map->s(), bump_map->t(), bump_map->r(), GL_RGB, GL_UNSIGNED_BYTE );
 
