@@ -61,7 +61,7 @@ osg::ref_ptr<osg::Group> Shadows::createShadowGroup()
 				osgShadow::ShadowMap *sm = new osgShadow::ShadowMap();
 				sm->setTextureSize(osg::Vec2s(_resolution,_resolution));
 				// *** By now, only one light is supported
-				sm->setLight( _lightSources[0] );
+				sm->setLight( _lightSources[0].get() );
 				st = sm;
 			}
 			break;
@@ -71,7 +71,7 @@ osg::ref_ptr<osg::Group> Shadows::createShadowGroup()
 				osgShadow::SoftShadowMap *ssm = new osgShadow::SoftShadowMap();
 				ssm->setTextureSize(osg::Vec2s(_resolution,_resolution));
 				// *** By now, only one light is supported
-				ssm->setLight( _lightSources[0] );
+				ssm->setLight( _lightSources[0].get() );
 				st = ssm;
 			}
 			break;

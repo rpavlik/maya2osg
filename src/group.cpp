@@ -42,7 +42,7 @@ osg::ref_ptr<osg::Node> Group::exporta(MDagPath &dp)
 		// Emitters are subclasses of Transform
 		// We build the transform and then add the emitter as a child
 		osggroup = Transform::exporta(node);
-		osggroup->addChild( PointEmitter::exporta(node) );
+		osggroup->addChild( PointEmitter::exporta(node).get() );
 	}
 	else if( node.hasFn(MFn::kTransform) ){
 		osggroup = Transform::exporta(node);

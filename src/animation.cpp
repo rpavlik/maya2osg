@@ -208,7 +208,7 @@ void Animation::mapInputConnections( const MObject & mObject , osg::ref_ptr< osg
 	osg::ref_ptr< osgAnimation::UpdateMaterial > updateMaterial = new osgAnimation::UpdateMaterial ;
 
 	updateMaterial -> setName( callbackName ) ;
-	osgMaterial -> setUpdateCallback( updateMaterial ) ;
+	osgMaterial -> setUpdateCallback( updateMaterial.get() ) ;
 	osgMaterial -> setDataVariance( osg::Object::DYNAMIC ) ;
 	
 }

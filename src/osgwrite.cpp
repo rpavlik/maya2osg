@@ -461,14 +461,14 @@ MStatus OSGWrite::exporta( const MString & filename )
 	if ( Config::instance()->getComputeShadows() ) {
 		osg::ref_ptr<osg::Group> shadow_group = Shadows::createShadowGroup();
 		if ( shadow_group.valid() ) {
-			shadow_group->addChild( root );
+			shadow_group->addChild( root.get() );
 			root = shadow_group;
 		}
 	}
 
 	// If there are particle systems, attach the ParticleSystemUpdater
 	// at the end of the scene graph
-	root->addChild( Particle::getParticleSystemUpdater() );
+	root->addChild( Particle::getParticleSystemUpdater().get() );
 	// and bind created emitters to particle systems
 	PointEmitter::bindEmittersToParticles();
 

@@ -49,7 +49,7 @@ osg::ref_ptr<osg::Node> PointEmitter::exporta(MObject &obj)
 	MPlug rate = dnodefn.findPlug("rate");
 	osg::ref_ptr<osgParticle::ConstantRateCounter> counter = new osgParticle::ConstantRateCounter();
 	counter->setNumberOfParticlesPerSecondToCreate( rate.asDouble() );
-	emitter->setCounter( counter );
+	emitter->setCounter( counter.get() );
 
 	// Placer (initialize particle's position vector)
 
@@ -78,7 +78,7 @@ osg::ref_ptr<osg::Node> PointEmitter::exporta(MObject &obj)
 				osg::Matrix mat;
 				mat.makeRotate( osg::Vec3(0.0, 0.0, 1.0), direction );
 				trans_emitter->setMatrix( mat );
-				trans_emitter->addChild( emitter );
+				trans_emitter->addChild( emitter.get() );
 			}
 			break;
 		case 1:	// Omni
@@ -105,7 +105,7 @@ osg::ref_ptr<osg::Node> PointEmitter::exporta(MObject &obj)
 			break;
 	}
 	// InitialRotationalSpeed range *** TO-DO
-	emitter->setShooter( shooter );
+	emitter->setShooter( shooter.get() );
 
 	emitter->setName( dnodefn.name().asChar() );
 
@@ -134,7 +134,7 @@ osg::ref_ptr<osg::Node> PointEmitter::exporta(MObject &obj)
 			}
 		}
 	}
-	std::pair<osgParticle::ModularEmitter *, std::vector<std::string> > pair ( emitter, particle_systems_names );
+	std::pair<osgParticle::ModularEmitter *, std::vector<std::string> > pair ( emitter.get(), particle_systems_names );
 	_emittersParticles.push_back( pair );
 
 	if ( trans_emitter.valid() )
@@ -153,14 +153,14 @@ osg::ref_ptr<osg::Node> PointEmitter::exporta(MObject &obj)
 void PointEmitter::bindEmittersToParticles()
 {
 	for( int e=0 ; e < _emittersParticles.size() ; e++ ) {
-		osgParticle::ModularEmitter *em = _emittersParticles[e].first;
+		osgParticle::ModularEmitter *em = _emittersParticles[e].first.get();
 		for( int p=0 ; p < _emittersParticles[e].second.size() ; p++ ) {
 			std::string ps_name = _emittersParticles[e].second[p];
 			if ( Particle::_psMap.find(ps_name) == Particle::_psMap.end() ) {
 				std::cerr << "ERROR: Particle object " << ps_name << " not found" << std::endl;
 				continue;
 			}
-			osgParticle::ParticleSystem *ps = Particle::_psMap[ps_name];
+			osgParticle::ParticleSystem *ps = Particle::_psMap[ps_name].get();
 			std::cout << "Binding particle '" << ps_name << "' to emitter " << em->getName() << std::endl;
 			em->setParticleSystem( ps );
 		}

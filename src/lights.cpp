@@ -63,7 +63,7 @@ void Lights::configureStateSet(osg::ref_ptr<osg::StateSet> ss)
 	if( _lights.size() > 0 )
 	{
 		ss->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-		ss->setAttribute( getDefaultLightModel() );
+		ss->setAttribute( getDefaultLightModel().get() );
 
 		for(int i=0; i < _lights.size(); i++){
 			ss->setMode(GL_LIGHT0+i, osg::StateAttribute::ON);

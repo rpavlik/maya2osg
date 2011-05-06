@@ -71,7 +71,7 @@ ShadingNode *ShadingNodeFactory::build( const MObject &node, ShadingNetwork &sha
     }
 
     if ( sn.valid() ) {
-        shading_network.registerShadingNode( sn, node_name );
+        shading_network.registerShadingNode( sn.get(), node_name );
     }
 
     return sn.get();

@@ -43,14 +43,14 @@ osg::ref_ptr<osg::Node> Particle::exporta(MObject &obj)
 
 	osg::ref_ptr<osg::Geode> geode = new osg::Geode();
 	osg::ref_ptr<osgParticle::ParticleSystem> particle_system = new osgParticle::ParticleSystem();
-	geode->addDrawable( particle_system );
+	geode->addDrawable( particle_system.get() );
 
 	particle_system->setDefaultAttributes( "", true, false );	// *** TAKE THESE PARAMETERS FROM CONFIG
 
 	if ( !_updater.valid() ) {
 		_updater = new osgParticle::ParticleSystemUpdater();
 	}
-	_updater->addParticleSystem( particle_system );
+	_updater->addParticleSystem( particle_system.get() );
 
 	osgParticle::Particle particle;
 

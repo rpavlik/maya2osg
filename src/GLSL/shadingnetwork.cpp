@@ -136,7 +136,7 @@ ShadingNetwork::ShadingNetwork( const MObject &shading_network, TexturingConfig 
 	_stateSet.addUniform( new osg::Uniform("LocalViewer", Config::instance()->getLocalViewer()) );
 
 	// Uniform: NumEnabledLights
-	_stateSet.addUniform( Lights::getUniformNumEnabledLights() );
+	_stateSet.addUniform( Lights::getUniformNumEnabledLights().get() );
 
 	// Check if there is transparency to activate the blending in the StateSet
 	if( _surfaceShader->hasTransparency() ){
