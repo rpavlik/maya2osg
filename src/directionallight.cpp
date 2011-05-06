@@ -55,6 +55,7 @@ osg::ref_ptr<osg::Node> DirectionalLight::exporta(MObject &obj)
 		light->setSpecular(osg::Vec4(0,0,0,1));
 
 	osg::ref_ptr<osg::LightSource> light_source = Lights::registerLight(light);
+    light_source->getLight()->setName(mlight.name().asChar());
 
 	// Shadow casting
 	if ( Config::instance()->getComputeShadows() ) {

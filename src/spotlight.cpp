@@ -92,6 +92,7 @@ osg::ref_ptr<osg::Node> SpotLight::exporta(MObject &obj)
 	light->setSpotExponent( mslight.dropOff() );
 
 	osg::ref_ptr<osg::LightSource> light_source = Lights::registerLight(light);
+    light_source->getLight()->setName(mslight.name().asChar());
 
 	// Shadow casting
 	if ( Config::instance()->getComputeShadows() ) {

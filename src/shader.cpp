@@ -26,6 +26,7 @@
 #include <maya/MFnDependencyNode.h>
 #include <maya/MFnLambertShader.h>
 #include <maya/MFnPhongShader.h>
+#include <maya/MFnBlinnShader.h>
 #include <maya/MColor.h>
 #include <maya/MPlug.h>
 #include <maya/MPlugArray.h>
@@ -113,6 +114,13 @@ osg::ref_ptr<osg::Material> Shader::material(const MObject &surface_shader, bool
 		material->setDiffuse(osg::Material::FRONT_AND_BACK,
 			osg::Vec4(color.r*dc, color.g*dc, color.b*dc, opacity));
 
+        // NOTE: This factor was empirically estimated to approximate Maya highlights to OpenGL highlights
+        static const float PHONG_COSPOWER_FACTOR = 4.0;
+        // NOTE: These factors were empirically estimated to convert a blinn eccentricity to a phong cosPower
+        static const float BLINN_ECCENTRICITY_POW_FACTOR_1 = 0.5;
+        static const float BLINN_ECCENTRICITY_POW_FACTOR_2 = 7.0;
+        static const float BLINN_ECCENTRICITY_MULT_FACTOR = 457.0;
+
         if(surface_shader.hasFn(MFn::kPhong)){
 			MFnPhongShader phong(surface_shader);
 			// Specular
@@ -120,10 +128,24 @@ osg::ref_ptr<osg::Material> Shader::material(const MObject &surface_shader, bool
 			material->setSpecular(osg::Material::FRONT_AND_BACK,
 				osg::Vec4(spec.r, spec.g, spec.b, opacity));
 			// Shininess
-            // NOTE: This factor was empirically estimated to approximate Maya highlights to OpenGL highlights
-#define CP_FACTOR 4.0   
-    		material->setShininess(osg::Material::FRONT_AND_BACK, phong.cosPower() * CP_FACTOR);
+    		material->setShininess(osg::Material::FRONT_AND_BACK, phong.cosPower() * PHONG_COSPOWER_FACTOR);
 		}
+        else if(surface_shader.hasFn(MFn::kBlinn)){
+            // Blinn resembles Phong.
+            // - Eccentricity seems to be similar to phong's cosPower, 
+            //   with eccentricity=0.2 looking roughly the same as cosPower=20.
+            // - Specular rolloff seems to scale the brightness of the 
+            //   highlight, so we can scale the color with it.
+			MFnBlinnShader blinn(surface_shader);
+			// Specular
+			MColor spec = blinn.specularColor();
+            float scale = blinn.specularRollOff();
+			material->setSpecular(osg::Material::FRONT_AND_BACK,
+				osg::Vec4(spec.r * scale, spec.g * scale, spec.b * scale, opacity));
+			// Shininess
+            float shininess = pow( exp(- pow(blinn.eccentricity(), BLINN_ECCENTRICITY_POW_FACTOR_1)), BLINN_ECCENTRICITY_POW_FACTOR_2) * BLINN_ECCENTRICITY_MULT_FACTOR;
+            material->setShininess(osg::Material::FRONT_AND_BACK, shininess * PHONG_COSPOWER_FACTOR);
+        }
 
 		// Color Mode
 		material->setColorMode(osg::Material::OFF);

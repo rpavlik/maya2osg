@@ -45,7 +45,8 @@ ShadingNode *ShadingNodeFactory::build( const MObject &node, ShadingNetwork &sha
         return sn.get();
     }
 
-    if ( node.hasFn( MFn::kPhong ) ) {
+    // Once the shininess factor has been converted (see shader.cpp), Blinn can be shaded like Phong.
+    if ( node.hasFn( MFn::kPhong ) || node.hasFn( MFn::kBlinn ) ) {
         sn = new Phong( node, shading_network );
     }
     else if ( node.hasFn( MFn::kLambert ) ) {

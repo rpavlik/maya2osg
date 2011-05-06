@@ -86,6 +86,7 @@ osg::ref_ptr<osg::Node> PointLight::exporta(MObject &obj)
 	}
 
 	osg::ref_ptr<osg::LightSource> light_source = Lights::registerLight(light);
+    light_source->getLight()->setName(mlight.name().asChar());
 
 	// Shadow casting
 	if ( Config::instance()->getComputeShadows() ) {
