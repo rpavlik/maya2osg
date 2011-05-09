@@ -174,6 +174,9 @@ SET ( SOURCE_FILES
 		src/GLSL/texturingconfig.h
 	)
 
+SOURCE_GROUP( "Source files\\GLSL" REGULAR_EXPRESSION src/GLSL/.*.cpp$ )
+SOURCE_GROUP( "Header files\\GLSL" REGULAR_EXPRESSION src/GLSL/.*.h$ )
+    
 SET( MAYASDK_LIBRARIES "Foundation.lib" "OpenMaya.lib" "OpenMayaAnim.lib" "OpenMayaFX.lib" "OpenMayaRender.lib" )
 
 INCLUDE_DIRECTORIES ( ${PUBLIC_INCLUDE_DIRS} ${MAYA_HEADERS_DIR} ${OPENSCENEGRAPH_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR})
