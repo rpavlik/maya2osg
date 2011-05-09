@@ -146,6 +146,8 @@ SET ( SOURCE_FILES
 		src/transform.cpp
 		src/transform.h
 		src/utility.h
+		src/GLSL/blinn.cpp
+		src/GLSL/blinn.h
 		src/GLSL/bump2d.cpp
 		src/GLSL/bump2d.h
 		src/GLSL/bump2normal.cpp

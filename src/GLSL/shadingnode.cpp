@@ -46,6 +46,11 @@ bool ShadingNode::variableIsAvailable( const std::string &variable_name )
 }
 
 
+// TODO: For an unknown reason, if this part of the code is compiled with 
+// optimization enabled, it makes the plugin crash Maya. I couldn't find the
+// reason for this. For now optimization is disabled.
+#pragma optimize( "", off )
+
 /**
  *  Get the plug info for a channel of this Shading Node
  */
@@ -68,6 +73,9 @@ ShadingNode::Plug ShadingNode::getPlug(const std::string &channel)
     }
     return plug;
 }
+
+// Re-enable optimization for the rest of the file.
+#pragma optimize( "", on )
 
 
 /**

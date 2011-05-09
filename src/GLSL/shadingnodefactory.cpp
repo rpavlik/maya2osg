@@ -25,6 +25,7 @@
 // This should use clonation and autoregistering of shading nodes to the factory
 #include "lambert.h"
 #include "phong.h"
+#include "blinn.h"
 #include "flatshader.h"
 
 #include "filetexture.h"
@@ -45,9 +46,11 @@ ShadingNode *ShadingNodeFactory::build( const MObject &node, ShadingNetwork &sha
         return sn.get();
     }
 
-    // Once the shininess factor has been converted (see shader.cpp), Blinn can be shaded like Phong.
-    if ( node.hasFn( MFn::kPhong ) || node.hasFn( MFn::kBlinn ) ) {
+    if ( node.hasFn( MFn::kPhong ) ) {
         sn = new Phong( node, shading_network );
+    }
+    else if ( node.hasFn( MFn::kBlinn ) ) {
+        sn = new Blinn( node, shading_network );
     }
     else if ( node.hasFn( MFn::kLambert ) ) {
         sn = new Lambert( node, shading_network );

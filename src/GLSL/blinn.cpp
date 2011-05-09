@@ -18,7 +18,7 @@
     along with Maya2OSG.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "phong.h"
+#include "blinn.h"
 #include "glslutils.h"
 #include "shadingnetwork.h"
 #include "../common.h"
@@ -32,7 +32,7 @@
 /**
  *  Constructor
  */
-Phong::Phong( const MObject &shading_node, ShadingNetwork &shading_network ) :
+Blinn::Blinn( const MObject &shading_node, ShadingNetwork &shading_network ) :
     SurfaceShader( shading_node, shading_network ) 
 {
 }
@@ -41,15 +41,15 @@ Phong::Phong( const MObject &shading_node, ShadingNetwork &shading_network ) :
 /**
  *  Get the GLSL Codeblock for a plug
  */
-ShadingNode::CodeBlock Phong::getCodeBlock( const std::string &plug_name )
+ShadingNode::CodeBlock Blinn::getCodeBlock( const std::string &plug_name )
 {
     // Build the GLSL code ...
     CodeBlock code_block;
 
     std::string variable_name;
     MFnDependencyNode dn(_mayaShadingNode);
-    std::string maya_phong_shader_name = dn.name().asChar();
-    hygienizeName( maya_phong_shader_name );
+    std::string maya_blinn_shader_name = dn.name().asChar();
+    hygienizeName( maya_blinn_shader_name );
 
     // Check plug name and avoid duplicating code
 
@@ -57,12 +57,12 @@ ShadingNode::CodeBlock Phong::getCodeBlock( const std::string &plug_name )
          plug_name == "outColor" || 
          plug_name == "outTransparency" ) 
     {
-        variable_name = "sn_phong_" + maya_phong_shader_name + "_output";
+        variable_name = "sn_blinn_" + maya_blinn_shader_name + "_output";
         // Both color and transparency are stored in "color" variable.
         // if it is already declared, we omit all the GLSL code
         if ( !variableIsAvailable(variable_name) ) {
 
-            // Supported Phong input channels
+            // Supported Blinn input channels
 
             // Color (diffuse)
             Plug plug_color = getPlug("color");
@@ -79,8 +79,10 @@ ShadingNode::CodeBlock Phong::getCodeBlock( const std::string &plug_name )
             }
             // Diffuse (scalar)
             Plug plug_diffuse = getPlug("diffuse");
-            // Cosine Power
-            Plug plug_cos_power = getPlug("cosinePower");
+            // Eccentricity
+            Plug plug_eccentricity = getPlug("eccentricity");
+            // Specular Rolloff
+            Plug plug_specular_rolloff = getPlug("specularRollOff");
             // Specular Color
             Plug plug_specular_color = getPlug("specularColor");
 
@@ -92,7 +94,8 @@ ShadingNode::CodeBlock Phong::getCodeBlock( const std::string &plug_name )
                                       plug_incandescence.codeBlock.declarations +
                                       plug_normal_camera.codeBlock.declarations +
                                       plug_diffuse.codeBlock.declarations + 
-                                      plug_cos_power.codeBlock.declarations +
+                                      plug_eccentricity.codeBlock.declarations +
+                                      plug_specular_rolloff.codeBlock.declarations +
                                       plug_specular_color.codeBlock.declarations;
 
             code_block.functions = plug_color.codeBlock.functions +
@@ -101,7 +104,8 @@ ShadingNode::CodeBlock Phong::getCodeBlock( const std::string &plug_name )
                                    plug_incandescence.codeBlock.functions +
                                    plug_normal_camera.codeBlock.functions +
                                    plug_diffuse.codeBlock.functions +
-                                   plug_cos_power.codeBlock.functions +
+                                   plug_eccentricity.codeBlock.functions +
+                                   plug_specular_rolloff.codeBlock.functions +
                                    plug_specular_color.codeBlock.functions +
                                    getDirectionalLightFunction() +
                                    getPointLightFunction() +
@@ -113,7 +117,8 @@ ShadingNode::CodeBlock Phong::getCodeBlock( const std::string &plug_name )
                                      plug_incandescence.codeBlock.computeCode +
                                      plug_normal_camera.codeBlock.computeCode +
                                      plug_diffuse.codeBlock.computeCode +
-                                     plug_cos_power.codeBlock.computeCode +
+                                     plug_eccentricity.codeBlock.computeCode +
+                                     plug_specular_rolloff.codeBlock.computeCode +
                                      plug_specular_color.codeBlock.computeCode +
 "\n" +
             GLSLUtils::backFaceCulling(_shadingNetwork.getStateSet());
@@ -318,7 +323,7 @@ ShadingNode::CodeBlock Phong::getCodeBlock( const std::string &plug_name )
 /**
  *    GLSL function for computing the contribution of a directional light
  */
-std::string Phong::getDirectionalLightFunction()
+std::string Blinn::getDirectionalLightFunction()
 {
     std::string shader_src =
 "void DirectionalLight(in vec3 normal,\n"
@@ -358,7 +363,7 @@ std::string Phong::getDirectionalLightFunction()
 /**
  *    GLSL function for computing the contribution of a point light
  */
-std::string Phong::getPointLightFunction()
+std::string Blinn::getPointLightFunction()
 {
     std::string shader_src = 
 "void PointLight(in vec3 surfacePos,\n"
@@ -416,7 +421,7 @@ std::string Phong::getPointLightFunction()
 /**
  *    GLSL function for computing the contribution of a spot light
  */
-std::string Phong::getSpotLightFunction()
+std::string Blinn::getSpotLightFunction()
 {
     std::string shader_src = 
 "void SpotLight(in vec3 surfacePos,\n"
